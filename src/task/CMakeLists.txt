@@ -1,21 +1,16 @@
-cmake_minimum_required(VERSION 3.10)
 project(task_lib)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-
-set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+set(PROJ_DIR ${CMAKE_SOURCE_DIR}/..)
+set(3RD_DIR ${PROJ_DIR}/3rd_party)
+set(SRC_DIR ${PROJ_DIR}/src)
 set(INC_DIR ${SRC_DIR}/include)
-set(3RD_DIR ${SRC_DIR}/3rd_party)
 set(COMMON_DIR ${SRC_DIR}/common)
 set(BSP_DIR ${SRC_DIR}/bsp)
-# todo: delete after refactor
 set(CONTROL_DIR ${SRC_DIR}/control)
 set(CAR_DIR ${CONTROL_DIR}/car)
 set(PID_DIR ${CONTROL_DIR}/pid)
 set(TASK_DIR ${SRC_DIR}/task)
 set(CARTASK_DIR ${TASK_DIR}/cartask)
-
-set(INC_BSP_DIR ${INC_DIR}/bsp)
 
 set(ALIENTEK_DIR ${3RD_DIR}/alientek)
 set(AT_SYS_DIR ${ALIENTEK_DIR}/system/sys)
