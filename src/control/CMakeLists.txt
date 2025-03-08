@@ -16,6 +16,7 @@ set(LED_DIR ${BSP_DIR}/led)
 set(REDWIRE_DIR ${BSP_DIR}/redwire)
 set(TB6612_DIR ${BSP_DIR}/tb6612)
 set(TIMER_DIR ${BSP_DIR}/timer)
+set(USART_DIR ${BSP_DIR}/usart)
 set(WIRELESS_DIR ${BSP_DIR}/wireless)
 
 set(CAR_DIR ${CONTROL_DIR}/car)
@@ -24,13 +25,13 @@ set(PID_DIR ${CONTROL_DIR}/pid)
 set(ALIENTEK_DIR ${3RD_DIR}/alientek)
 set(AT_SYS_DIR ${ALIENTEK_DIR}/system/sys)
 set(AT_DELAY_DIR ${ALIENTEK_DIR}/system/delay)
-set(AT_USART_DIR ${ALIENTEK_DIR}/system/usart)
 set(AT_USMART_DIR ${ALIENTEK_DIR}/usmart)
 
 include_directories(
-    ${K210_DIR} ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR} ${WIRELESS_DIR}
+    ${K210_DIR} ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR}
+    ${USART_DIR} ${WIRELESS_DIR}
     ${CAR_DIR} ${PID_DIR} ${CARTASK_DIR}
-    ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USART_DIR} ${AT_USMART_DIR})
+    ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR})
 
 file(GLOB_RECURSE CONTROL_SRCS "${CONTROL_DIR}/*.c")
 add_library(control_lib STATIC ${CONTROL_SRCS})

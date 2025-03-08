@@ -15,12 +15,11 @@ set(CARTASK_DIR ${TASK_DIR}/cartask)
 set(ALIENTEK_DIR ${3RD_DIR}/alientek)
 set(AT_SYS_DIR ${ALIENTEK_DIR}/system/sys)
 set(AT_DELAY_DIR ${ALIENTEK_DIR}/system/delay)
-set(AT_USART_DIR ${ALIENTEK_DIR}/system/usart)
 set(AT_USMART_DIR ${ALIENTEK_DIR}/usmart)
 
-include_directories(${COMMON_DIR}
+include_directories(
     ${CAR_DIR} ${PID_DIR} ${CARTASK_DIR}
-    ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USART_DIR} ${AT_USMART_DIR})
+    ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR})
 
 file(GLOB_RECURSE TASK_SRCS "${TASK_DIR}/*.c")
 add_library(task_lib STATIC ${TASK_SRCS})

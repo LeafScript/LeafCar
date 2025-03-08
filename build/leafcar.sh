@@ -1,25 +1,29 @@
 #!/bin/bash
 
 show_help() {
-    echo "Usage: $0 [options] <command>"
+    echo "Usage: $0 <command> [options]"
     echo ""
-    echo "Options:"
+    echo "command & options:"
     echo "  -h, --help          Show this help message and exit."
-    echo ""
-    echo "Commands:"
-    echo "  build              Build project."
-    echo "  clean              Clean project."
-    echo "  llt                Run LLT."
-    echo "  hlt                Run HLT."
+    echo "  build               Build project."
+    echo "  clean               Clean project."
+    echo "  test -b, --board [dir]  Build test project for specified board."
 }
 
 command=""
+test_mode=""
+board_name=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
             show_help
             exit 0
+            ;;
+        -b|--board)
+            test_mode="board"
+            board_name="$2"
+            shift
             ;;
         *)
             command="$1"
@@ -37,11 +41,9 @@ case $command in
         echo "===== Cleaning project ====="
         ./clean.sh
         ;;
-    llt)
-        echo "===== Running LLT ====="
-        ;;
-    hlt)
-        echo "===== Running HLT: [$demo_name] ====="
+    test)
+        echo "===== Running Test ====="
+        ./test.sh $test_mode $board_name
         ;;
     *)
         echo "Unknown command: '$command'"
