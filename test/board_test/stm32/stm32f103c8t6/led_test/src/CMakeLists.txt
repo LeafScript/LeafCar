@@ -9,7 +9,7 @@ set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -g -mcpu=cortex-m3 -mthumb")
 
 add_definitions(-DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER)
 
-set(PROJ_DIR ${CMAKE_SOURCE_DIR}/../../../../..)
+set(PROJ_DIR ${CMAKE_SOURCE_DIR}/../../../../../..)
 set(3RD_DIR ${PROJ_DIR}/3rd_party)
 set(SRC_DIR ${CMAKE_SOURCE_DIR})
 set(CMAKE_EXE_LINKER_FLAGS "-T ${SRC_DIR}/STM32F103C8TX_FLASH.ld -g")

@@ -7,12 +7,15 @@ show_help() {
     echo "  -h, --help          Show this help message and exit."
     echo "  build               Build project."
     echo "  clean               Clean project."
-    echo "  test -b, --board [dir]  Build test project for specified board."
+    echo "  test                Test project."
+    echo "    -b, --board [dir]  Build test project for specified board."
+    echo "    -c, --case [case]  Choose test case."
 }
 
 command=""
 test_mode=""
 board_name=""
+test_case=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -23,6 +26,10 @@ while [[ $# -gt 0 ]]; do
         -b|--board)
             test_mode="board"
             board_name="$2"
+            shift
+            ;;
+        -c|--case)
+            test_case="$2"
             shift
             ;;
         *)
@@ -39,11 +46,11 @@ case $command in
         ;;
     clean)
         echo "===== Cleaning project ====="
-        ./clean.sh
+        ./clean.sh $test_mode $board_name $test_case
         ;;
     test)
         echo "===== Running Test ====="
-        ./test.sh $test_mode $board_name
+        ./test.sh $test_mode $board_name $test_case
         ;;
     *)
         echo "Unknown command: '$command'"
