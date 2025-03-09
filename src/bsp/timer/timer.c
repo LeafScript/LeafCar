@@ -1,7 +1,6 @@
 #include "timer.h"
 #include "usmart.h"
 #include "car.h"
-#include <stdio.h>
 #include "led.h"
 #include "cartask.h"
 

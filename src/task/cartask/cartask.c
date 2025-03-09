@@ -8,7 +8,7 @@
 #include "test_task.h"
 
 //小车执行任务
-uint8_t carTask = 1;
+uint8_t carTask = 5;
 
 void Car_SetTask()
 {
