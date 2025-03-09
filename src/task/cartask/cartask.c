@@ -5,6 +5,7 @@
 #include "task1.h"
 #include "task2.h"
 #include "work1.h"
+#include "test_task.h"
 
 //小车执行任务
 uint8_t carTask = 1;
@@ -21,7 +22,7 @@ void CarTask_Scan()
 		case 2: Redwire_isFull(); break;
 		case 3: Task2_Scan(); break;
 		case 4: Work1_Scan(); break;
-		case 5:  break;
+		case 5: TestTask_Scan(); break;
 		case 6:  break;
 		case 7:  break;
 		default: break;
