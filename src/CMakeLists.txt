@@ -48,7 +48,7 @@ set(ST_SPL_INC_DIR ${ST_DIR}/cmsis/spl/inc)
 set(ST_USER_DIR ${ST_DIR}/user_templete)
 set(ST_USER_STM32F10X_DIR ${ST_USER_DIR}/stm32f10x)
 
-include_directories(${DEBUG_DIR} ${INC_DIR} ${TASK_DIR}
+include_directories(${COMMON_DIR} ${DEBUG_DIR} ${INC_DIR} ${TASK_DIR}
     ${K210_DIR} ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR}
     ${USART_DIR} ${WIRELESS_DIR}
     ${CAR_DIR} ${CARARM_DIR} ${CARTASK_DIR}

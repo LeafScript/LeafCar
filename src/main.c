@@ -71,29 +71,41 @@ extern int8_t carOffset;
 //接收线的"斜率"
 extern int8_t line_k;
 
-int main(void)
+static void board_init(void)
 {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);		//配置中断优先级
-	usmart_dev.init(72);
+
 	USART1_Init(115200);
 	USART3_Init(9600);
 	UART4_Init(9600);
 	UART5_Init(9600);
-	
-	delay_init();
-	
+
 	LED_Init();
 	Carled_Init();
 	Redwire_Init();
+}
+
+static void service_init(void)
+{
+	usmart_dev.init(72);
+	delay_init();
 	Car_Init();
 	Arm_Init();
-	
-	/* 定时器中断初始化 */
-	TIM6_Int_Init(9999, 71);	//100Hz	-  10ms定时
-	TIM7_Int_Init(19999, 71);	//50Hz
-	/* TB6612的PWM初始化 */
-	TIM2_Pwm_Init(3599, 1);		//20kHz  占空比控制电机速度
-	
+	timer_service_init();
+	timer_service_register(TIMER_SERV_TIM6, Car_Scan);
+	timer_service_register(TIMER_SERV_TIM7, usmart_dev.scan);
+}
+
+static void service_start(void)
+{
+	timer_service_start();
+}
+
+int main(void)
+{
+	board_init();
+	service_init();
+	service_start();
 	while(1)
 	{
 		CarTask_Scan();

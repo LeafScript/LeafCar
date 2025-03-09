@@ -7,9 +7,6 @@ set(INC_DIR ${SRC_DIR}/include)
 set(COMMON_DIR ${SRC_DIR}/common)
 set(BSP_DIR ${SRC_DIR}/bsp)
 set(CONTROL_DIR ${SRC_DIR}/control)
-# todo: delete after refactor
-set(TASK_DIR ${SRC_DIR}/task)
-set(CARTASK_DIR ${TASK_DIR}/cartask)
 
 set(K210_DIR ${BSP_DIR}/k210)
 set(LED_DIR ${BSP_DIR}/led)
@@ -27,10 +24,10 @@ set(AT_SYS_DIR ${ALIENTEK_DIR}/system/sys)
 set(AT_DELAY_DIR ${ALIENTEK_DIR}/system/delay)
 set(AT_USMART_DIR ${ALIENTEK_DIR}/usmart)
 
-include_directories(
+include_directories(${COMMON_DIR}
     ${K210_DIR} ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR}
     ${USART_DIR} ${WIRELESS_DIR}
-    ${CAR_DIR} ${PID_DIR} ${CARTASK_DIR}
+    ${CAR_DIR} ${PID_DIR}
     ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR})
 
 file(GLOB_RECURSE CONTROL_SRCS "${CONTROL_DIR}/*.c")

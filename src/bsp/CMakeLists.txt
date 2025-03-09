@@ -6,11 +6,6 @@ set(SRC_DIR ${PROJ_DIR}/src)
 set(INC_DIR ${SRC_DIR}/include)
 set(COMMON_DIR ${SRC_DIR}/common)
 set(BSP_DIR ${SRC_DIR}/bsp)
-# todo: delete after refactor
-set(CONTROL_DIR ${SRC_DIR}/control)
-set(CAR_DIR ${CONTROL_DIR}/car)
-set(TASK_DIR ${SRC_DIR}/task)
-set(CARTASK_DIR ${TASK_DIR}/cartask)
 
 set(K210_DIR ${BSP_DIR}/k210)
 set(LED_DIR ${BSP_DIR}/led)
@@ -34,10 +29,9 @@ set(ST_SPL_INC_DIR ${ST_DIR}/cmsis/spl/inc)
 set(ST_USER_DIR ${ST_DIR}/user_templete)
 set(ST_USER_STM32F10X_DIR ${ST_USER_DIR}/stm32f10x)
 
-include_directories(
+include_directories(${COMMON_DIR}
     ${K210_DIR} ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR}
     ${USART_DIR} ${WIRELESS_DIR}
-    ${CAR_DIR} ${CARTASK_DIR}
     ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR}
     ${CM3_DIR} ${ST_CMSIS_CORE_DIR} ${ST_SPL_INC_DIR} ${ST_USER_STM32F10X_DIR})
 

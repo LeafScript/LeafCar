@@ -1,8 +1,8 @@
 #include "timer.h"
-#include "usmart.h"
-#include "car.h"
-#include "led.h"
-#include "cartask.h"
+#include "stm32f10x_tim.h"
+#include "misc.h"
+#include "stm32f10x_rcc.h"
+#include "stm32f10x.h"
 
 /*****************************定时器分配**********************************/
 //	TIM3 TIM8 TIM1 TIM4: TB6612编码器计数
@@ -20,31 +20,55 @@
 /*********************************定时器中断***************************************/
 
 /* 通用定时器6中断初始化，做扫描 */
-//arr：自动重装值。
-//psc：时钟预分频数
 void TIM6_Int_Init(u16 arr, u16 psc)
 {
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
+	TIM_TimeBaseInitTypeDef timer_init = { psc, TIM_CounterMode_Up, arr, TIM_CKD_DIV1, 0 };
+	NVIC_InitTypeDef nvic_init = { TIM6_IRQn, 1, 1, ENABLE };
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
-	
-	TIM_TimeBaseInitStructure.TIM_ClockDivision=TIM_CKD_DIV1;			//不分频
-	TIM_TimeBaseInitStructure.TIM_CounterMode=TIM_CounterMode_Up;		//向上计数
-	TIM_TimeBaseInitStructure.TIM_Period=arr;							//重装载值
-	TIM_TimeBaseInitStructure.TIM_Prescaler=psc;						//预分频值
-	TIM_TimeBaseInit(TIM6, &TIM_TimeBaseInitStructure);
-	
+	TIM_TimeBaseInit(TIM6, &timer_init);
 	TIM_ITConfig(TIM6, TIM_IT_Update, ENABLE);
+	NVIC_Init(&nvic_init);
+}
+
+/* 通用定时器7中断初始化，做扫描 */
+void TIM7_Int_Init(u16 arr, u16 psc)
+{
+	TIM_TimeBaseInitTypeDef timer_init = { psc, TIM_CounterMode_Up, arr, TIM_CKD_DIV1, 0 };
+	NVIC_InitTypeDef nvic_init = { TIM7_IRQn, 3, 1, ENABLE };
 	
-	//TIM6 1:1
-	NVIC_InitStructure.NVIC_IRQChannel=TIM6_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority=1;
-	NVIC_Init(&NVIC_InitStructure);
-	
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE);
+	TIM_TimeBaseInit(TIM7, &timer_init);
+	TIM_ITConfig(TIM7, TIM_IT_Update, ENABLE);
+	NVIC_Init(&nvic_init);
+}
+
+void timer_service_init(void)
+{
+	TIM6_Int_Init(9999, 71);	//100Hz	-  10ms定时
+	TIM7_Int_Init(19999, 71);	//50Hz	-  20ms定时
+}
+
+void timer_service_start(void)
+{
 	TIM_Cmd(TIM6, ENABLE);
+	TIM_Cmd(TIM7, ENABLE);
+}
+
+void timer_service_stop(void)
+{
+	TIM_Cmd(TIM6, DISABLE);
+	TIM_Cmd(TIM7, DISABLE);
+}
+
+static timer_serv_func g_serv_func[2] = { NULL, NULL };
+
+void timer_service_register(uint8_t timx, timer_serv_func func)
+{
+	if (timx >= TIMER_SERV_MAX) {
+		return;
+	}
+	g_serv_func[timx] = func;
 }
 
 /* 定时器6中断服务函数 */
@@ -53,39 +77,10 @@ void TIM6_IRQHandler(void)
 	if(TIM_GetITStatus(TIM6, TIM_IT_Update) == SET)	//TIM6更新中断已发生
 	{
 		TIM_ClearITPendingBit(TIM6, TIM_IT_Update);
-
-//		LED_Scan();
-//		Key_Scan();
-		Car_Scan();
+		if (g_serv_func[TIMER_SERV_TIM6] != NULL) {
+			g_serv_func[TIMER_SERV_TIM6]();
+		}
 	}
-}
-
-/* 通用定时器7中断初始化，做扫描 */
-//arr：自动重装值。
-//psc：时钟预分频数
-void TIM7_Int_Init(u16 arr, u16 psc)
-{
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
-	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE);
-	
-	TIM_TimeBaseInitStructure.TIM_ClockDivision=TIM_CKD_DIV1;			//不分频
-	TIM_TimeBaseInitStructure.TIM_CounterMode=TIM_CounterMode_Up;		//向上计数
-	TIM_TimeBaseInitStructure.TIM_Period=arr;							//重装载值
-	TIM_TimeBaseInitStructure.TIM_Prescaler=psc;						//预分频值
-	TIM_TimeBaseInit(TIM7, &TIM_TimeBaseInitStructure);
-	
-	TIM_ITConfig(TIM7, TIM_IT_Update, ENABLE);
-	
-	//TIM7 3:1
-	NVIC_InitStructure.NVIC_IRQChannel=TIM7_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=3;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority=1;
-	NVIC_Init(&NVIC_InitStructure);
-	
-	TIM_Cmd(TIM7, ENABLE);
 }
 
 /* 定时器7中断服务函数 */
@@ -94,208 +89,117 @@ void TIM7_IRQHandler(void)
 	if(TIM_GetITStatus(TIM7, TIM_IT_Update) == SET)	//TIM7更新中断已发生
 	{
 		TIM_ClearITPendingBit(TIM7, TIM_IT_Update);
-
-		usmart_dev.scan();	//执行usmart扫描
-//		CarTask_Scan();
+		if (g_serv_func[TIMER_SERV_TIM7] != NULL) {
+			g_serv_func[TIMER_SERV_TIM7]();
+		}
 	}
 }
 
 /**********************************PWM***************************************/
-
 /* TIM2 PWM 初始化 */
-//arr:自动重装载值	ARR寄存器，控制周期
-//psc:时钟预分频数	
 //PWM输出:		PA15	TIM2_CH1		FL
 //			  	PB3		TIM2_CH2		FR
 //				PA2		TIM2_CH3        BL
 //				PA3		TIM2_CH4        BR
-void TIM2_Pwm_Init(u16 arr, u16 psc)
+void timer_pwm_init(uint16_t arr, uint16_t psc)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
-	TIM_OCInitTypeDef TIM_OCInitStructure;
+	TIM_TimeBaseInitTypeDef timer_init = { psc, TIM_CounterMode_Up, arr, TIM_CKD_DIV1, 0 };
+	TIM_OCInitTypeDef timer_oc_init = {
+		.TIM_OCMode = TIM_OCMode_PWM1,
+		.TIM_OutputState = TIM_OutputState_Enable,
+		.TIM_OCPolarity = TIM_OCPolarity_High,
+	};
+	GPIO_InitTypeDef gpio_init;
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);		//使能AFIO时钟 
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB, ENABLE);
 	
 	GPIO_PinRemapConfig(GPIO_PartialRemap1_TIM2, ENABLE);	//TIM2完全重映射
-	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable,ENABLE);	//禁止JTAG,从而PA15可以做普通IO使用,否则PA15不能做普通IO!!!
-		
-	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_AF_PP;										//复用推挽输出
-	GPIO_InitStructure.GPIO_Pin=GPIO_Pin_15 | GPIO_Pin_2 | GPIO_Pin_3;					//PA15|PA2|PA3
-	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);	//禁止JTAG,从而PA15可以做普通IO使用,否则PA15不能做普通IO!!!
 	
-	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_AF_PP;										//复用推挽输出
-	GPIO_InitStructure.GPIO_Pin=GPIO_Pin_3;							//PB3
-	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	gpio_init.GPIO_Pin = GPIO_Pin_15 | GPIO_Pin_2 | GPIO_Pin_3;
+	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
+	gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_Init(GPIOA, &gpio_init);
 	
-	TIM_TimeBaseInitStructure.TIM_ClockDivision=TIM_CKD_DIV1;			//不分频
-	TIM_TimeBaseInitStructure.TIM_CounterMode=TIM_CounterMode_Up;		//向上计数
-	TIM_TimeBaseInitStructure.TIM_Period=arr;							//自动重装载值
-	TIM_TimeBaseInitStructure.TIM_Prescaler=psc;						//预分频数
-	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseInitStructure);
+	gpio_init.GPIO_Pin = GPIO_Pin_3;
+	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
+	gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_Init(GPIOB, &gpio_init);
+
+	TIM_TimeBaseInit(TIM2, &timer_init);
+
+	TIM_OC1Init(TIM2, &timer_oc_init);
+	TIM_OC2Init(TIM2, &timer_oc_init);
+	TIM_OC3Init(TIM2, &timer_oc_init);
+	TIM_OC4Init(TIM2, &timer_oc_init);
 	
-	TIM_OCInitStructure.TIM_OCMode=TIM_OCMode_PWM1;						//PWM1模式
-	TIM_OCInitStructure.TIM_OCPolarity=TIM_OCPolarity_High;				//有效电平为高
-	TIM_OCInitStructure.TIM_OutputState=TIM_OutputState_Enable;
-	TIM_OC1Init(TIM2, &TIM_OCInitStructure);							//TIM2输出通道1初始化
-	TIM_OC2Init(TIM2, &TIM_OCInitStructure);							//TIM2输出通道2初始化
-	TIM_OC3Init(TIM2, &TIM_OCInitStructure);							//TIM2输出通道3初始化
-	TIM_OC4Init(TIM2, &TIM_OCInitStructure);							//TIM2输出通道4初始化
-	
-	TIM_OC1PreloadConfig(TIM2, TIM_OCPreload_Enable);					//使能TIM2和OC1的预装载寄存器
-	TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Enable);					//使能TIM2和OC2的预装载寄存器
-	TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Enable);					//使能TIM2和OC3的预装载寄存器
-	TIM_OC4PreloadConfig(TIM2, TIM_OCPreload_Enable);					//使能TIM2和OC4的预装载寄存器
+	TIM_OC1PreloadConfig(TIM2, TIM_OCPreload_Enable);
+	TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Enable);
+	TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Enable);
+	TIM_OC4PreloadConfig(TIM2, TIM_OCPreload_Enable);
 	TIM_Cmd(TIM2, ENABLE);
 }
 
 /**********************************TB6612编码器引脚***************************************/
-
-/* 定时器3初始化 ，使用前左电机编码器功能 */
-//PA6----接 编码器A相 或者电机驱动的B1A标识
-//PA7----接 编码器B相 或者电机驱动的B1B标识
-void TIM3_Encoder_Init()
+/*
+ * 电机编码器定时器初始化：
+ *               编码器 / 电机驱动		位置
+ * TIM3: PA6        A相 / B1A          前左
+ *       PA7        B相 / B1B
+ * TIM8: PC6        A相 / B2A          前右
+ *       PC7        B相 / B2B
+ * TIM1: PE9        A相 / B1A          后左
+ *       PE11       B相 / B1B
+ * TIM4: PD12       A相 / B1A          后右
+ *       PD13       B相 / B1B
+ */
+static void timer_encoder_gpio_init(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 {
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;  
-	TIM_ICInitTypeDef       TIM_ICInitStructure;  
-	GPIO_InitTypeDef        GPIO_InitStructure;
-	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-//	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO , ENABLE);	//开启复用功能时钟
-//	GPIO_PinRemapConfig(GPIO_PartialRemap_TIM3 , ENABLE);	//TIM3部分重映射
-
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING; 	//浮空输入
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-	TIM_TimeBaseStructure.TIM_Prescaler = 0x0; 						// 预分频器 
-	TIM_TimeBaseStructure.TIM_Period = ENCODER_TIM_PERIOD; 			//设定计数器自动重装值
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;			//选择时钟分频：不分频
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;		//TIM向上计数  
-	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
-	
-	TIM_EncoderInterfaceConfig(TIM3, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);//使用编码器模式3
-	TIM_ICStructInit(&TIM_ICInitStructure);
-	TIM_ICInitStructure.TIM_ICFilter = 10;
-	TIM_ICInit(TIM3, &TIM_ICInitStructure);
-	TIM_ClearFlag(TIM3, TIM_FLAG_Update);					//清除TIM的更新标志位
-	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
-	//Reset counter
-	TIM_SetCounter(TIM3,0);
-	TIM_Cmd(TIM3, ENABLE); 
+	GPIO_InitTypeDef gpio_init;
+	gpio_init.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	gpio_init.GPIO_Pin = GPIO_Pin;
+	GPIO_Init(GPIOx, &gpio_init);
 }
 
-/* 定时器8初始化 ，使用前右电机编码器功能 */
-//PC6----接 编码器A相 或者电机驱动的B2A标识
-//PC7----接 编码器B相 或者电机驱动的B2B标识
-void TIM8_Encoder_Init()
+#define ENCODER_TIM_PERIOD 60000   // number of pulses per revolution
+
+static void timer_encoder_timer_init(TIM_TypeDef* TIMx)
 {
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;  
-	TIM_ICInitTypeDef       TIM_ICInitStructure;  
-	GPIO_InitTypeDef        GPIO_InitStructure;
-	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM8, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+	TIM_TimeBaseInitTypeDef timer_init = { 0, TIM_CounterMode_Up, ENCODER_TIM_PERIOD, TIM_CKD_DIV1, 0 };
+	TIM_ICInitTypeDef timer_ic_init = {
+		TIM_Channel_1, TIM_ICPolarity_Rising, TIM_ICSelection_DirectTI, TIM_ICPSC_DIV1, 10
+	};
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING; 	//浮空输入
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-	TIM_TimeBaseStructure.TIM_Prescaler = 0x0; 						// 预分频器 
-	TIM_TimeBaseStructure.TIM_Period = ENCODER_TIM_PERIOD; 			//设定计数器自动重装值
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;			//选择时钟分频：不分频
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;		//TIM向上计数  
-	TIM_TimeBaseStructure.TIM_RepetitionCounter=0;					//重复计数器为0
-	TIM_TimeBaseInit(TIM8, &TIM_TimeBaseStructure);
-	
-	TIM_EncoderInterfaceConfig(TIM8, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);//使用编码器模式3
-	TIM_ICStructInit(&TIM_ICInitStructure);
-	TIM_ICInitStructure.TIM_ICFilter = 10;
-	TIM_ICInit(TIM8, &TIM_ICInitStructure);
-	TIM_ClearFlag(TIM8, TIM_FLAG_Update);					//清除TIM的更新标志位
-	TIM_ITConfig(TIM8, TIM_IT_Update, ENABLE);
-	//Reset counter
-	TIM_SetCounter(TIM8,0);
-	TIM_Cmd(TIM8, ENABLE); 
+	TIM_TimeBaseInit(TIMx, &timer_init);
+	TIM_EncoderInterfaceConfig(TIMx, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);
+	TIM_ICInit(TIMx, &timer_ic_init);
+	TIM_ClearFlag(TIMx, TIM_FLAG_Update);					//清除TIM的更新标志位
+	TIM_ITConfig(TIMx, TIM_IT_Update, ENABLE);
+	TIM_SetCounter(TIMx, 0);
+	TIM_Cmd(TIMx, ENABLE); 
 }
 
-/* 定时器1初始化 ，使用后左电机编码器功能 */
-//PE9 ----接 编码器A相 或者电机驱动的B1A标识
-//PE11----接 编码器B相 或者电机驱动的B1B标识
-void TIM1_Encoder_Init()
+void timer_encoder_init(void)
 {
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;  
-	TIM_ICInitTypeDef       TIM_ICInitStructure;  
-	GPIO_InitTypeDef        GPIO_InitStructure;
-	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);	//开启复用功能时钟
-	GPIO_PinRemapConfig(GPIO_FullRemap_TIM1, ENABLE);	//TIM1部分重映射
+	uint32_t rcc_apb1 = RCC_APB1Periph_TIM3 | RCC_APB1Periph_TIM4;
+	uint32_t rcc_apb2 = RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
+		RCC_APB2Periph_GPIOE | RCC_APB2Periph_TIM1 | RCC_APB2Periph_TIM8 | RCC_APB2Periph_AFIO;
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_11;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING; 	//浮空输入
-	GPIO_Init(GPIOE, &GPIO_InitStructure);
+	// RCC init
+	RCC_APB1PeriphClockCmd(rcc_apb1, ENABLE);
+	RCC_APB2PeriphClockCmd(rcc_apb2, ENABLE);
 
-	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-	TIM_TimeBaseStructure.TIM_Prescaler = 0x0; 						// 预分频器 
-	TIM_TimeBaseStructure.TIM_Period = ENCODER_TIM_PERIOD; 			//设定计数器自动重装值
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;			//选择时钟分频：不分频
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;		//TIM向上计数  
-	TIM_TimeBaseStructure.TIM_RepetitionCounter=0;					//重复计数器为0
-	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
-	
-	TIM_EncoderInterfaceConfig(TIM1, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);//使用编码器模式3
-	TIM_ICStructInit(&TIM_ICInitStructure);
-	TIM_ICInitStructure.TIM_ICFilter = 10;
-	TIM_ICInit(TIM1, &TIM_ICInitStructure);
-	TIM_ClearFlag(TIM1, TIM_FLAG_Update);					//清除TIM的更新标志位
-	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
-	//Reset counter
-	TIM_SetCounter(TIM1,0);
-	TIM_Cmd(TIM1, ENABLE); 
-}
+	// GPIO init
+	timer_encoder_gpio_init(GPIOA, GPIO_Pin_6 | GPIO_Pin_7);
+	timer_encoder_gpio_init(GPIOC, GPIO_Pin_6 | GPIO_Pin_7);
+	timer_encoder_gpio_init(GPIOE, GPIO_Pin_9 | GPIO_Pin_11);
+	GPIO_PinRemapConfig(GPIO_Remap_TIM4, ENABLE);
+	timer_encoder_gpio_init(GPIOD, GPIO_Pin_12 | GPIO_Pin_13);
 
-/* 定时器4初始化 ，使用后右电机编码器功能 */
-//PD12----接 编码器A相 或者电机驱动的B1A标识
-//PD13----接 编码器B相 或者电机驱动的B1B标识
-void TIM4_Encoder_Init()
-{
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;  
-	TIM_ICInitTypeDef       TIM_ICInitStructure;  
-	GPIO_InitTypeDef        GPIO_InitStructure;
-	
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);		//使能AFIO时钟
-	
-	GPIO_PinRemapConfig(GPIO_Remap_TIM4, ENABLE);	//TIM4完全重映射
-
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING; 	//浮空输入
-	GPIO_Init(GPIOD, &GPIO_InitStructure);
-
-	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-	TIM_TimeBaseStructure.TIM_Prescaler = 0x0; 						// 预分频器 
-	TIM_TimeBaseStructure.TIM_Period = ENCODER_TIM_PERIOD; 			//设定计数器自动重装值
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;			//选择时钟分频：不分频
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;		//TIM向上计数  
-	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
-	
-	TIM_EncoderInterfaceConfig(TIM4, TIM_EncoderMode_TI12, TIM_ICPolarity_Rising, TIM_ICPolarity_Rising);//使用编码器模式3
-	TIM_ICStructInit(&TIM_ICInitStructure);
-	TIM_ICInitStructure.TIM_ICFilter = 10;
-	TIM_ICInit(TIM4, &TIM_ICInitStructure);
-	TIM_ClearFlag(TIM4, TIM_FLAG_Update);					//清除TIM的更新标志位
-	TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
-	//Reset counter
-	TIM_SetCounter(TIM4,0);
-	TIM_Cmd(TIM4, ENABLE); 
+	// Timer init
+	timer_encoder_timer_init(TIM3);
+	timer_encoder_timer_init(TIM8);
+	timer_encoder_timer_init(TIM1);
+	timer_encoder_timer_init(TIM4);
 }

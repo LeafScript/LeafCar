@@ -3,7 +3,6 @@
 
 #include "sys.h"
 
-void Car_SetTask(void);
 void CarTask_Scan(void);
 
 #endif

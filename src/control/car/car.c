@@ -15,7 +15,6 @@ extern sMotor BRMotor;
 void Car_Init()
 {
 	Motor_Init();
-	Car_SetTask();
 	CarMode_Init();
 }
 

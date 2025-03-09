@@ -5,7 +5,6 @@ set(3RD_DIR ${PROJ_DIR}/3rd_party)
 set(SRC_DIR ${PROJ_DIR}/src)
 set(INC_DIR ${SRC_DIR}/include)
 set(COMMON_DIR ${SRC_DIR}/common)
-set(BSP_DIR ${SRC_DIR}/bsp)
 set(CONTROL_DIR ${SRC_DIR}/control)
 set(CAR_DIR ${CONTROL_DIR}/car)
 set(PID_DIR ${CONTROL_DIR}/pid)
@@ -17,7 +16,7 @@ set(AT_SYS_DIR ${ALIENTEK_DIR}/system/sys)
 set(AT_DELAY_DIR ${ALIENTEK_DIR}/system/delay)
 set(AT_USMART_DIR ${ALIENTEK_DIR}/usmart)
 
-include_directories(
+include_directories(${COMMON_DIR}
     ${CAR_DIR} ${PID_DIR} ${CARTASK_DIR}
     ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR})
 

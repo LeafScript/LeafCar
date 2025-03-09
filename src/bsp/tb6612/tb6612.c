@@ -28,10 +28,8 @@ void TB6612_Init()
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;                                         /*设置引脚速率为50MHz */ 
 	GPIO_Init(DIR_PORT2, &GPIO_InitStructure);                                                 /*调用库函数，初始化GPIO*/
 	
-	TIM3_Encoder_Init();
-	TIM8_Encoder_Init();
-	TIM1_Encoder_Init();
-	TIM4_Encoder_Init();
+	timer_encoder_init();
+	timer_pwm_init(3599, 1);	//20kHz  占空比控制电机速度
 }
 
 /**************************************************************************
