@@ -1,7 +1,7 @@
 #include "pid.h"
 #include "motor.h"
 #include "k2102.h"
-#include <stdio.h>
+#include "usart.h"
 
 //4个轮子的PID
 sMotorPid fl_vpid;

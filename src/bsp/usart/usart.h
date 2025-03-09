@@ -3,9 +3,9 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include "stdio.h"	
+#include <stdio.h>
+#include <stdbool.h>
 #include "sys.h" 
-#include "stdbool.h"	
 
 #define USART_n		USART1  //定义使用printf函数的串口，其他串口要使用USART_printf专用函数发送
 
@@ -29,6 +29,8 @@ extern u8  USART3_RX_BUF[USART3_REC_LEN]; //接收缓冲,最大USART_REC_LEN个�
 extern u16 USART1_RX_STA;         		//接收状态标记	
 extern u16 USART2_RX_STA;         		//接收状态标记	
 extern u16 USART3_RX_STA;         		//接收状态标记	
+
+#define printf USART1_printf
 
 //函数声明
 void USART1_Init(u32 bound);//串口1初始化并启动

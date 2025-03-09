@@ -6,7 +6,7 @@
 #include "led.h"
 #include "carled.h"
 #include "delay.h"		//在不稳定的地方延时一下
-#include <stdio.h>
+#include "usart.h"
 #include "arm.h"
 
 extern sCar MyCar;

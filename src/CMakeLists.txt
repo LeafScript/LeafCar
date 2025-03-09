@@ -60,6 +60,7 @@ add_library(arm_lib STATIC ${ARM_SRCS})
 file(GLOB_RECURSE ST_SRCS "${ST_DIR}/*.c")
 add_library(st_lib STATIC ${ST_SRCS})
 file(GLOB_RECURSE ALIENTEK_SRCS "${ALIENTEK_DIR}/*.c")
+list(FILTER ALIENTEK_SRCS EXCLUDE REGEX "${AT_USMART_DIR}/usmart_config_templete.c")
 add_library(alientek_lib STATIC ${ALIENTEK_SRCS})
 
 add_subdirectory(${BSP_DIR} bsp_lib)

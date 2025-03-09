@@ -3,7 +3,7 @@
 #include "carmode.h"
 #include "cartask.h"
 #include "pid.h"
-#include <stdio.h>
+#include "usart.h"
 
 extern sMotor FLMotor;
 extern sMotor FRMotor;

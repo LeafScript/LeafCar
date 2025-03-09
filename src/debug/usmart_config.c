@@ -25,7 +25,7 @@ struct _m_usmart_nametab usmart_nametab[]=
 #endif
 	(void*)delay_ms,"void delay_ms(u16 nms)",
 	(void*)delay_us,"void delay_us(u32 nus)",	
-	(void*)LED_Toggle,"void LED_Toggle(void)",
+	(void*)LED_Toggle,"void LED_Toggle(uint8_t num)",
 	//小车基础操作
 	(void*)Car_Stop,"void Car_Stop(void)",
 	(void*)Car_Start,"void Car_Start(void)",

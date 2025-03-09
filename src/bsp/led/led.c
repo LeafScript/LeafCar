@@ -50,15 +50,20 @@ void LED_CloseScan()
 void LED_Scan()
 {
 	static uint16_t cnt[2] = {0};
+	uint8_t i;
 	
 	if(led_flag==0){
 		return;
 	}
-	if(cnt[0]>=timer[0]){
-		LED_Toggle(1);
+	for (i = 0; i < 2; i++) {
+		if (timer[i] == 0) {
+			continue;
+		}
+		if (cnt[i] >= timer[i]) {
+			cnt[i] = 0;
+			LED_Toggle(i + 1);
+		} else {
+			cnt[i]++;
+		}
 	}
-	if(cnt[1]>=timer[1]){
-		LED_Toggle(2);
-	}
-	cnt[0]++; cnt[1]++;
 }

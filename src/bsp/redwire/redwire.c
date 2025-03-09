@@ -1,7 +1,7 @@
 #include "redwire.h"
 #include "led.h"
 #include "carled.h"
-#include <stdio.h>
+#include "usart.h"
 
 void Redwire_Init(void)
 {

@@ -1,6 +1,6 @@
 #include "motor.h"
 #include "tb6612.h"
-#include <stdio.h>
+#include "usart.h"
 #include <stdlib.h>
 #include <math.h>
 
