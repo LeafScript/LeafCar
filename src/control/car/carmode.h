@@ -16,26 +16,26 @@
 							 Car_Stop()
 							 
 #define Config_FreeMove()    MyCar.mode = FREE_MOVE;\
-                             MyCar.config.freeMove.dir = STOP;\
+                             MyCar.config.freeMove.dir = MOTOR_STOP;\
 							 MyCar.config.freeMove.distance = 0;\
 							 MyCar.config.freeMove.speed = 0;\
 							 Car_Start()
 							 
 #define Config_TargetMove()    MyCar.mode = TARGET_MOVE;\
-                               MyCar.config.targetMove.dir = STOP;\
+                               MyCar.config.targetMove.dir = MOTOR_STOP;\
 	                           MyCar.config.targetMove.distance = 0;\
 							   MyCar.config.targetMove.speed = 0;\
 							   MyCar.config.targetMove.targetDist = 0
 							 
 #define Config_TrackMove()    MyCar.mode = TRACK_MOVE;\
-                              MyCar.config.trackMove.dir = STOP;\
+                              MyCar.config.trackMove.dir = MOTOR_STOP;\
 							  MyCar.config.trackMove.distance = 0;\
                               MyCar.config.trackMove.encVal = 0;\
 							  MyCar.config.trackMove.speed = 0;\
 							  MyCar.config.trackMove.turnDist = 0
 							 
 #define Config_RoundMove()     MyCar.mode = ROUND_MOVE;\
-                               MyCar.config.roundMove.dir = STOP;\
+                               MyCar.config.roundMove.dir = MOTOR_STOP;\
 	                           MyCar.config.roundMove.distance = 0;\
 							   MyCar.config.roundMove.speed = 0;\
 							   MyCar.config.roundMove.targetDist = 0

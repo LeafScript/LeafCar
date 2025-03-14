@@ -18,6 +18,7 @@ set(WIRELESS_DIR ${BSP_DIR}/wireless)
 
 set(CAR_DIR ${CONTROL_DIR}/car)
 set(PID_DIR ${CONTROL_DIR}/pid)
+set(MOTOR_DIR ${CONTROL_DIR}/motor)
 
 set(ALIENTEK_DIR ${3RD_DIR}/alientek)
 set(AT_SYS_DIR ${ALIENTEK_DIR}/system/sys)
@@ -27,7 +28,7 @@ set(AT_USMART_DIR ${ALIENTEK_DIR}/usmart)
 include_directories(${COMMON_DIR}
     ${K210_DIR} ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR}
     ${USART_DIR} ${WIRELESS_DIR}
-    ${CAR_DIR} ${PID_DIR}
+    ${CAR_DIR} ${PID_DIR} ${MOTOR_DIR}
     ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR})
 
 file(GLOB_RECURSE CONTROL_SRCS "${CONTROL_DIR}/*.c")

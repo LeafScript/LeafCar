@@ -3,23 +3,27 @@
 
 #include "sys.h"
 
-/* TB6612方向引脚配置 */
-#define DIR_PORT1		GPIOB
-#define DIR_PORT2		GPIOD
-#define DIR_RCC_PORT1	RCC_APB2Periph_GPIOB
-#define DIR_RCC_PORT2	RCC_APB2Periph_GPIOD
-//PB
-#define FL_DIR_AIN1  	GPIO_Pin_9
-#define FL_DIR_AIN2  	GPIO_Pin_13
-#define FR_DIR_BIN1  	GPIO_Pin_14
-#define FR_DIR_BIN2  	GPIO_Pin_15
-//PD
-#define BL_DIR_BIN1  	GPIO_Pin_0
-#define BL_DIR_BIN2  	GPIO_Pin_1
-#define BR_DIR_AIN1  	GPIO_Pin_4
-#define BR_DIR_AIN2  	GPIO_Pin_3
+#define ENCODER_TIM_PERIOD 60000   // number of pulses per revolution
+#define ENCODER_TIM_INIT_VAL 30000
 
-void TB6612_Init(void);
-int Read_Encoder(u8 TIMX);
+enum encoder_id_e {
+    TB6612_ID_0,
+    TB6612_ID_1,
+    TB6612_ID_2,
+    TB6612_ID_3,
+    TB6612_ID_MAX    
+};
+
+enum tb6612_dir_e {
+	TB6612_FORWARD,
+	TB6612_BACK,
+	TB6612_STOP
+};
+
+void tb6612_init(void);
+void tb6612_start(void);
+void tb6612_set_dir(uint8_t id, uint8_t dir);
+void tb6612_set_pwm(uint8_t id, int16_t pwm);
+int tb6612_encoder_read_and_reset(uint8_t id);
 
 #endif

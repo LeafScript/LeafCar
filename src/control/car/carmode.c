@@ -8,11 +8,6 @@
 extern void Car_Stop(void);
 extern void Car_Start(void);
 
-extern sMotor FLMotor;
-extern sMotor FRMotor;
-extern sMotor BLMotor;
-extern sMotor BRMotor;
-
 sCar MyCar;
 
 //小车模式初始化
@@ -65,19 +60,19 @@ void CarMode_FreeMove()
 	// 3s改变一次方向
 	if(timer==(uint16_t)CAR_PERIOD_TIMES*30){		
 		if(dir_switch==0){
-			MyCar.config.freeMove.dir = FORWARD;
+			MyCar.config.freeMove.dir = MOTOR_FORWARD;
 			int16_t encVal = 100.0/CAR_PERIOD_TIMES;
 			Pid_SetCarSpeed(encVal);
 			Car_Start();
 			dir_switch = 1;
 		}else if(dir_switch==1){
-			MyCar.config.freeMove.dir = BACK;
+			MyCar.config.freeMove.dir = MOTOR_BACK;
 			int16_t encVal = -100.0/CAR_PERIOD_TIMES;
 			Pid_SetCarSpeed(encVal);
 			Car_Start();
 			dir_switch = 2;
 		}else if(dir_switch==2){
-			MyCar.config.freeMove.dir = STOP;
+			MyCar.config.freeMove.dir = MOTOR_STOP;
 			Car_Stop();
 			dir_switch = 0;
 		}
@@ -86,14 +81,14 @@ void CarMode_FreeMove()
 		timer++;
 	}
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.freeMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FRMotor.num)) / 2.0;
+	MyCar.config.freeMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FR_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.freeMove.distance = (Motor_GetDistance(&FLMotor)+Motor_GetDistance(&FRMotor)) / 2.0;
+	MyCar.config.freeMove.distance = (motor_get_distance(FL_MOTOR)+motor_get_distance(FR_MOTOR)) / 2.0;
 	//更新电机PWM
-	Motor_IncresePwm(&FLMotor, Pid_GetIncPwm(FLMotor.num,FLMotor.encoder));
-	Motor_IncresePwm(&FRMotor, Pid_GetIncPwm(FRMotor.num,-FRMotor.encoder));
-	Motor_IncresePwm(&BLMotor, Pid_GetIncPwm(BLMotor.num,BLMotor.encoder));
-	Motor_IncresePwm(&BRMotor, Pid_GetIncPwm(BRMotor.num,-BRMotor.encoder));
+	motor_inc_pwm_val(FL_MOTOR, Pid_GetIncPwm(FL_MOTOR, motor_get_encoder_val(FL_MOTOR)));
+	motor_inc_pwm_val(FR_MOTOR, Pid_GetIncPwm(FR_MOTOR, -motor_get_encoder_val(FR_MOTOR)));
+	motor_inc_pwm_val(BL_MOTOR, Pid_GetIncPwm(BL_MOTOR, motor_get_encoder_val(BL_MOTOR)));
+	motor_inc_pwm_val(BR_MOTOR, Pid_GetIncPwm(BR_MOTOR, -motor_get_encoder_val(BR_MOTOR)));
 }
 
 /*--------------------------------------TARGET_MOVE--------------------------------------------*/
@@ -104,11 +99,11 @@ void CarMode_FreeMove()
 void Car_Forward(uint16_t dis, uint16_t speed)
 {
 	MyCar.mode = TARGET_MOVE;
-	MyCar.config.targetMove.dir = FORWARD;
+	MyCar.config.targetMove.dir = MOTOR_FORWARD;
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.targetMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FLMotor.num)) / 2.0;
+	MyCar.config.targetMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FL_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.targetMove.distance = (Motor_GetDistance(&FLMotor)+Motor_GetDistance(&FRMotor)) / 2.0;
+	MyCar.config.targetMove.distance = (motor_get_distance(FL_MOTOR)+motor_get_distance(FR_MOTOR)) / 2.0;
 	MyCar.config.targetMove.targetDist = MyCar.config.targetMove.distance;
 	MyCar.config.targetMove.targetDist += dis;
 	int16_t encVal = (float)speed/CAR_PERIOD_TIMES;
@@ -122,11 +117,11 @@ void Car_Forward(uint16_t dis, uint16_t speed)
 void Car_Forward_Muti(uint16_t dis, uint16_t speed, int16_t dismuti)
 {
 	MyCar.mode = TARGET_MOVE;
-	MyCar.config.targetMove.dir = FORWARD;
+	MyCar.config.targetMove.dir = MOTOR_FORWARD;
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.targetMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FLMotor.num)) / 2.0;
+	MyCar.config.targetMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FL_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.targetMove.distance = (Motor_GetDistance(&FLMotor)+Motor_GetDistance(&FRMotor)) / 2.0;
+	MyCar.config.targetMove.distance = (motor_get_distance(FL_MOTOR)+motor_get_distance(FR_MOTOR)) / 2.0;
 	MyCar.config.targetMove.targetDist = MyCar.config.targetMove.distance;
 	DISMUTI_JUDGE;
 	MyCar.config.targetMove.targetDist += dis+dismuti;
@@ -141,11 +136,11 @@ void Car_Forward_Muti(uint16_t dis, uint16_t speed, int16_t dismuti)
 void Car_Back(uint16_t dis, uint16_t speed)
 {
 	MyCar.mode = TARGET_MOVE;
-	MyCar.config.targetMove.dir = BACK;
+	MyCar.config.targetMove.dir = MOTOR_BACK;
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.targetMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FLMotor.num)) / 2.0;
+	MyCar.config.targetMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FL_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.targetMove.distance = (Motor_GetDistance(&FLMotor)+Motor_GetDistance(&FRMotor)) / 2.0;
+	MyCar.config.targetMove.distance = (motor_get_distance(FL_MOTOR)+motor_get_distance(FR_MOTOR)) / 2.0;
 	MyCar.config.targetMove.targetDist = MyCar.config.targetMove.distance;
 	MyCar.config.targetMove.targetDist -= dis;
 	int16_t encVal = (float)-speed/CAR_PERIOD_TIMES;
@@ -159,11 +154,11 @@ void Car_Back(uint16_t dis, uint16_t speed)
 void Car_Back_Muti(uint16_t dis, uint16_t speed, int16_t dismuti)
 {
 	MyCar.mode = TARGET_MOVE;
-	MyCar.config.targetMove.dir = BACK;
+	MyCar.config.targetMove.dir = MOTOR_BACK;
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.targetMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FLMotor.num)) / 2.0;
+	MyCar.config.targetMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FL_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.targetMove.distance = (Motor_GetDistance(&FLMotor)+Motor_GetDistance(&FRMotor)) / 2.0;
+	MyCar.config.targetMove.distance = (motor_get_distance(FL_MOTOR)+motor_get_distance(FR_MOTOR)) / 2.0;
 	MyCar.config.targetMove.targetDist = MyCar.config.targetMove.distance;
 	DISMUTI_JUDGE;
 	MyCar.config.targetMove.targetDist -= dis+dismuti;
@@ -179,21 +174,21 @@ void CarMode_TargetMove()
 		return;
 	}
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.targetMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FLMotor.num)) / 2.0;
+	MyCar.config.targetMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FL_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.targetMove.distance = (Motor_GetDistance(&FLMotor)+Motor_GetDistance(&FRMotor)) / 2.0;
+	MyCar.config.targetMove.distance = (motor_get_distance(FL_MOTOR)+motor_get_distance(FR_MOTOR)) / 2.0;
 	//达到目标路程，停止
-	if(MyCar.config.targetMove.dir==FORWARD && MyCar.config.targetMove.distance>MyCar.config.targetMove.targetDist){	//向前
+	if(MyCar.config.targetMove.dir==MOTOR_FORWARD && MyCar.config.targetMove.distance>MyCar.config.targetMove.targetDist){	//向前
 		MyCar.mode = STOP_MOVE; Car_Stop();
 	}
-	if(MyCar.config.targetMove.dir==BACK && MyCar.config.targetMove.distance<MyCar.config.targetMove.targetDist){		//向后
+	if(MyCar.config.targetMove.dir==MOTOR_BACK && MyCar.config.targetMove.distance<MyCar.config.targetMove.targetDist){		//向后
 		MyCar.mode = STOP_MOVE; Car_Stop();
 	}
 	//更新电机PWM
-	Motor_IncresePwm(&FLMotor, Pid_GetIncPwm(FLMotor.num,FLMotor.encoder));
-	Motor_IncresePwm(&FRMotor, Pid_GetIncPwm(FRMotor.num,-FRMotor.encoder));
-	Motor_IncresePwm(&BLMotor, Pid_GetIncPwm(BLMotor.num,BLMotor.encoder));
-	Motor_IncresePwm(&BRMotor, Pid_GetIncPwm(BRMotor.num,-BRMotor.encoder));
+	motor_inc_pwm_val(FL_MOTOR, Pid_GetIncPwm(FL_MOTOR,motor_get_encoder_val(FL_MOTOR)));
+	motor_inc_pwm_val(FR_MOTOR, Pid_GetIncPwm(FR_MOTOR,-motor_get_encoder_val(FR_MOTOR)));
+	motor_inc_pwm_val(BL_MOTOR, Pid_GetIncPwm(BL_MOTOR,motor_get_encoder_val(BL_MOTOR)));
+	motor_inc_pwm_val(BR_MOTOR, Pid_GetIncPwm(BR_MOTOR,-motor_get_encoder_val(BR_MOTOR)));
 }
 
 /*--------------------------------------ROUND_MOVE--------------------------------------------*/
@@ -211,9 +206,9 @@ void Car_Round(uint16_t dis, uint16_t speed, uint8_t dir)
 		MyCar.config.roundMove.dir = LEFT_ROUND;
 	}
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.roundMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FLMotor.num)) / 2.0;
+	MyCar.config.roundMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FL_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.roundMove.distance = (Motor_GetDistance(&FLMotor)-Motor_GetDistance(&FRMotor)) / 2.0;
+	MyCar.config.roundMove.distance = (motor_get_distance(FL_MOTOR)-motor_get_distance(FR_MOTOR)) / 2.0;
 	MyCar.config.roundMove.targetDist = MyCar.config.roundMove.distance;
 	int16_t encVal;
 	if(dir==1){
@@ -240,9 +235,9 @@ void Car_Round_Muti(uint16_t dis, uint16_t speed, uint8_t dir, int16_t dismuti)
 		MyCar.config.roundMove.dir = LEFT_ROUND;
 	}
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.roundMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FLMotor.num)) / 2.0;
+	MyCar.config.roundMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FL_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.roundMove.distance = (Motor_GetDistance(&FLMotor)-Motor_GetDistance(&FRMotor)) / 2.0;
+	MyCar.config.roundMove.distance = (motor_get_distance(FL_MOTOR)-motor_get_distance(FR_MOTOR)) / 2.0;
 	MyCar.config.roundMove.targetDist = MyCar.config.roundMove.distance;
 	int16_t encVal;
 	if(dir==1){
@@ -265,10 +260,10 @@ void CarMode_RoundMove()
 		return;
 	}
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.roundMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FLMotor.num)) / 2.0;
+	MyCar.config.roundMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FL_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.roundMove.distance = (Motor_GetDistance(&FLMotor)-Motor_GetDistance(&FRMotor)) / 2.0;
-//	USART1_printf("distance=%.2f  %.2f  %.2f\r\n",MyCar.config.roundMove.distance, Motor_GetDistance(&FLMotor), Motor_GetDistance(&FRMotor));
+	MyCar.config.roundMove.distance = (motor_get_distance(FL_MOTOR)-motor_get_distance(FR_MOTOR)) / 2.0;
+//	USART1_printf("distance=%.2f  %.2f  %.2f\r\n",MyCar.config.roundMove.distance, motor_get_distance(FL_MOTOR), motor_get_distance(FR_MOTOR));
 	//达到目标路程，停止
 	if(MyCar.config.roundMove.dir==RIGHT_ROUND && MyCar.config.roundMove.distance>MyCar.config.roundMove.targetDist){	//顺时针
 		MyCar.mode = STOP_MOVE; Car_Stop();
@@ -277,10 +272,10 @@ void CarMode_RoundMove()
 		MyCar.mode = STOP_MOVE; Car_Stop();
 	}
 	//更新电机PWM
-	Motor_IncresePwm(&FLMotor, Pid_GetIncPwm(FLMotor.num,FLMotor.encoder));
-	Motor_IncresePwm(&FRMotor, Pid_GetIncPwm(FRMotor.num,-FRMotor.encoder));
-	Motor_IncresePwm(&BLMotor, Pid_GetIncPwm(BLMotor.num,BLMotor.encoder));
-	Motor_IncresePwm(&BRMotor, Pid_GetIncPwm(BRMotor.num,-BRMotor.encoder));
+	motor_inc_pwm_val(FL_MOTOR, Pid_GetIncPwm(FL_MOTOR,motor_get_encoder_val(FL_MOTOR)));
+	motor_inc_pwm_val(FR_MOTOR, Pid_GetIncPwm(FR_MOTOR,-motor_get_encoder_val(FR_MOTOR)));
+	motor_inc_pwm_val(BL_MOTOR, Pid_GetIncPwm(BL_MOTOR,motor_get_encoder_val(BL_MOTOR)));
+	motor_inc_pwm_val(BR_MOTOR, Pid_GetIncPwm(BR_MOTOR,-motor_get_encoder_val(BR_MOTOR)));
 }
 
 /*--------------------------------------TRACK_MOVE--------------------------------------------*/
@@ -293,14 +288,14 @@ void Car_Track(uint32_t dis, uint16_t speed, uint8_t dir)
 {
 	MyCar.mode = TRACK_MOVE;
 	if(dir==1){
-		MyCar.config.trackMove.dir = FORWARD;
+		MyCar.config.trackMove.dir = MOTOR_FORWARD;
 	}else{
-		MyCar.config.trackMove.dir = BACK;
+		MyCar.config.trackMove.dir = MOTOR_BACK;
 	}	
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.trackMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FLMotor.num)) / 2.0;
+	MyCar.config.trackMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FL_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.trackMove.distance = (Motor_GetDistance(&FLMotor)+Motor_GetDistance(&FRMotor)) / 2.0;
+	MyCar.config.trackMove.distance = (motor_get_distance(FL_MOTOR)+motor_get_distance(FR_MOTOR)) / 2.0;
 	MyCar.config.trackMove.turnDist = MyCar.config.trackMove.distance;
 	int16_t encVal;
 	if(dir==1){
@@ -324,14 +319,14 @@ void Car_Track_Muti(uint32_t dis, uint16_t speed, uint8_t dir, int16_t dismuti)
 {
 	MyCar.mode = TRACK_MOVE;
 	if(dir==1){
-		MyCar.config.trackMove.dir = FORWARD;
+		MyCar.config.trackMove.dir = MOTOR_FORWARD;
 	}else{
-		MyCar.config.trackMove.dir = BACK;
+		MyCar.config.trackMove.dir = MOTOR_BACK;
 	}	
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.trackMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FLMotor.num)) / 2.0;
+	MyCar.config.trackMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FL_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.trackMove.distance = (Motor_GetDistance(&FLMotor)+Motor_GetDistance(&FRMotor)) / 2.0;
+	MyCar.config.trackMove.distance = (motor_get_distance(FL_MOTOR)+motor_get_distance(FR_MOTOR)) / 2.0;
 	MyCar.config.trackMove.turnDist = MyCar.config.trackMove.distance;
 	int16_t encVal;
 	if(dir==1){
@@ -355,14 +350,14 @@ void CarMode_TrackMove()
 		return;
 	}
 	//小车速度 = PERIOD_TIMES * (左前轮+右前轮)/2
-	MyCar.config.trackMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FLMotor.num)+Pid_GetMotorActualSpeed(FLMotor.num)) / 2.0;
+	MyCar.config.trackMove.speed = CAR_PERIOD_TIMES * (Pid_GetMotorActualSpeed(FL_MOTOR)+Pid_GetMotorActualSpeed(FL_MOTOR)) / 2.0;
 	//小车路程 = (左前轮+右前轮)/2
-	MyCar.config.trackMove.distance = (Motor_GetDistance(&FLMotor)+Motor_GetDistance(&FRMotor)) / 2.0;
+	MyCar.config.trackMove.distance = (motor_get_distance(FL_MOTOR)+motor_get_distance(FR_MOTOR)) / 2.0;
 	//达到目标路程，停止
-	if(MyCar.config.trackMove.dir==FORWARD && MyCar.config.trackMove.distance > MyCar.config.trackMove.turnDist){	//平均距离达到，停止
+	if(MyCar.config.trackMove.dir==MOTOR_FORWARD && MyCar.config.trackMove.distance > MyCar.config.trackMove.turnDist){	//平均距离达到，停止
 		MyCar.mode = STOP_MOVE; Car_Stop();
 	}
-	if(MyCar.config.trackMove.dir==BACK && MyCar.config.trackMove.distance < MyCar.config.trackMove.turnDist){	//平均距离达到，停止
+	if(MyCar.config.trackMove.dir==MOTOR_BACK && MyCar.config.trackMove.distance < MyCar.config.trackMove.turnDist){	//平均距离达到，停止
 		MyCar.mode = STOP_MOVE; Car_Stop();
 	}
 	/*---------------------------------循迹函数--------------------------------------*/
@@ -371,8 +366,8 @@ void CarMode_TrackMove()
 	
 	/*-------------------------------------------------------------------------------*/
 	//更新电机PWM
-	Motor_IncresePwm(&FLMotor, Pid_GetIncPwm(FLMotor.num,FLMotor.encoder));
-	Motor_IncresePwm(&FRMotor, Pid_GetIncPwm(FRMotor.num,-FRMotor.encoder));
-	Motor_IncresePwm(&BLMotor, Pid_GetIncPwm(BLMotor.num,BLMotor.encoder));
-	Motor_IncresePwm(&BRMotor, Pid_GetIncPwm(BRMotor.num,-BRMotor.encoder));
+	motor_inc_pwm_val(FL_MOTOR, Pid_GetIncPwm(FL_MOTOR,motor_get_encoder_val(FL_MOTOR)));
+	motor_inc_pwm_val(FR_MOTOR, Pid_GetIncPwm(FR_MOTOR,-motor_get_encoder_val(FR_MOTOR)));
+	motor_inc_pwm_val(BL_MOTOR, Pid_GetIncPwm(BL_MOTOR,motor_get_encoder_val(BL_MOTOR)));
+	motor_inc_pwm_val(BR_MOTOR, Pid_GetIncPwm(BR_MOTOR,-motor_get_encoder_val(BR_MOTOR)));
 }

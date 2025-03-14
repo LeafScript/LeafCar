@@ -138,6 +138,10 @@ void timer_pwm_init(uint16_t arr, uint16_t psc)
 	TIM_OC2PreloadConfig(TIM2, TIM_OCPreload_Enable);
 	TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Enable);
 	TIM_OC4PreloadConfig(TIM2, TIM_OCPreload_Enable);
+}
+
+void timer_pwm_start(void)
+{
 	TIM_Cmd(TIM2, ENABLE);
 }
 
@@ -162,11 +166,9 @@ static void timer_encoder_gpio_init(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin)
 	GPIO_Init(GPIOx, &gpio_init);
 }
 
-#define ENCODER_TIM_PERIOD 60000   // number of pulses per revolution
-
-static void timer_encoder_timer_init(TIM_TypeDef* TIMx)
+static void timer_encoder_timer_init(TIM_TypeDef* TIMx, uint16_t period)
 {
-	TIM_TimeBaseInitTypeDef timer_init = { 0, TIM_CounterMode_Up, ENCODER_TIM_PERIOD, TIM_CKD_DIV1, 0 };
+	TIM_TimeBaseInitTypeDef timer_init = { 0, TIM_CounterMode_Up, period, TIM_CKD_DIV1, 0 };
 	TIM_ICInitTypeDef timer_ic_init = {
 		TIM_Channel_1, TIM_ICPolarity_Rising, TIM_ICSelection_DirectTI, TIM_ICPSC_DIV1, 10
 	};
@@ -177,10 +179,9 @@ static void timer_encoder_timer_init(TIM_TypeDef* TIMx)
 	TIM_ClearFlag(TIMx, TIM_FLAG_Update);					//清除TIM的更新标志位
 	TIM_ITConfig(TIMx, TIM_IT_Update, ENABLE);
 	TIM_SetCounter(TIMx, 0);
-	TIM_Cmd(TIMx, ENABLE); 
 }
 
-void timer_encoder_init(void)
+void timer_encoder_init(uint16_t period)
 {
 	uint32_t rcc_apb1 = RCC_APB1Periph_TIM3 | RCC_APB1Periph_TIM4;
 	uint32_t rcc_apb2 = RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD |
@@ -198,8 +199,16 @@ void timer_encoder_init(void)
 	timer_encoder_gpio_init(GPIOD, GPIO_Pin_12 | GPIO_Pin_13);
 
 	// Timer init
-	timer_encoder_timer_init(TIM3);
-	timer_encoder_timer_init(TIM8);
-	timer_encoder_timer_init(TIM1);
-	timer_encoder_timer_init(TIM4);
+	timer_encoder_timer_init(TIM3, period);
+	timer_encoder_timer_init(TIM8, period);
+	timer_encoder_timer_init(TIM1, period);
+	timer_encoder_timer_init(TIM4, period);
+}
+
+void timer_encoder_start(void)
+{
+	TIM_Cmd(TIM3, ENABLE); 
+	TIM_Cmd(TIM8, ENABLE); 
+	TIM_Cmd(TIM1, ENABLE); 
+	TIM_Cmd(TIM4, ENABLE); 
 }
