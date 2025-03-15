@@ -1,7 +1,8 @@
 #include "task1.h"
 #include "taskconf.h"
 #include "redwire.h"
-#include "carmode.h"
+#include "car_ctrl.h"
+#include "car_option.h"
 #include "k210.h"
 #include "led.h"
 #include "carled.h"
@@ -9,7 +10,7 @@
 #include "usart.h"
 #include "arm.h"
 
-extern sCar MyCar;
+extern car_ctrl_s g_car_ctrl;
 extern uint8_t recNum1;
 extern uint8_t recNum2;
 
@@ -42,7 +43,7 @@ void Task1_SetMutiMode(uint8_t mode)
 //任务一扫描
 void Task1_Scan()
 {
-	if(MyCar.mode == STOP_MOVE){
+	if(car_ctrl_get_mode() == STOP_MOVE){
 		lock = 0;
 	}
 	if(lock){
@@ -89,28 +90,28 @@ void Task1_Scan()
 		break;
 		case 5: if(Redwire_isFull()){action = jmpAction;} break;
 		/*--------------------------1,2号病房------------------------------*/
-		case 6: Arm_SetStatus(1); Car_Track_Muti(570,SPEED,1,DEFAULT_MUTI); action++; lock = 1; break;
-		case 7: Car_Forward_Muti(180,SPEED,DEFAULT_MUTI+ROUND_MUTI); action++; lock = 1; break;
+		case 6: Arm_SetStatus(1); car_track(570,SPEED,1); action++; lock = 1; break;
+		case 7: car_forward(180,SPEED); action++; lock = 1; break;
 		case 8:
-			if(storeNum == 1) { Car_Round(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else              { Car_Round(VERTICAL_R,TURN_SPEED,1); }		//右转
+			if(storeNum == 1) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
+			else              { car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
 			action++; lock = 1; 
 		break;
-		case 9: Car_Track_Muti(300,SPEED,1,DEFAULT_MUTI+ROUND_MUTI_NEXT); action++; lock = 1; break;
-		case 10: Car_Forward_Muti(100,SPEED,DEFAULT_MUTI); action++; lock = 1; break;
+		case 9: car_track(300,SPEED,1); action++; lock = 1; break;
+		case 10: car_forward(100,SPEED); action++; lock = 1; break;
 		case 11: RedLed = 1; if(!Redwire_isFull()){action++;} break;
-		case 12: RedLed = 0; Car_Back_Muti(400,SPEED,DEFAULT_MUTI); action++; lock = 1; break;	//倒车
+		case 12: RedLed = 0; car_back(400,SPEED); action++; lock = 1; break;	//倒车
 		case 13:
-			if(storeNum == 1) { Car_Round(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else              { Car_Round(VERTICAL_R,TURN_SPEED,1); }		//右转
+			if(storeNum == 1) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
+			else              { car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
 			action++; lock = 1;
 		break;
-		case 14: Car_Track_Muti(550,SPEED,1,0); action++; lock = 1; break;
-		case 15: Car_Forward_Muti(100,SPEED,0); action++; lock = 1; break;
+		case 14: car_track(550,SPEED,1); action++; lock = 1; break;
+		case 15: car_forward(100,SPEED); action++; lock = 1; break;
 		case 16: GreLed = 1; break;		/*@@@@@@@@@@@@ 结束 @@@@@@@@@@@@@*/
 		
 			/*########### K210识别判断病房在中部&远端（左右都要识别） ##########*/
-		case 20: Car_Track_Muti(1350,SPEED,1,DEFAULT_MUTI); Arm_SetStatus(1); action++; lock = 1; break;	//机械臂收回
+		case 20: car_track(1350,SPEED,1); Arm_SetStatus(1); action++; lock = 1; break;	//机械臂收回
 		case 21: Arm_SetStatus(2); action++; break;	//机械臂中间伸出
 		case 22: delay_ms(1000); delay_ms(500); action++; break;		//延时等待识别稳定
 		case 23:
@@ -141,23 +142,23 @@ void Task1_Scan()
 		case 24: action = jmpAction; break;
 		/*--------------------------中部病房------------------------------*/
 		case 30: Arm_SetStatus(1); delay_ms(1000); action++; break;	//收回手臂
-		case 31: Car_Forward_Muti(300,SPEED,DEFAULT_MUTI+ROUND_MUTI); action++; lock = 1; break;	//前进一些
+		case 31: car_forward(300,SPEED); action++; lock = 1; break;	//前进一些
 		case 32:
-			if(nowNum1 == storeNum) { Car_Round(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else              		{ Car_Round(VERTICAL_R,TURN_SPEED,1); }		//右转
+			if(nowNum1 == storeNum) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
+			else              		{ car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
 			action++; lock = 1;
 		break;
-		case 33: Car_Track_Muti(400,SPEED,1,DEFAULT_MUTI+ROUND_MUTI_NEXT); action++; lock = 1; break;
-		case 34: Car_Forward_Muti(50,SPEED,DEFAULT_MUTI); action++; lock = 1; break;	//前进一些
+		case 33: car_track(400,SPEED,1); action++; lock = 1; break;
+		case 34: car_forward(50,SPEED); action++; lock = 1; break;	//前进一些
 		case 35: RedLed = 1; if(!Redwire_isFull()){action++;} break;
-		case 36: RedLed = 0; Car_Back_Muti(450,SPEED,DEFAULT_MUTI); action++; lock = 1; break;
+		case 36: RedLed = 0; car_back(450,SPEED); action++; lock = 1; break;
 		case 37:
-			if(nowNum1 == storeNum) { Car_Round(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else              		{ Car_Round(VERTICAL_R,TURN_SPEED,1); }		//右转
+			if(nowNum1 == storeNum) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
+			else              		{ car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
 			action++; lock = 1;
 		break;
-		case 38: Car_Track_Muti(1500,SPEED,1,0); action++; lock = 1; break;
-		case 39: Car_Forward_Muti(50,SPEED,0); action++; lock = 1; break;	//前进一些
+		case 38: car_track(1500,SPEED,1); action++; lock = 1; break;
+		case 39: car_forward(50,SPEED); action++; lock = 1; break;	//前进一些
 		case 40: GreLed = 1; break;		/*@@@@@@@@@@@@ 结束 @@@@@@@@@@@@@*/
 		
 			
@@ -165,8 +166,8 @@ void Task1_Scan()
 			
 			/*########### K210识别判断病房在 远端第一交叉路口 左右（左，右边通过左边推断出） ##########*/
 		case 50: Arm_SetStatus(1); delay_ms(1000); action++; break;	//收回手臂
-		case 51: Car_Forward_Muti(150,SPEED,DEFAULT_MUTI); action++; lock = 1; break;	//前进一些
-		case 52: Car_Track_Muti(830,SPEED,1,DEFAULT_MUTI); action++; lock = 1; break;
+		case 51: car_forward(150,SPEED); action++; lock = 1; break;	//前进一些
+		case 52: car_track(830,SPEED,1); action++; lock = 1; break;
 		case 53: Arm_SetStatus(3); delay_ms(1000); delay_ms(500); action++; break;	//机械臂中间伸出
 		case 54:
 			#if (TASK_TEST==0)
@@ -189,14 +190,14 @@ void Task1_Scan()
 		break;
 		case 55: action = jmpAction; break;
 		/*--------------------------远端病房第一交叉路口-->远端病房第二交叉路口------------------------------*/
-		case 60: Car_Forward_Muti(150,SPEED,DEFAULT_MUTI+ROUND_MUTI); action++; lock = 1; break;
+		case 60: car_forward(150,SPEED); action++; lock = 1; break;
 		case 61:
-			if(joint == 4) { Car_Round(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else           { Car_Round(VERTICAL_R,TURN_SPEED,1); }		//右转
+			if(joint == 4) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
+			else           { car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
 			action++; lock = 1;
 		break;
-		case 62: Car_Track_Muti(590,SPEED,1,DEFAULT_MUTI+ROUND_MUTI_NEXT); action++; lock = 1; break;
-		case 63: Car_Forward_Muti(50,SPEED,DEFAULT_MUTI); action++; lock = 1; break;	//前进一些
+		case 62: car_track(590,SPEED,1); action++; lock = 1; break;
+		case 63: car_forward(50,SPEED); action++; lock = 1; break;	//前进一些
 		
 			/*########### K210识别判断病房在远端第二交叉路口左右 ##########*/
 		case 64: delay_ms(500); action++; break;	//延时识别
@@ -225,31 +226,31 @@ void Task1_Scan()
 		break;
 		case 66: action = jmpAction; break;
 		/*--------------------------远端病房&退回------------------------------*/
-		case 70: Car_Forward_Muti(200,SPEED,DEFAULT_MUTI+ROUND_MUTI); action++; lock = 1; break;	//前进一些
+		case 70: car_forward(200,SPEED); action++; lock = 1; break;	//前进一些
 		case 71:
-			if(joint2 == 6) { Car_Round(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else            { Car_Round(VERTICAL_R,TURN_SPEED,1); }		//右转
+			if(joint2 == 6) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
+			else            { car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
 			action++; lock = 1;
 		break;
-		case 72: Car_Track_Muti(400,SPEED,1,DEFAULT_MUTI+ROUND_MUTI_NEXT); action++; lock = 1; break;
-		case 73: Car_Forward_Muti(50,SPEED,DEFAULT_MUTI); action++; lock = 1; break;	//前进一些
+		case 72: car_track(400,SPEED,1); action++; lock = 1; break;
+		case 73: car_forward(50,SPEED); action++; lock = 1; break;	//前进一些
 		case 74: RedLed = 1; if(!Redwire_isFull()){action++;} break;
 		/*&&&&&&&&& 不加砝码 &&&&&&&&&&*/
-		case 75: RedLed = 0; Car_Back_Muti(450,SPEED,DEFAULT_MUTI); action++; lock = 1; break;
+		case 75: RedLed = 0; car_back(450,SPEED); action++; lock = 1; break;
 		case 76:
-			if(joint2 == 6) { Car_Round(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else            { Car_Round(VERTICAL_R,TURN_SPEED,1); }		//右转
+			if(joint2 == 6) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
+			else            { car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
 			action++; lock = 1;
 		break;
-		case 77: Car_Track_Muti(750,SPEED,1,0); action++; lock = 1; break;
-		case 78: Car_Forward_Muti(150,SPEED,0); action++; lock = 1; break;	//前进一些
+		case 77: car_track(750,SPEED,1); action++; lock = 1; break;
+		case 78: car_forward(150,SPEED); action++; lock = 1; break;	//前进一些
 		case 79:
-			if(joint == 4) { Car_Round(VERTICAL_L,TURN_SPEED,1); }		//右转
-			else           { Car_Round(VERTICAL_R,TURN_SPEED,0); }		//左转
+			if(joint == 4) { car_turn(VERTICAL_L,TURN_SPEED,1); }		//右转
+			else           { car_turn(VERTICAL_R,TURN_SPEED,0); }		//左转
 			action++; lock = 1;
 		break;
-		case 80: Car_Track_Muti(2450,SPEED,1,0); action++; lock = 1; break;
-		case 81: Car_Forward_Muti(50,SPEED,0); action++; lock = 1; break;	//前进一些
+		case 80: car_track(2450,SPEED,1); action++; lock = 1; break;
+		case 81: car_forward(50,SPEED); action++; lock = 1; break;	//前进一些
 		case 82: GreLed = 1; break;		/*@@@@@@@@@@@@ 结束 @@@@@@@@@@@@@*/
 		
 		default: break;

@@ -6,8 +6,9 @@
 #include "delay.h"		
 #include "sys.h"
 #include "led.h"
-#include "car.h"
-#include "carmode.h"
+#include "car_basic.h"
+#include "car_ctrl.h"
+#include "car_option.h"
 #include "task1.h"
 #include "pid.h"
 #include "arm.h"
@@ -27,19 +28,19 @@ struct _m_usmart_nametab usmart_nametab[]=
 	(void*)delay_us,"void delay_us(u32 nus)",	
 	(void*)LED_Toggle,"void LED_Toggle(uint8_t num)",
 	//小车基础操作
-	(void*)Car_Stop,"void Car_Stop(void)",
-	(void*)Car_Start,"void Car_Start(void)",
+	(void*)car_stop,"void car_stop(void)",
+	(void*)car_start,"void car_start(void)",
 	(void*)Car_Print,"void Car_Print(void)",
 	(void*)Car_SetPwm,"void Car_SetPwm(uint8_t dir, int16_t pwm)",
-	(void*)CarMode_Choose,"void CarMode_Choose(uint8_t mode)",
-	(void*)Car_Forward,"void Car_Forward(uint16_t dis, uint16_t speed)",
-	(void*)Car_Back,"void Car_Back(uint16_t dis, uint16_t speed)",
-	(void*)Car_Round,"void Car_Round(uint16_t dis, uint16_t speed, uint8_t dir)",
-	(void*)Car_Track,"void Car_Track(uint32_t dis, uint16_t speed, uint8_t dir)",
+	(void*)car_ctrl_set_mode,"void car_ctrl_set_mode(uint8_t mode)",
+	(void*)car_forward,"void car_forward(uint16_t dis, uint16_t speed)",
+	(void*)car_back,"void car_back(uint16_t dis, uint16_t speed)",
+	(void*)car_turn,"void car_turn(uint16_t dis, uint16_t speed, uint8_t dir)",
+	(void*)car_track,"void car_track(uint32_t dis, uint16_t speed, uint8_t dir)",
 		
 	(void*)Task1_PrintAction,"void Task1_PrintAction(void)",
 	//pid
-	(void*)Pid_SetMotorPara,"void Pid_SetMotorPara(uint8_t num, float Kp, float Ki, float Kd)",
+	(void*)vpid_set_motor_param,"void vpid_set_motor_param(uint8_t id, float Kp, float Ki, float Kd)",
 		
 	(void*)Arm_SetStatus,"void Arm_SetStatus(uint8_t status)",
 };						  

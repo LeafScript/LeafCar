@@ -134,7 +134,6 @@ static void motor_ctrl_init_one(uint8_t id)
 
 static void motor_ctrl_init(void)
 {
-	sMotor *motor = NULL;
 	uint8_t id;
 	for (id = 0; id < MOTOR_NUM; id++) {
 		motor_ctrl_init_one(id);

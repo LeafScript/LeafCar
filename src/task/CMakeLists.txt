@@ -22,3 +22,4 @@ include_directories(${COMMON_DIR}
 
 file(GLOB_RECURSE TASK_SRCS "${TASK_DIR}/*.c")
 add_library(task_lib STATIC ${TASK_SRCS})
+target_link_libraries(task_lib control_lib)

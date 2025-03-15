@@ -1,15 +1,15 @@
 #include "sys.h"
 #include "taskconf.h"
-#include "carmode.h"
+#include "car_ctrl.h"
+#include "car_option.h"
 
-extern sCar MyCar;
 static uint8_t action = 1;
 static uint8_t lock = 0;
 
 //任务一扫描
 void TestTask_Scan(void)
 {
-	if(MyCar.mode == STOP_MOVE){
+	if(car_ctrl_get_mode() == STOP_MOVE){
 		lock = 0;
 	}
 	if(lock){
@@ -17,7 +17,7 @@ void TestTask_Scan(void)
 	}
 	
 	switch(action){
-		case 1: Car_Track(2000,400,1); action++; lock = 1; break;
+		case 1: car_track(2000,400,1); action++; lock = 1; break;
 		default: break;
 	}
 }

@@ -5,8 +5,8 @@
 #include "usmart.h"
 #include "timer.h"
 #include "led.h"
-#include "car.h"
-#include "carmode.h"
+#include "car_basic.h"
+#include "car_ctrl.h"
 #include "cartask.h"
 #include "redwire.h"
 #include "carled.h"
@@ -64,7 +64,7 @@
 //
 /*************************************************************************/
 
-extern sCar MyCar;
+extern car_ctrl_s g_car_ctrl;
 
 //接收偏移程度
 extern int8_t carOffset;

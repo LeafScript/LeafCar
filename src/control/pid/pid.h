@@ -3,16 +3,6 @@
 
 #include "sys.h"
 
-////经典小车
-//#define INIT_KP		1.25
-//#define INIT_KI		2.85
-//#define INIT_KD		0.3
-
-//小蓝电机小车
-#define INIT_KP		1.25
-#define INIT_KI		2.0
-#define INIT_KD		0.4
-
 //限制一个周期最大编码值 100
 #define MAX_ENCODER  1000
 
@@ -25,16 +15,16 @@ typedef struct{
 	int err_last;     	// 最后一个偏差值
 	float Kp,Ki,Kd;		// 比例、积分、微分系数		->  增量式其实是 微分、比例、二阶微分
 						// 当前误差、上次误差、上上次误差系数	Q0=Kp+Ki+Kd    Q1=-Kp-2Kd    Q2=Kd
-}sMotorPid;
+} sMotorPid;
 
-void Pid_Init(void);
-void Pid_DeInit(void);
-void Pid_SetMotorSpeed(uint8_t num, int16_t encoderVal);
-void Pid_SetCarSpeed(int16_t encoderVal);
-void Pid_SetRoundSpeed(int16_t encoderVal);
-void Pid_SetCarSpeedByGray_Simple(int16_t encoderVal);
-void Pid_SetMotorPara(uint8_t num, float Kp, float Ki, float Kd);
-int Pid_GetMotorActualSpeed(uint8_t num);
-int16_t Pid_GetIncPwm(uint8_t num, int encoder);
+void vpid_ctrl_init(void);
+void vpid_ctrl_deinit(void);
+void vpid_set_motor_speed(uint8_t id, int16_t encoderVal);
+void vpid_set_car_speed(int16_t encoderVal);
+void vpid_set_round_speed(int16_t encoderVal);
+void vpid_set_car_speed_by_offset(int16_t encoderVal);
+void vpid_set_motor_param(uint8_t id, float Kp, float Ki, float Kd);
+int vpid_get_motor_actual_speed(uint8_t id);
+int16_t vpid_get_inc_pwm(uint8_t id, int encoder);
 
 #endif
