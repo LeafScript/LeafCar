@@ -64,13 +64,6 @@
 //
 /*************************************************************************/
 
-extern car_ctrl_s g_car_ctrl;
-
-//接收偏移程度
-extern int8_t carOffset;
-//接收线的"斜率"
-extern int8_t line_k;
-
 static void board_init(void)
 {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);		//配置中断优先级
@@ -89,10 +82,10 @@ static void service_init(void)
 {
 	usmart_dev.init(72);
 	delay_init();
-	Car_Init();
+	car_init();
 	Arm_Init();
 	timer_service_init();
-	timer_service_register(TIMER_SERV_TIM6, Car_Scan);
+	timer_service_register(TIMER_SERV_TIM6, car_scan);
 	timer_service_register(TIMER_SERV_TIM7, usmart_dev.scan);
 }
 

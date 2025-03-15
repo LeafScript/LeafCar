@@ -33,8 +33,8 @@ typedef struct{
 	uint8_t dir;        //小车运动方向
 	float speed;        //小车速度，100ms内编码值
 	float distance;		//小车运动距离
-	float targetDist;	//目标位移
-	int16_t encVal;		//设定速度对应编码值
+	float target_dist;	//目标位移
+	int16_t enc_val;	//设定速度对应编码值
 } car_ctrl_s;
 
 void car_ctrl_init(void);

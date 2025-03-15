@@ -3,7 +3,7 @@
 #include "pid.h"
 
 //小车向前
-//dis - 距离 mm
+//dist - 距离 mm
 //speed - 100ms编码器计数
 void car_forward(uint16_t dist, uint16_t speed)
 {
@@ -17,7 +17,7 @@ void car_forward(uint16_t dist, uint16_t speed)
 }
 
 //小车向后
-//dis - 距离 mm
+//dist - 距离 mm
 //speed - 100ms编码器计数
 void car_back(uint16_t dist, uint16_t speed)
 {
@@ -31,7 +31,7 @@ void car_back(uint16_t dist, uint16_t speed)
 }
 
 //小车循迹
-//dis - 距离 mm
+//dist - 距离 mm
 //speed - 100ms编码器计数
 //dir - 1:前  0:后
 void car_track(uint32_t dist, uint16_t speed, bool is_forward)
@@ -53,7 +53,7 @@ void car_track(uint32_t dist, uint16_t speed, bool is_forward)
 }
 
 //小车旋转
-//dis - 距离 mm
+//dist - 距离 mm
 //speed - 100ms编码器计数
 //dir - 1:顺  0:逆
 void car_turn(uint16_t dist, uint16_t speed, bool is_right)

@@ -31,12 +31,12 @@ struct _m_usmart_nametab usmart_nametab[]=
 	(void*)car_stop,"void car_stop(void)",
 	(void*)car_start,"void car_start(void)",
 	(void*)Car_Print,"void Car_Print(void)",
-	(void*)Car_SetPwm,"void Car_SetPwm(uint8_t dir, int16_t pwm)",
+	(void*)car_set_pwm,"void car_set_pwm(uint8_t dir, int16_t pwm)",
 	(void*)car_ctrl_set_mode,"void car_ctrl_set_mode(uint8_t mode)",
-	(void*)car_forward,"void car_forward(uint16_t dis, uint16_t speed)",
-	(void*)car_back,"void car_back(uint16_t dis, uint16_t speed)",
-	(void*)car_turn,"void car_turn(uint16_t dis, uint16_t speed, uint8_t dir)",
-	(void*)car_track,"void car_track(uint32_t dis, uint16_t speed, uint8_t dir)",
+	(void*)car_forward,"void car_forward(uint16_t dist, uint16_t speed)",
+	(void*)car_back,"void car_back(uint16_t dist, uint16_t speed)",
+	(void*)car_turn,"void car_turn(uint16_t dist, uint16_t speed, uint8_t dir)",
+	(void*)car_track,"void car_track(uint32_t dist, uint16_t speed, uint8_t dir)",
 		
 	(void*)Task1_PrintAction,"void Task1_PrintAction(void)",
 	//pid

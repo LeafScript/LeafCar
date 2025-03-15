@@ -19,10 +19,10 @@ typedef struct{
 
 void vpid_ctrl_init(void);
 void vpid_ctrl_deinit(void);
-void vpid_set_motor_speed(uint8_t id, int16_t encoderVal);
-void vpid_set_car_speed(int16_t encoderVal);
-void vpid_set_round_speed(int16_t encoderVal);
-void vpid_set_car_speed_by_offset(int16_t encoderVal);
+void vpid_set_motor_speed(uint8_t id, int16_t enc_val);
+void vpid_set_car_speed(int16_t enc_val);
+void vpid_set_round_speed(int16_t enc_val);
+void vpid_set_car_speed_by_offset(int16_t enc_val);
 void vpid_set_motor_param(uint8_t id, float Kp, float Ki, float Kd);
 int vpid_get_motor_actual_speed(uint8_t id);
 int16_t vpid_get_inc_pwm(uint8_t id, int encoder);

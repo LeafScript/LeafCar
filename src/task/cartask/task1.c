@@ -10,7 +10,6 @@
 #include "usart.h"
 #include "arm.h"
 
-extern car_ctrl_s g_car_ctrl;
 extern uint8_t recNum1;
 extern uint8_t recNum2;
 

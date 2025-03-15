@@ -1,18 +1,16 @@
 #include "car_basic.h"
-#include "motor.h"
 #include "car_ctrl.h"
-#include "cartask.h"
-#include "pid.h"
+#include "motor.h"
 #include "usart.h"
 
-void Car_Init()
+void car_init(void)
 {
 	motor_init();
 	car_ctrl_init();
 }
 
 //小车扫描
-void Car_Scan()
+void car_scan(void)
 {
 	uint8_t id;
 	//更新电机encoder数值
@@ -40,7 +38,7 @@ void Car_Print()
 }
 
 //设置小车4个电机PWM以及方向
-void Car_SetPwm(uint8_t dir, int16_t pwm)
+void car_set_pwm(uint8_t dir, int16_t pwm)
 {
 	uint8_t id;
 	for (id = 0; id < MOTOR_NUM; id++) {

@@ -3,9 +3,7 @@
 #include "pid.h"
 #include "usart.h"
 
-#include "taskconf.h"
-
-car_ctrl_s g_car_ctrl;
+static car_ctrl_s g_car_ctrl;
 
 void car_stop(void)
 {
@@ -28,7 +26,7 @@ static float car_get_distance(bool is_turn)
 {
 	if (is_turn) {
 		//小车路程 = (左前轮-右前轮)/2
-		return (motor_get_distance(FL_MOTOR) + motor_get_distance(FR_MOTOR)) / 2.0;
+		return (motor_get_distance(FL_MOTOR) - motor_get_distance(FR_MOTOR)) / 2.0;
 	} else {
 		//小车路程 = (左前轮+右前轮)/2
 		return (motor_get_distance(FL_MOTOR) + motor_get_distance(FR_MOTOR)) / 2.0;
@@ -102,13 +100,13 @@ static void car_set_target_mode(void)
 	g_car_ctrl.dir = CAR_STOP;
 	g_car_ctrl.speed = 0;
 	g_car_ctrl.distance = 0;
-	g_car_ctrl.targetDist = 0;
+	g_car_ctrl.target_dist = 0;
 }
 
 static void car_update_pwm_target_mode(void)
 {
-	if((g_car_ctrl.dir == CAR_FORWARD && g_car_ctrl.distance >= g_car_ctrl.targetDist) ||
-	   (g_car_ctrl.dir == CAR_BACK && g_car_ctrl.distance <= g_car_ctrl.targetDist)){
+	if((g_car_ctrl.dir == CAR_FORWARD && g_car_ctrl.distance >= g_car_ctrl.target_dist) ||
+	   (g_car_ctrl.dir == CAR_BACK && g_car_ctrl.distance <= g_car_ctrl.target_dist)){
 		car_set_stop_mode();
 	}
 	g_car_ctrl.speed = car_get_speed();
@@ -122,20 +120,20 @@ static void car_set_track_mode(void)
 	g_car_ctrl.dir = CAR_STOP;
 	g_car_ctrl.speed = 0;
 	g_car_ctrl.distance = 0;
-	g_car_ctrl.targetDist = 0;
-	g_car_ctrl.encVal = 0;
+	g_car_ctrl.target_dist = 0;
+	g_car_ctrl.enc_val = 0;
 }
 
 static void car_update_pwm_track_mode(void)
 {
-	if ((g_car_ctrl.dir == CAR_FORWARD && g_car_ctrl.distance >= g_car_ctrl.targetDist) ||
-	    (g_car_ctrl.dir == CAR_BACK && g_car_ctrl.distance <= g_car_ctrl.targetDist)){
+	if ((g_car_ctrl.dir == CAR_FORWARD && g_car_ctrl.distance >= g_car_ctrl.target_dist) ||
+	    (g_car_ctrl.dir == CAR_BACK && g_car_ctrl.distance <= g_car_ctrl.target_dist)){
 		car_set_stop_mode();
 	}
 	g_car_ctrl.speed = car_get_speed();
 	g_car_ctrl.distance = car_get_distance(false);
 	// 寻迹
-	vpid_set_car_speed_by_offset(g_car_ctrl.encVal);
+	vpid_set_car_speed_by_offset(g_car_ctrl.enc_val);
 	car_update_pwm_val();
 }
 
@@ -145,15 +143,15 @@ static void car_set_turn_mode(void)
 	g_car_ctrl.dir = MOTOR_STOP;
 	g_car_ctrl.speed = 0;
 	g_car_ctrl.distance = 0;
-	g_car_ctrl.targetDist = 0;
+	g_car_ctrl.target_dist = 0;
 }
 
 static void car_update_pwm_turn_mode(void)
 {
 	g_car_ctrl.speed = car_get_speed();
 	g_car_ctrl.distance = car_get_distance(true);
-	if ((g_car_ctrl.dir == CAR_RIGHT_TURN && g_car_ctrl.distance >= g_car_ctrl.targetDist) ||
-	    (g_car_ctrl.dir == CAR_LEFT_TURN && g_car_ctrl.distance <= g_car_ctrl.targetDist)){
+	if ((g_car_ctrl.dir == CAR_RIGHT_TURN && g_car_ctrl.distance >= g_car_ctrl.target_dist) ||
+	    (g_car_ctrl.dir == CAR_LEFT_TURN && g_car_ctrl.distance <= g_car_ctrl.target_dist)){
 		car_set_stop_mode();
 	}
 	car_update_pwm_val();
@@ -221,5 +219,5 @@ float car_ctrl_get_dist(void)
 
 void car_ctrl_set_target_dist(float dist)
 {
-	g_car_ctrl.targetDist = dist;
+	g_car_ctrl.target_dist = dist;
 }

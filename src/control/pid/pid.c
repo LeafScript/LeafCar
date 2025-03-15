@@ -57,25 +57,25 @@ void vpid_ctrl_deinit(void)
 
 //设置电机PID目标值 - 一个周期的编码值
 //id - 电机编号
-//encoderVal - 为正即正转，为负即反转
-void vpid_set_motor_speed(uint8_t id, int16_t encoderVal)
+//enc_val - 为正即正转，为负即反转
+void vpid_set_motor_speed(uint8_t id, int16_t enc_val)
 {
-	g_vpid_ctrl[id].target_val = MIN(encoderVal, MAX_ENCODER);	//限制电机最大速度
+	g_vpid_ctrl[id].target_val = MIN(enc_val, MAX_ENCODER);
 }
 
 //设置小车4个电机PID目标值
-void vpid_set_car_speed(int16_t encoderVal)
+void vpid_set_car_speed(int16_t enc_val)
 {
 	uint8_t id;
 	for (id = 0; id < MOTOR_NUM; id++) {
-		g_vpid_ctrl[id].target_val = MIN(encoderVal, MAX_ENCODER);	//限制电机最大速度
+		g_vpid_ctrl[id].target_val = MIN(enc_val, MAX_ENCODER);
 	}
 }
 
 //设置小车4个电机PID目标值
-void vpid_set_round_speed(int16_t encoderVal)
+void vpid_set_round_speed(int16_t enc_val)
 {
-	int16_t val = MIN(encoderVal, MAX_ENCODER);
+	int16_t val = MIN(enc_val, MAX_ENCODER);
 	g_vpid_ctrl[FL_MOTOR].target_val = val;
 	g_vpid_ctrl[FR_MOTOR].target_val = -val;
 	g_vpid_ctrl[BL_MOTOR].target_val = val;
@@ -102,7 +102,7 @@ extern int8_t line_k;
 
 //循迹时通过检测偏移度设置小车4个电机PID目标值
 //精简入门版
-void vpid_set_car_speed_by_offset(int16_t encoderVal)
+void vpid_set_car_speed_by_offset(int16_t enc_val)
 {
 	static float Kp = 0.55, Kd = 6.5;
 	static float cur_err = 0, next_err = 0;		//偏差加上->速度PD控制
@@ -111,10 +111,10 @@ void vpid_set_car_speed_by_offset(int16_t encoderVal)
 	next_err = cur_err;
 	cur_err = carOffset;
 	feedback = Kp * carOffset + Kd * (cur_err - next_err);
-	g_vpid_ctrl[FL_MOTOR].target_val = MIN(encoderVal, MAX_ENCODER) + feedback;
-	g_vpid_ctrl[FR_MOTOR].target_val = MIN(encoderVal, MAX_ENCODER) - feedback;
-	g_vpid_ctrl[BL_MOTOR].target_val = MIN(encoderVal, MAX_ENCODER) + feedback;
-	g_vpid_ctrl[BR_MOTOR].target_val = MIN(encoderVal, MAX_ENCODER) - feedback;
+	g_vpid_ctrl[FL_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) + feedback;
+	g_vpid_ctrl[FR_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) - feedback;
+	g_vpid_ctrl[BL_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) + feedback;
+	g_vpid_ctrl[BR_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) - feedback;
 }
 
 //设置电机PID参数值
