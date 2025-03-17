@@ -7,10 +7,11 @@
 #include "led.h"
 #include "car_basic.h"
 #include "car_ctrl.h"
-#include "cartask.h"
+#include "car_task.h"
 #include "redwire.h"
 #include "carled.h"
 #include "arm.h"
+#include "service_timer.h"
 
 /***************************定时器通道引脚********************************/
 //				CH1				CH2				CH3				CH4
@@ -78,6 +79,12 @@ static void board_init(void)
 	Redwire_Init();
 }
 
+static void background_service_scan(void)
+{
+	service_timer_scan();
+	usmart_dev.scan();
+}
+
 static void service_init(void)
 {
 	usmart_dev.init(72);
@@ -86,7 +93,8 @@ static void service_init(void)
 	Arm_Init();
 	timer_service_init();
 	timer_service_register(TIMER_SERV_TIM6, car_scan);
-	timer_service_register(TIMER_SERV_TIM7, usmart_dev.scan);
+	timer_service_register(TIMER_SERV_TIM7, background_service_scan);
+	service_timer_init(20);
 	car_task_init(CAR_TASK_2);
 }
 
