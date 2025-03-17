@@ -30,7 +30,7 @@ struct _m_usmart_nametab usmart_nametab[]=
 	//小车基础操作
 	(void*)car_stop,"void car_stop(void)",
 	(void*)car_start,"void car_start(void)",
-	(void*)Car_Print,"void Car_Print(void)",
+	(void*)car_print,"void car_print(void)",
 	(void*)car_set_pwm,"void car_set_pwm(uint8_t dir, int16_t pwm)",
 	(void*)car_ctrl_set_mode,"void car_ctrl_set_mode(uint8_t mode)",
 	(void*)car_forward,"void car_forward(uint16_t dist, uint16_t speed)",

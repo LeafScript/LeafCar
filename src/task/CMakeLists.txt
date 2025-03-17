@@ -17,7 +17,7 @@ set(AT_DELAY_DIR ${ALIENTEK_DIR}/system/delay)
 set(AT_USMART_DIR ${ALIENTEK_DIR}/usmart)
 
 include_directories(${COMMON_DIR}
-    ${CAR_DIR} ${PID_DIR} ${CARTASK_DIR}
+    ${CAR_DIR} ${PID_DIR} ${CARTASK_DIR} ${TASK_DIR}
     ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR})
 
 file(GLOB_RECURSE TASK_SRCS "${TASK_DIR}/*.c")

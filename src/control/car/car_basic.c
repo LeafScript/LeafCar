@@ -13,14 +13,8 @@ void car_init(void)
 void car_scan(void)
 {
 	uint8_t id;
-	//更新电机encoder数值
 	motor_update_encoder();
-	/*-------------------更新电机PWM-------------------*/
-	
 	car_ctrl_update_pwm();
-	
-	/*-------------------------------------------------*/
-	//更新电机方向 - pwm
 	for (id = 0; id < MOTOR_NUM; id++) {
 		motor_update_dir_val(id);
 		motor_set_pwm(id, motor_get_pwm_val(id));
@@ -29,7 +23,7 @@ void car_scan(void)
 }
 
 //小车状态打印
-void Car_Print()
+void car_print(void)
 {
 	uint8_t id;
 	for (id = 0; id < MOTOR_NUM; id++) {

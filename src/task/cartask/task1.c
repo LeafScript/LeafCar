@@ -40,7 +40,7 @@ void Task1_SetMutiMode(uint8_t mode)
 }
 
 //任务一扫描
-void Task1_Scan()
+void car_task1_scan(void)
 {
 	if(car_ctrl_get_mode() == STOP_MOVE){
 		lock = 0;

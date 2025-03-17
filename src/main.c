@@ -87,11 +87,13 @@ static void service_init(void)
 	timer_service_init();
 	timer_service_register(TIMER_SERV_TIM6, car_scan);
 	timer_service_register(TIMER_SERV_TIM7, usmart_dev.scan);
+	car_task_init(CAR_TASK_2);
 }
 
 static void service_start(void)
 {
 	timer_service_start();
+	car_task_start(CAR_TASK_2);
 }
 
 int main(void)
@@ -101,6 +103,6 @@ int main(void)
 	service_start();
 	while(1)
 	{
-		CarTask_Scan();
+		car_task_scan();
 	}
 }
