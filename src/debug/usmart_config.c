@@ -8,8 +8,7 @@
 #include "led.h"
 #include "car_basic.h"
 #include "car_ctrl.h"
-#include "car_option.h"
-#include "task1.h"
+#include "car_op.h"
 #include "pid.h"
 #include "arm.h"
 	 
@@ -38,7 +37,6 @@ struct _m_usmart_nametab usmart_nametab[]=
 	(void*)car_turn,"void car_turn(uint16_t dist, uint16_t speed, uint8_t dir)",
 	(void*)car_track,"void car_track(uint32_t dist, uint16_t speed, uint8_t dir)",
 		
-	(void*)Task1_PrintAction,"void Task1_PrintAction(void)",
 	//pid
 	(void*)vpid_set_motor_param,"void vpid_set_motor_param(uint8_t id, float Kp, float Ki, float Kd)",
 		

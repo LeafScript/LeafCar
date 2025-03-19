@@ -5,12 +5,14 @@
 enum task_status_e {
     TASK_STOP,
     TASK_RUNNING,
+    TASK_ASYNC_BACK,
     TASK_TIMEOUT,
     TASK_FINISHED
 };
 
 typedef struct {
     uint8_t step;
+    uint8_t next_step;
     uint8_t status;
 } task_priv_info;
 
@@ -49,7 +51,8 @@ static void task_current(task_context_t *task_ctx)
 static void task_next(task_context_t *task_ctx)
 {
     task_priv_info *info = (task_priv_info *)task_ctx->priv;
-    info->step++;
+    info->step = info->next_step;
+    info->next_step++;
     info->status = TASK_RUNNING;
 }
 
@@ -84,7 +87,11 @@ static void task_restart(task_context_t *task_ctx)
 static void task_async_wait(task_context_t *task_ctx)
 {
     task_priv_info *info = (task_priv_info *)task_ctx->priv;
-    info->status = TASK_STOP;
+    if (info->status == TASK_ASYNC_BACK) {
+        task_next(task_ctx);
+    } else {
+        info->status = TASK_STOP;
+    }
 }
 
 void task_async_cb(task_context_t *task_ctx)
@@ -92,6 +99,8 @@ void task_async_cb(task_context_t *task_ctx)
     task_priv_info *info = (task_priv_info *)task_ctx->priv;
     if (info->status == TASK_STOP) {
         task_next(task_ctx);
+    } else {
+        info->status = TASK_ASYNC_BACK;
     }
     if (task_ctx->async_back != NULL) {
         task_ctx->async_back();
@@ -145,4 +154,10 @@ void task_scan(task_context_t *task_ctx)
         return;
     }
     status_ops[res](task_ctx);
+}
+
+void task_next_step(task_context_t *task_ctx, uint8_t next_step)
+{
+    task_priv_info *info = (task_priv_info *)task_ctx->priv;
+    info->next_step = next_step;
 }

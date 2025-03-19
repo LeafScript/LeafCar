@@ -13,7 +13,7 @@ enum task_result_e {
     TASK_RES_MAX
 };
 
-#define TASK_PRIV_INFO_SIZE 2
+#define TASK_PRIV_INFO_SIZE 3
 
 typedef int (*task_exec_func)(void);     // return enum task_result_e
 
@@ -34,5 +34,6 @@ int task_init(task_context_t *task_ctx);
 void task_start(task_context_t *task_ctx);
 void task_scan(task_context_t *task_ctx);
 void task_async_cb(task_context_t *task_ctx);
+void task_next_step(task_context_t *task_ctx, uint8_t step);
 
 #endif
