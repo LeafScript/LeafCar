@@ -1,8 +1,6 @@
 #ifndef __TASKCONF_H
 #define __TASKCONF_H
 
-#include "sys.h"
-
 //-------调试步骤
 //1. 1m距离补偿                先不补偿，再补偿，算出     走中端    MUTI_PER_METER     正
 //2. 转弯前补偿前进的距离      先不补偿，再补偿，算出     走近端    ROUND_MUTI         正
