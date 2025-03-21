@@ -9,251 +9,203 @@
 #include "delay.h"		//在不稳定的地方延时一下
 #include "usart.h"
 #include "arm.h"
+#include "car_task_op.h"
+#include "car_task_schedule.h"
 
 extern uint8_t recNum1;
 extern uint8_t recNum2;
 
-static uint8_t action = 1;
-static uint8_t lock = 0;
-static uint8_t storeNum = 2;	//识别到的房间号数字
+static uint8_t room_num = 2;	//识别到的房间号数字
 static uint8_t nowNum1 = 0;		//识别到的当前数字1
 static uint8_t nowNum2 = 0;		//识别到的当前数字2
-static uint8_t jmpAction = 0;
-static uint8_t joint = 0;		//小车到达节点  1~5
-static uint8_t joint2 = 0;		//小车到达节点  6，7
-
-static uint8_t mutiMode = 1;	//小车加砝码模式  1:加砝码
-
-static uint8_t recNum2_backup;
-
-//调试模式打印小车步骤
-void Task1_PrintAction()
+static uint16_t jmp_next = 0;
+static uint16_t car_stop_jump_next(void)
 {
-	printf("action=%d\r\n",action);
+	return (car_ctrl_get_mode() == STOP_MOVE) ? 1 : 0;
 }
 
-//切换小车加重模式
-// 1: 加砝码  0: 不加
-void Task1_SetMutiMode(uint8_t mode)
+static uint16_t room_1_2_judge(void)
 {
-	mutiMode = mode;
+	if (recNum1 == 0 && recNum2 == 0){		//未识别到数字
+		return 0;
+	}
+	room_num = (recNum1 != 0) ? recNum1 : recNum2;
+	// 若为1,2号病房，进入近端病房; 否则运动到中部病房识别
+	jmp_next = (room_num == 1 || room_num == 2) ? 1 : 21;
+	recNum1 = 0;
+	recNum2 = 0;
+	return 1;
 }
 
-//任务一扫描
-void car_task1_scan(void)
+static uint16_t room_1_2_jump(void)
 {
-	if(car_ctrl_get_mode() == STOP_MOVE){
-		lock = 0;
+	if (!Redwire_isFull()) {
+		return 0;
 	}
-	if(lock){
-		return;
+	return jmp_next;
+}
+
+static uint16_t room_1_2_car_turn(void)
+{
+	car_turn(VERTICAL_L, TURN_SPEED, (room_num == 1) ? 0 : 1);
+	return 1;
+}
+
+static uint16_t room_3_4_judge(void)
+{
+	if (recNum1 == 0 || recNum2 == 0){		// 未同时识别到2个数字
+		return 0;
 	}
-	
-	
-	if(action>=6 && recNum1<=2){
-		recNum1 = 0;
+	// 若为3,4号病房则进入中部病房; 否则运动到远端交叉路口识别
+	jmp_next = (recNum1 == room_num || recNum2 == room_num) ? 1 : 21;
+	nowNum1 = recNum1;
+	nowNum2 = recNum2;
+	recNum1 = 0;
+	recNum2 = 0;
+	return 1;
+}
+
+static uint16_t room_3_4_car_turn(void)
+{
+	car_turn(VERTICAL_L, TURN_SPEED, (nowNum1 == room_num) ? 0 : 1);
+	return 1;
+}
+
+static uint16_t room_remote_1_judge(void)
+{
+	if (recNum1 <= 2 && recNum2 <= 2){		//未识别到数字
+		return 0;
 	}
-	if(action>=6 && recNum2<=2){
-		recNum2 = 0;
+	nowNum1 = recNum1;
+	nowNum2 = recNum2;
+	recNum1 = 0;
+	recNum2 = 0;
+	return 1;
+}
+
+static uint16_t room_remote_1_car_turn(void)
+{
+	car_turn(VERTICAL_L, TURN_SPEED, (nowNum1 == room_num || nowNum2 == room_num) ? 0 : 1);
+	return 1;
+}
+
+static uint16_t room_remote_2_judge(void)
+{
+	if (recNum1 <= 2 && recNum2 <= 2){		//未识别到数字
+		return 0;
 	}
-	
-	switch(action){
-			/*&& 起始状态 &&*/
-		/*&&&&&&&&& 加砝码 &&&&&&&&&&*/
-		case 1: Arm_SetStatus(1); delay_ms(500); action++; break;
-			/*########### K210识别得到病房号 ##########*/
-		case 2: Arm_SetStatus(2); action++; break;
-		case 3: delay_ms(500); action++; break;		//延时等待识别稳定
-		case 4:
-			#if (TASK_TEST==0)
-			if(recNum1==0 && recNum2==0){		//未识别到数字
-				return;
-			}else{
-				if(recNum1!=0){ storeNum =recNum1; }
-				else		  { storeNum =recNum2; }
-				recNum1=0; recNum2=0; action++;
-				if(storeNum==1 || storeNum==2){		// 1,2号病房，不需要K210识别
-					jmpAction = 6; joint = 1;
-				}else{								// 运动到中部病房识别
-					jmpAction = 20; joint = 2;
-				}
-			}
-			#else
-			action++;
-			if(storeNum==1 || storeNum==2){		// 1,2号病房，不需要K210识别
-				jmpAction = 6; joint = 1;
-			}else{								// 运动到中部病房识别
-				jmpAction = 20; joint = 2;
-			}
-			#endif
-		break;
-		case 5: if(Redwire_isFull()){action = jmpAction;} break;
-		/*--------------------------1,2号病房------------------------------*/
-		case 6: Arm_SetStatus(1); car_track(570,SPEED,1); action++; lock = 1; break;
-		case 7: car_forward(180,SPEED); action++; lock = 1; break;
-		case 8:
-			if(storeNum == 1) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else              { car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
-			action++; lock = 1; 
-		break;
-		case 9: car_track(300,SPEED,1); action++; lock = 1; break;
-		case 10: car_forward(100,SPEED); action++; lock = 1; break;
-		case 11: RedLed = 1; if(!Redwire_isFull()){action++;} break;
-		case 12: RedLed = 0; car_back(400,SPEED); action++; lock = 1; break;	//倒车
-		case 13:
-			if(storeNum == 1) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else              { car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
-			action++; lock = 1;
-		break;
-		case 14: car_track(550,SPEED,1); action++; lock = 1; break;
-		case 15: car_forward(100,SPEED); action++; lock = 1; break;
-		case 16: GreLed = 1; break;		/*@@@@@@@@@@@@ 结束 @@@@@@@@@@@@@*/
-		
-			/*########### K210识别判断病房在中部&远端（左右都要识别） ##########*/
-		case 20: car_track(1350,SPEED,1); Arm_SetStatus(1); action++; lock = 1; break;	//机械臂收回
-		case 21: Arm_SetStatus(2); action++; break;	//机械臂中间伸出
-		case 22: delay_ms(1000); delay_ms(500); action++; break;		//延时等待识别稳定
-		case 23:
-			#if (TASK_TEST==0)
-			if(recNum1==0 || recNum2==0){		//未同时识别到2个数字
-//			if(!(recNum1 || recNum2)){				//识别到其中1个数字
-				return;
-			}else{
-				nowNum1 = recNum1; recNum1 = 0;
-				nowNum2 = recNum2; recNum2 = 0;
-				action++;
-				if(nowNum1==storeNum || nowNum2==storeNum){		// 中部病房
-					jmpAction = 30; joint = 2;
-				}else{								// 运动到远端交叉路口识别
-					jmpAction = 50; joint = 3;
-					//jmpAction = 30; joint = 2;
-				}
-			}
-			#else
-			action++;
-			if(1 || (nowNum1==storeNum && nowNum2==storeNum)){		// 中部病房
-				jmpAction = 30; joint = 2; nowNum1 = storeNum;
-			}else{								// 运动到远端交叉路口识别
-				jmpAction = 40; joint = 3; nowNum2 = storeNum;
-			}
-			#endif
-		break;
-		case 24: action = jmpAction; break;
-		/*--------------------------中部病房------------------------------*/
-		case 30: Arm_SetStatus(1); delay_ms(1000); action++; break;	//收回手臂
-		case 31: car_forward(300,SPEED); action++; lock = 1; break;	//前进一些
-		case 32:
-			if(nowNum1 == storeNum) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else              		{ car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
-			action++; lock = 1;
-		break;
-		case 33: car_track(400,SPEED,1); action++; lock = 1; break;
-		case 34: car_forward(50,SPEED); action++; lock = 1; break;	//前进一些
-		case 35: RedLed = 1; if(!Redwire_isFull()){action++;} break;
-		case 36: RedLed = 0; car_back(450,SPEED); action++; lock = 1; break;
-		case 37:
-			if(nowNum1 == storeNum) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else              		{ car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
-			action++; lock = 1;
-		break;
-		case 38: car_track(1500,SPEED,1); action++; lock = 1; break;
-		case 39: car_forward(50,SPEED); action++; lock = 1; break;	//前进一些
-		case 40: GreLed = 1; break;		/*@@@@@@@@@@@@ 结束 @@@@@@@@@@@@@*/
-		
-			
-			
-			
-			/*########### K210识别判断病房在 远端第一交叉路口 左右（左，右边通过左边推断出） ##########*/
-		case 50: Arm_SetStatus(1); delay_ms(1000); action++; break;	//收回手臂
-		case 51: car_forward(150,SPEED); action++; lock = 1; break;	//前进一些
-		case 52: car_track(830,SPEED,1); action++; lock = 1; break;
-		case 53: Arm_SetStatus(3); delay_ms(1000); delay_ms(500); action++; break;	//机械臂中间伸出
-		case 54:
-			#if (TASK_TEST==0)
-			if(recNum1==storeNum || recNum2==storeNum){
-				jmpAction = 60; joint = 4;		// 远端第一交叉路口左侧
-				 recNum1 = 0;  recNum2 = 0;
-			}else{
-				jmpAction = 60; joint = 5;
-				 recNum1 = 0;  recNum2 = 0;
-			}
-			action++;
-			#else
-			action++;
-			if(1 || (nowNum1==storeNum && nowNum2==storeNum)){		// 远端第一交叉路口左侧
-				 jmpAction = 60; joint = 4;
-			}else{											// 远端第一交叉路口右侧
-				 jmpAction = 60; joint = 5;
-			}
-			#endif
-		break;
-		case 55: action = jmpAction; break;
-		/*--------------------------远端病房第一交叉路口-->远端病房第二交叉路口------------------------------*/
-		case 60: car_forward(150,SPEED); action++; lock = 1; break;
-		case 61:
-			if(joint == 4) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else           { car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
-			action++; lock = 1;
-		break;
-		case 62: car_track(590,SPEED,1); action++; lock = 1; break;
-		case 63: car_forward(50,SPEED); action++; lock = 1; break;	//前进一些
-		
-			/*########### K210识别判断病房在远端第二交叉路口左右 ##########*/
-		case 64: delay_ms(500); action++; break;	//延时识别
-		case 65:
-			#if (TASK_TEST==0)
-			if(recNum1==0 && recNum2==0){		//识别到1个数字
-				return;
-			}else{
-				action++;
-				if(recNum1==storeNum || recNum2==storeNum){		// 远端第二交叉路口左侧
-					 jmpAction = 70; joint2 = 6;		//左
-					 recNum1 = 0;  recNum2 = 0;
-				}else{											// 远端第二交叉路口右侧
-					 jmpAction = 70; joint2 = 7;		//右
-					recNum1 = 0;  recNum2 = 0;
-				}
-			}
-			#else
-			action++;
-			if(1 || (nowNum1==storeNum && nowNum2==storeNum)){		// 远端第二交叉路口左侧
-				 jmpAction = 70; joint2 = 6;		//左
-			}else{											// 远端第二交叉路口右侧
-				 jmpAction = 70; joint2 = 7;		//右
-			}
-			#endif
-		break;
-		case 66: action = jmpAction; break;
-		/*--------------------------远端病房&退回------------------------------*/
-		case 70: car_forward(200,SPEED); action++; lock = 1; break;	//前进一些
-		case 71:
-			if(joint2 == 6) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else            { car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
-			action++; lock = 1;
-		break;
-		case 72: car_track(400,SPEED,1); action++; lock = 1; break;
-		case 73: car_forward(50,SPEED); action++; lock = 1; break;	//前进一些
-		case 74: RedLed = 1; if(!Redwire_isFull()){action++;} break;
-		/*&&&&&&&&& 不加砝码 &&&&&&&&&&*/
-		case 75: RedLed = 0; car_back(450,SPEED); action++; lock = 1; break;
-		case 76:
-			if(joint2 == 6) { car_turn(VERTICAL_L,TURN_SPEED,0); }		//左转
-			else            { car_turn(VERTICAL_R,TURN_SPEED,1); }		//右转
-			action++; lock = 1;
-		break;
-		case 77: car_track(750,SPEED,1); action++; lock = 1; break;
-		case 78: car_forward(150,SPEED); action++; lock = 1; break;	//前进一些
-		case 79:
-			if(joint == 4) { car_turn(VERTICAL_L,TURN_SPEED,1); }		//右转
-			else           { car_turn(VERTICAL_R,TURN_SPEED,0); }		//左转
-			action++; lock = 1;
-		break;
-		case 80: car_track(2450,SPEED,1); action++; lock = 1; break;
-		case 81: car_forward(50,SPEED); action++; lock = 1; break;	//前进一些
-		case 82: GreLed = 1; break;		/*@@@@@@@@@@@@ 结束 @@@@@@@@@@@@@*/
-		
-		default: break;
-	}
-	
-	recNum2_backup = recNum2;
+	nowNum1 = recNum1;
+	nowNum2 = recNum2;
+	recNum1 = 0;
+	recNum2 = 0;
+	return 1;
+}
+
+static uint16_t room_remote_2_car_turn(void)
+{
+	car_turn(VERTICAL_L, TURN_SPEED, (nowNum1 == room_num || nowNum2 == room_num) ? 0 : 1);
+	return 1;
+}
+
+static car_op_s g_car_task1_op_list[] = {
+	{ CAR_OP_OBJ_ARM, ARM_OP_FOLD },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_ARM, ARM_OP_MIDDLE },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_1_2_judge } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_1_2_jump } },
+	// 1, 2号病房
+	{ CAR_OP_OBJ_ARM, ARM_OP_FOLD },
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 570, .speed = SPEED, .is_forward = 1 } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 180, .speed = SPEED} },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_1_2_car_turn } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 300, .speed = SPEED, .is_forward = 1 } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 100, .speed = SPEED } },
+	{ CAR_OP_OBJ_LED, LED_OP_ON, .led_param = { .color = LED_RED } },
+	{ CAR_OP_OBJ_REDWIRE, REDWIRE_OP_IS_NOT_FULL, .redwire_param = { .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_LED, LED_OP_OFF, .led_param = { .color = LED_RED } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_BACK, .car_param = { .dist = 400, .speed = SPEED } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_1_2_car_turn } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 550, .speed = SPEED, .is_forward = 1 } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 100, .speed = SPEED } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_LED, LED_OP_ON, .led_param = { .color = LED_GREEN } },
+	{ CAR_OP_OBJ_OP, OP_OP_END },
+	// K210识别判断病房在中部&远端（左右都要识别）
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 1350, .speed = SPEED, .is_forward = 1 } },
+	{ CAR_OP_OBJ_ARM, ARM_OP_FOLD },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_ARM, ARM_OP_MIDDLE },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1500, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_3_4_judge } },
+	// 中部病房
+	{ CAR_OP_OBJ_ARM, ARM_OP_FOLD },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1000, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 300, .speed = SPEED} },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_3_4_car_turn } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 400, .speed = SPEED, .is_forward = 1 } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 50, .speed = SPEED} },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_LED, LED_OP_ON, .led_param = { .color = LED_RED } },
+	{ CAR_OP_OBJ_REDWIRE, REDWIRE_OP_IS_NOT_FULL, .redwire_param = { .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_LED, LED_OP_OFF, .led_param = { .color = LED_RED } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_BACK, .car_param = { .dist = 450, .speed = SPEED } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_3_4_car_turn } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 1500, .speed = SPEED, .is_forward = 1 } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 50, .speed = SPEED} },
+	{ CAR_OP_OBJ_LED, LED_OP_ON, .led_param = { .color = LED_GREEN } },
+	{ CAR_OP_OBJ_OP, OP_OP_END },
+	// K210识别判断病房在 远端第一交叉路口 左右（左，右边通过左边推断出）
+	{ CAR_OP_OBJ_ARM, ARM_OP_FOLD },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1000, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 150, .speed = SPEED} },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 830, .speed = SPEED, .is_forward = 1 } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_ARM, ARM_OP_LEFT },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1500, .cb = car_task_async_cb } },
+	// 远端病房第一交叉路口-->远端病房第二交叉路口
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 150, .speed = SPEED} },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_remote_1_car_turn } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 590, .speed = SPEED, .is_forward = 1 } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 50, .speed = SPEED} },
+	// K210识别判断病房在远端第二交叉路口左右
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_remote_2_judge } },
+	// 远端病房&退回
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 200, .speed = SPEED} },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_remote_2_car_turn } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 400, .speed = SPEED, .is_forward = 1 } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 50, .speed = SPEED} },
+	{ CAR_OP_OBJ_LED, LED_OP_ON, .led_param = { .color = LED_RED } },
+	{ CAR_OP_OBJ_REDWIRE, REDWIRE_OP_IS_NOT_FULL, .redwire_param = { .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_LED, LED_OP_OFF, .led_param = { .color = LED_RED } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_BACK, .car_param = { .dist = 450, .speed = SPEED } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
+	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_remote_2_car_turn } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 2450, .speed = SPEED, .is_forward = 1 } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 50, .speed = SPEED} },
+	{ CAR_OP_OBJ_LED, LED_OP_ON, .led_param = { .color = LED_GREEN } },
+	{ CAR_OP_OBJ_OP, OP_OP_END },
+};
+
+int car_task1_info_init(void)
+{
+	return car_task_info_init(g_car_task1_op_list, ARRAY_SIZE(g_car_task1_op_list));
 }

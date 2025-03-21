@@ -9,7 +9,8 @@ typedef struct {
     uint32_t trigger_times;     // 0: loop forever
     uint32_t counter;
     uint32_t times;
-    void (*cb)(void);
+    void (*cb)(void *priv);
+    void *priv;
 } register_counter_s;
 
 static uint64_t g_global_counter;
@@ -37,7 +38,7 @@ static void service_timer_scan_one(register_counter_s *reg_counter)
     }
     reg_counter->counter = 0;
     reg_counter->times++;
-    reg_counter->cb();
+    reg_counter->cb(reg_counter->priv);
     if (reg_counter->trigger_times != 0 && reg_counter->times >= reg_counter->trigger_times) {
         reg_counter->is_registered = false;
         reg_counter->cb = NULL;
@@ -58,7 +59,7 @@ void service_timer_scan(void)
     }
 }
 
-int service_timer_trigger_muti(uint32_t trigger_ms, void (*cb)(void), uint32_t trigger_times)
+int service_timer_trigger_muti(uint32_t trigger_ms, void (*cb)(void *priv), void *priv, uint32_t trigger_times)
 {
     register_counter_s *reg_counter = NULL;
     int i;
@@ -79,16 +80,17 @@ int service_timer_trigger_muti(uint32_t trigger_ms, void (*cb)(void), uint32_t t
     reg_counter->counter = 0;
     reg_counter->times = 0;
     reg_counter->cb = cb;
+    reg_counter->priv = priv;
     g_register_num++;
     return EC_OK;
 }
 
-int service_timer_trigger_once(uint32_t trigger_ms, void (*cb)(void))
+int service_timer_trigger_once(uint32_t trigger_ms, void (*cb)(void *priv), void *priv)
 {
-    return service_timer_trigger_muti(trigger_ms, cb, 1);
+    return service_timer_trigger_muti(trigger_ms, cb, priv, 1);
 }
 
-int service_timer_loop(uint32_t trigger_ms, void (*cb)(void))
+int service_timer_loop(uint32_t trigger_ms, void (*cb)(void *priv), void *priv)
 {
-    return service_timer_trigger_muti(trigger_ms, cb, 0);
+    return service_timer_trigger_muti(trigger_ms, cb, priv, 0);
 }

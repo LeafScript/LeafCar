@@ -13,6 +13,12 @@
 #define YelLed PFout(8)
 #define GreLed PFout(9)
 
+enum led_color_e {
+    LED_RED,
+    LED_YELLOW,
+    LED_GREEN
+};
+
 void Carled_Init(void);
 
 #endif
