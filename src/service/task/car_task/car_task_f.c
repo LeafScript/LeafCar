@@ -1,4 +1,4 @@
-#include "task1.h"
+#include "car_task_f.h"
 #include "taskconf.h"
 #include "redwire.h"
 #include "car_ctrl.h"
@@ -114,7 +114,7 @@ static uint16_t room_remote_2_car_turn(void)
 	return 1;
 }
 
-static car_op_s g_car_task1_op_list[] = {
+static car_op_s g_car_task_f_op_list[] = {
 	{ CAR_OP_OBJ_ARM, ARM_OP_FOLD },
 	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = car_task_timer_async_cb } },
 	{ CAR_OP_OBJ_ARM, ARM_OP_MIDDLE },
@@ -212,7 +212,7 @@ static car_op_s g_car_task1_op_list[] = {
 	{ CAR_OP_OBJ_OP, OP_OP_END },
 };
 
-int car_task1_info_init(void)
+int car_task_f_info_init(void)
 {
-	return car_task_info_init(g_car_task1_op_list, ARRAY_SIZE(g_car_task1_op_list));
+	return car_task_info_init(g_car_task_f_op_list, ARRAY_SIZE(g_car_task_f_op_list));
 }

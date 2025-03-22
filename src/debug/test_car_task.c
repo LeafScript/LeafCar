@@ -42,7 +42,7 @@ static uint16_t test_get_step_15(void)
     return 15;
 }
 
-static car_op_s g_car_task1_op_list[] = {
+static car_op_s g_car_task_test_op_list[] = {
     // timer test
 	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = test_led1_toggle } },
 	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = test_led1_toggle } },
@@ -67,5 +67,5 @@ static car_op_s g_car_task1_op_list[] = {
 
 int test_car_task_info_init(void)
 {
-	return car_task_info_init(g_car_task1_op_list, ARRAY_SIZE(g_car_task1_op_list));
+	return car_task_info_init(g_car_task_test_op_list, ARRAY_SIZE(g_car_task_test_op_list));
 }

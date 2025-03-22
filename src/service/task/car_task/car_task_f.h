@@ -3,6 +3,6 @@
 
 #include "base_type.h"
 
-int car_task1_info_init(void);
+int car_task_f_info_init(void);
 
 #endif

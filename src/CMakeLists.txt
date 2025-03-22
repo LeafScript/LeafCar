@@ -17,7 +17,9 @@ set(INC_DIR ${SRC_DIR}/include)
 set(BSP_DIR ${SRC_DIR}/bsp)
 set(COMMON_DIR ${SRC_DIR}/common)
 set(CONTROL_DIR ${SRC_DIR}/control)
-set(TASK_DIR ${SRC_DIR}/task)
+set(SERVICE_DIR ${SRC_DIR}/service)
+set(FOUNDATION_DIR ${SERVICE_DIR}/foundation)
+set(TASK_DIR ${SERVICE_DIR}/task)
 set(DEBUG_DIR ${SRC_DIR}/debug)
 
 set(LED_DIR ${BSP_DIR}/led)
@@ -32,7 +34,8 @@ set(K210_DIR ${CONTROL_DIR}/k210)
 set(OPENMV_DIR ${CONTROL_DIR}/openmv)
 set(SERVICE_TIMER_DIR ${CONTROL_DIR}/service_timer)
 
-set(CARTASK_DIR ${TASK_DIR}/cartask)
+set(CAR_TASK_DIR ${TASK_DIR}/car_task)
+set(UPDATE_TASK_DIR ${TASK_DIR}/update_task)
 
 set(ALIENTEK_DIR ${3RD_DIR}/alientek)
 set(AT_SYS_DIR ${ALIENTEK_DIR}/system/sys)
@@ -49,10 +52,9 @@ set(ST_SPL_INC_DIR ${ST_DIR}/cmsis/spl/inc)
 set(ST_USER_DIR ${ST_DIR}/user_templete)
 set(ST_USER_STM32F10X_DIR ${ST_USER_DIR}/stm32f10x)
 
-include_directories(${COMMON_DIR} ${DEBUG_DIR} ${INC_DIR} ${TASK_DIR}
-    ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR}
-    ${USART_DIR}
-    ${CAR_DIR} ${CARARM_DIR} ${K210_DIR} ${OPENMV_DIR} ${SERVICE_TIMER_DIR} ${CARTASK_DIR}
+include_directories(${COMMON_DIR} ${DEBUG_DIR} ${INC_DIR} ${FOUNDATION_DIR}
+    ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR} ${USART_DIR}
+    ${CAR_DIR} ${CARARM_DIR} ${K210_DIR} ${OPENMV_DIR} ${SERVICE_TIMER_DIR} ${CAR_TASK_DIR} ${UPDATE_TASK_DIR}
     ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR}
     ${CM3_DIR} ${ST_CMSIS_CORE_DIR} ${ST_SPL_INC_DIR} ${ST_USER_STM32F10X_DIR})
 
@@ -66,11 +68,11 @@ add_library(alientek_lib STATIC ${ALIENTEK_SRCS})
 
 add_subdirectory(${BSP_DIR} bsp_lib)
 add_subdirectory(${CONTROL_DIR} control_lib)
-add_subdirectory(${TASK_DIR} task_lib)
+add_subdirectory(${SERVICE_DIR} service_lib)
 add_subdirectory(${DEBUG_DIR} debug_lib)
 
 add_executable(leafcar ${SRC_DIR}/main.c ${ST_STARTUP_DIR}/startup_stm32f103zetx.s)
-target_link_libraries(leafcar arm_lib st_lib alientek_lib bsp_lib control_lib task_lib debug_lib)
+target_link_libraries(leafcar arm_lib st_lib alientek_lib bsp_lib control_lib service_lib debug_lib)
 
 # 将ELF文件转换为HEX/BIN文件
 set(ELF_FILE leafcar)
