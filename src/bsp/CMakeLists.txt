@@ -12,7 +12,6 @@ set(REDWIRE_DIR ${BSP_DIR}/redwire)
 set(TB6612_DIR ${BSP_DIR}/tb6612)
 set(TIMER_DIR ${BSP_DIR}/timer)
 set(USART_DIR ${BSP_DIR}/usart)
-set(WIRELESS_DIR ${BSP_DIR}/wireless)
 
 set(ALIENTEK_DIR ${3RD_DIR}/alientek)
 set(AT_SYS_DIR ${ALIENTEK_DIR}/system/sys)
@@ -30,7 +29,7 @@ set(ST_USER_STM32F10X_DIR ${ST_USER_DIR}/stm32f10x)
 
 include_directories(${COMMON_DIR}
     ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR}
-    ${USART_DIR} ${WIRELESS_DIR}
+    ${USART_DIR}
     ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR}
     ${CM3_DIR} ${ST_CMSIS_CORE_DIR} ${ST_SPL_INC_DIR} ${ST_USER_STM32F10X_DIR})
 

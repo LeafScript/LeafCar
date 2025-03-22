@@ -13,7 +13,6 @@ set(REDWIRE_DIR ${BSP_DIR}/redwire)
 set(TB6612_DIR ${BSP_DIR}/tb6612)
 set(TIMER_DIR ${BSP_DIR}/timer)
 set(USART_DIR ${BSP_DIR}/usart)
-set(WIRELESS_DIR ${BSP_DIR}/wireless)
 
 set(CAR_DIR ${CONTROL_DIR}/car)
 set(PID_DIR ${CONTROL_DIR}/pid)
@@ -29,7 +28,7 @@ set(AT_USMART_DIR ${ALIENTEK_DIR}/usmart)
 
 include_directories(${COMMON_DIR}
     ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR}
-    ${USART_DIR} ${WIRELESS_DIR}
+    ${USART_DIR}
     ${CAR_DIR} ${PID_DIR} ${MOTOR_DIR} ${K210_DIR} ${OPENMV_DIR} ${SERVICE_TIMER_DIR}
     ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR})
 

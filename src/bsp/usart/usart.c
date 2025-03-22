@@ -398,8 +398,6 @@ USART5串口相关程序    2 0    k210识别到的数字
 */
 #if EN_USART5   //USART5使用与屏蔽选择
 
-#include "k210.h"
-
 //接收数字0x01~0x08
 extern uint8_t recNum1;
 extern uint8_t recNum2;

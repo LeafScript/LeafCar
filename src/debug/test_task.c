@@ -1,4 +1,3 @@
-#include "sys.h"
 #include "taskconf.h"
 #include "car_ctrl.h"
 #include "car_op.h"
@@ -9,7 +8,7 @@ static uint8_t lock = 0;
 //任务一扫描
 void TestTask_Scan(void)
 {
-	if(car_ctrl_get_mode() == STOP_MOVE){
+	if(car_ctrl_get_mode() == STOP_MOVE) {
 		lock = 0;
 	}
 	if(lock){
