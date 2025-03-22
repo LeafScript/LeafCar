@@ -10,11 +10,11 @@ set(TASK_DIR ${SRC_DIR}/task)
 set(DEBUG_DIR ${SRC_DIR}/debug)
 
 set(LED_DIR ${BSP_DIR}/led)
-set(K210_DIR ${BSP_DIR}/k210)
 
 set(CAR_DIR ${CONTROL_DIR}/car)
 set(PID_DIR ${CONTROL_DIR}/pid)
 set(CARARM_DIR ${CONTROL_DIR}/arm)
+set(K210_DIR ${CONTROL_DIR}/k210)
 
 set(CARTASK_DIR ${TASK_DIR}/cartask)
 

@@ -15,11 +15,13 @@
 
 */
 
-#include "sys.h"
+#include "stm32f10x_conf.h"
+#include <stdio.h>
+#include <stdarg.h>
+#include <string.h>
 #include "usart.h"
-#include "carled.h"
 
-u8 buf1_size = 0;//串口数据接收数量标记
+uint8_t buf1_size = 0;//串口数据接收数量标记
 bool data_change = 0;//串口接收完成/变化标志位
 
 //使UASRT串口可用printf函数发送
@@ -38,7 +40,7 @@ void _sys_exit(int x){
 //重定义fputc函数 
 int fputc(int ch, FILE *f){      
 	while((USART_n->SR&0x40)==0);//循环发送,直到发送完毕   
-    USART_n->DR = (u8) ch;      
+    USART_n->DR = (uint8_t) ch;      
 	return ch;
 }
 #endif 
@@ -48,12 +50,12 @@ int fputc(int ch, FILE *f){
 USART1串口相关程序    3 3    usmart
 */
 #if EN_USART1   //USART1使用与屏蔽选择
-u8 USART1_RX_BUF[USART1_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
+uint8_t USART1_RX_BUF[USART1_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
 //接收状态
 //bit15，	接收完成标志
 //bit14，	接收到0x0d
 //bit13~0，	接收到的有效字节数目
-u16 USART1_RX_STA=0;       //接收状态标记	  
+uint16_t USART1_RX_STA=0;       //接收状态标记	  
 
 /*
 USART1专用的printf函数
@@ -62,18 +64,18 @@ USART1专用的printf函数
 */
 void USART1_printf (char *fmt, ...){ 
 	char buffer[USART1_REC_LEN+1];  // 数据长度
-	u8 i = 0;	
+	uint8_t i = 0;	
 	va_list arg_ptr;
 	va_start(arg_ptr, fmt);  
 	vsnprintf(buffer, USART1_REC_LEN+1, fmt, arg_ptr);
 	while ((i < USART1_REC_LEN) && (i < strlen(buffer))){
-        USART_SendData(USART1, (u8) buffer[i++]);
+        USART_SendData(USART1, (uint8_t) buffer[i++]);
         while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET); 
 	}
 	va_end(arg_ptr);
 }
 
-void USART1_Init(u32 bound){ //串口1初始化并启动
+void USART1_Init(uint32_t bound){ //串口1初始化并启动
     //GPIO端口设置
     GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
@@ -108,7 +110,7 @@ void USART1_Init(u32 bound){ //串口1初始化并启动
 }
 
 void USART1_IRQHandler(void){ //串口1中断服务程序（固定的函数名不能修改）	
-	u8 Res;
+	uint8_t Res;
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
 	{
 		Res =USART_ReceiveData(USART1);	//读取接收到的数据
@@ -139,12 +141,12 @@ void USART1_IRQHandler(void){ //串口1中断服务程序（固定的函数名�
 USART2串口相关程序
 */
 #if EN_USART2   //USART2使用与屏蔽选择
-//u8 USART2_RX_BUF[USART2_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
+//uint8_t USART2_RX_BUF[USART2_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
 ////接收状态
 ////bit15，	接收完成标志
 ////bit14，	接收到0x0d
 ////bit13~0，	接收到的有效字节数目
-//u16 USART2_RX_STA=0;       //接收状态标记	 
+//uint16_t USART2_RX_STA=0;       //接收状态标记	 
 
 #include "esp32.h"
 
@@ -161,19 +163,19 @@ USART2专用的printf函数
 */
 void USART2_printf (char *fmt, ...){ 
 	char buffer[USART2_REC_LEN+1];  // 数据长度
-	u8 i = 0;	
+	uint8_t i = 0;	
 	va_list arg_ptr;
 	va_start(arg_ptr, fmt);  
 	vsnprintf(buffer, USART2_REC_LEN+1, fmt, arg_ptr);
 	while ((i < USART2_REC_LEN) && (i < strlen(buffer))){
-        USART_SendData(USART2, (u8) buffer[i++]);
+        USART_SendData(USART2, (uint8_t) buffer[i++]);
         while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET); 
 	}
 	va_end(arg_ptr);
 }
 
 
-void USART2_Init(u32 bound){ //串口1初始化并启动
+void USART2_Init(uint32_t bound){ //串口1初始化并启动
     //GPIO端口设置
     GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
@@ -223,14 +225,12 @@ void USART2_IRQHandler(void){ //串口2中断服务程序（固定的函数名�
 USART3串口相关程序   2 3    k210小车测量 距离和角度偏移量
 */
 #if EN_USART3   //如果使能了接收 
-//u8 USART3_RX_BUF[USART3_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
+//uint8_t USART3_RX_BUF[USART3_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
 ////接收状态
 ////bit15，	接收完成标志
 ////bit14，	接收到0x0d
 ////bit13~0，	接收到的有效字节数目
-//u16 USART3_RX_STA=0;       //接收状态标记	  
-
-#include "k2102.h"
+//uint16_t USART3_RX_STA=0;       //接收状态标记	  
 
 extern int8_t carOffset;
 extern int8_t line_k;
@@ -242,18 +242,18 @@ USART3专用的printf函数
 */
 void USART3_printf (char *fmt, ...){ 
 	char buffer[USART3_REC_LEN+1];  // 数据长度
-	u8 i = 0;	
+	uint8_t i = 0;	
 	va_list arg_ptr;
 	va_start(arg_ptr, fmt);  
 	vsnprintf(buffer, USART3_REC_LEN+1, fmt, arg_ptr);
 	while ((i < USART3_REC_LEN) && (i < strlen(buffer))){
-        USART_SendData(USART3, (u8) buffer[i++]);
+        USART_SendData(USART3, (uint8_t) buffer[i++]);
         while (USART_GetFlagStatus(USART3, USART_FLAG_TC) == RESET); 
 	}
 	va_end(arg_ptr);
 }
 
-void USART3_Init(u32 BaudRate){ //USART3初始化并启动
+void USART3_Init(uint32_t BaudRate){ //USART3初始化并启动
    GPIO_InitTypeDef GPIO_InitStructure;
    USART_InitTypeDef USART_InitStructure;
    NVIC_InitTypeDef NVIC_InitStructure; 
@@ -296,7 +296,7 @@ void USART3_Init(u32 BaudRate){ //USART3初始化并启动
 //串口3中断服务程序（固定的函数名不能修改）
 void USART3_IRQHandler(void){ 
 	static uint8_t ok_flag = 0;
-	u8 Res;
+	uint8_t Res;
 	if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET){  //接收中断
 		USART_ClearITPendingBit(USART3,USART_IT_RXNE);//清除中断标志
 		Res = USART_ReceiveData(USART3);//读取接收到的数据
@@ -335,19 +335,19 @@ USART4专用的printf函数
 */
 void USART4_printf (char *fmt, ...){ 
 	char buffer[USART4_REC_LEN+1];  // 数据长度
-	u8 i = 0;	
+	uint8_t i = 0;	
 	va_list arg_ptr;
 	va_start(arg_ptr, fmt);  
 	vsnprintf(buffer, USART4_REC_LEN+1, fmt, arg_ptr);
 	while ((i < USART4_REC_LEN) && (i < strlen(buffer))){
-        USART_SendData(UART4, (u8) buffer[i++]);
+        USART_SendData(UART4, (uint8_t) buffer[i++]);
         while (USART_GetFlagStatus(UART4, USART_FLAG_TC) == RESET); 
 	}
 	va_end(arg_ptr);
 }
 
 
-void UART4_Init(u32 bound){ //串口1初始化并启动
+void UART4_Init(uint32_t bound){ //串口1初始化并启动
     //GPIO端口设置
     GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
@@ -414,19 +414,19 @@ USART5专用的printf函数
 */
 void USART5_printf (char *fmt, ...){ 
 	char buffer[USART5_REC_LEN+1];  // 数据长度
-	u8 i = 0;	
+	uint8_t i = 0;	
 	va_list arg_ptr;
 	va_start(arg_ptr, fmt);  
 	vsnprintf(buffer, USART5_REC_LEN+1, fmt, arg_ptr);
 	while ((i < USART5_REC_LEN) && (i < strlen(buffer))){
-        USART_SendData(UART5, (u8) buffer[i++]);
+        USART_SendData(UART5, (uint8_t) buffer[i++]);
         while (USART_GetFlagStatus(UART5, USART_FLAG_TC) == RESET); 
 	}
 	va_end(arg_ptr);
 }
 
 
-void UART5_Init(u32 bound){ //串口5初始化并启动
+void UART5_Init(uint32_t bound){ //串口5初始化并启动
     //GPIO端口设置
     GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
@@ -467,7 +467,7 @@ void UART5_Init(u32 bound){ //串口5初始化并启动
 }
 
 void UART5_IRQHandler(void){ //串口5中断服务程序（固定的函数名不能修改）
-	u8 Res;
+	uint8_t Res;
 	if(USART_GetITStatus(UART5, USART_IT_RXNE) != RESET){  //接收中断
 		USART_ClearITPendingBit(UART5,USART_IT_RXNE);//清除中断标志
 		Res = USART_ReceiveData(UART5);//读取接收到的数据

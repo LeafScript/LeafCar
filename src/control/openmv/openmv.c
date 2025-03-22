@@ -1,4 +1,5 @@
-#include "k2102.h"
+#include "openmv.h"
+#include "base_type.h"
 
 //接收偏移程度
 //       左          右

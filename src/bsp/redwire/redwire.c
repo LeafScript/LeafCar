@@ -1,7 +1,4 @@
 #include "redwire.h"
-#include "led.h"
-#include "carled.h"
-#include "usart.h"
 
 void Redwire_Init(void)
 {
@@ -18,14 +15,7 @@ void Redwire_Init(void)
 u8 Redwire_isFull(void)
 {
 	if(RedIn == 1){
-//		printf("0");
-//		RedLed = 1;
-//		YelLed = 1;
-//		GreLed = 1;
 		return 1;
-	}//printf("1");
-//	RedLed = 0;
-//	YelLed = 0;
-//	GreLed = 0;
+	}
 	return 0;
 }

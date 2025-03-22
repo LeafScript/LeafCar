@@ -1,8 +1,6 @@
 #include "pid.h"
-#include "motor.h"
-#include "k2102.h"
-#include "usart.h"
 #include "base_type.h"
+#include "motor.h"
 
 ////经典小车
 //#define INIT_KP		1.25

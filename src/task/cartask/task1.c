@@ -3,12 +3,8 @@
 #include "redwire.h"
 #include "car_ctrl.h"
 #include "car_op.h"
-#include "k210.h"
-#include "led.h"
 #include "carled.h"
-#include "delay.h"		//在不稳定的地方延时一下
-#include "usart.h"
-#include "arm.h"
+#include "log.h"
 #include "car_task_op.h"
 #include "car_task_schedule.h"
 

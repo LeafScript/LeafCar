@@ -1,7 +1,6 @@
 #include "car_ctrl.h"
 #include "motor.h"
 #include "pid.h"
-#include "usart.h"
 
 static car_ctrl_s g_car_ctrl;
 

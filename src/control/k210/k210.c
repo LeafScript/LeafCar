@@ -1,4 +1,5 @@
 #include "k210.h"
+#include "base_type.h"
 
 //接收数字0x01~0x08
 uint8_t recNum1 = 0;

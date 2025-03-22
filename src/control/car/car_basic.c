@@ -1,7 +1,6 @@
 #include "car_basic.h"
 #include "car_ctrl.h"
 #include "motor.h"
-#include "usart.h"
 
 void car_init(void)
 {
