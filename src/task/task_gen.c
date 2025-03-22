@@ -88,6 +88,7 @@ static void task_async_wait(task_context_s *task_ctx)
 {
     task_priv_info *info = (task_priv_info *)task_ctx->priv;
     if (info->status == TASK_ASYNC_BACK) {
+        // this branch will NOT be executed in single thread environment
         task_next(task_ctx);
     } else {
         info->status = TASK_STOP;
@@ -100,6 +101,7 @@ void task_async_cb(task_context_s *task_ctx)
     if (info->status == TASK_STOP) {
         task_next(task_ctx);
     } else {
+        // this branch will NOT be executed in single thread environment
         info->status = TASK_ASYNC_BACK;
     }
     if (task_ctx->async_back != NULL) {

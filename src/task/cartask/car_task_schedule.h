@@ -8,8 +8,8 @@ int car_task_init(uint8_t task_id);
 int car_task_info_init(car_op_s *op_list, uint16_t op_list_size);
 void car_task_start(void);
 void car_task_scan(void);
-void car_task_async_cb(void *priv);
-int car_task_set_op_index(uint16_t op_index);
-uint16_t car_task_get_op_index(void);
+void car_task_async_step_finish(void);
+int car_task_set_op_next(uint16_t op_index);
+uint16_t car_task_get_op_cur(void);
 
 #endif

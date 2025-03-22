@@ -15,7 +15,6 @@ enum task_result_e {
 
 #define TASK_PRIV_INFO_SIZE 3
 
-
 typedef struct _task_context_s task_context_s;
 typedef int (*task_exec_func)(task_context_s *task_ctx);     // return enum task_result_e
 struct _task_context_s {
@@ -31,6 +30,7 @@ struct _task_context_s {
     uint8_t priv[TASK_PRIV_INFO_SIZE];
 };
 
+// should NOT be used in interrupt or muti thread environment
 int task_init(task_context_s *task_ctx);
 void task_start(task_context_s *task_ctx);
 void task_scan(task_context_s *task_ctx);

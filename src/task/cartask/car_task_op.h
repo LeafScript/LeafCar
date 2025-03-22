@@ -75,7 +75,7 @@ typedef struct {
 
 typedef struct {
 	uint32_t trigger_ms;
-	void (*cb)(void *priv);
+	void (*cb)(void *priv, bool is_finish);
 	void *priv;
 	uint32_t trigger_times;
 } timer_op_param_s;

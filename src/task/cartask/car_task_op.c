@@ -10,7 +10,7 @@
 
 static void car_op_async_cb(void)
 {
-    car_task_async_cb(NULL);
+    car_task_async_step_finish();
 }
 
 static int car_op_car_handle(uint8_t op, car_op_param_s *param)
@@ -107,9 +107,9 @@ static int car_op_op_handle(uint8_t op, op_op_param_s *param)
     if (op == OP_OP_JUMP_TO) {
         to_step = param->step;
     } else if (op == OP_OP_JUMP_PREV) {
-        to_step = car_task_get_op_index() - param->step;
+        to_step = car_task_get_op_cur() - param->step;
     } else if (op == OP_OP_JUMP_NEXT) {
-        to_step = car_task_get_op_index() + param->step;
+        to_step = car_task_get_op_cur() + param->step;
     } else if (op == OP_OP_FUNC_JUMP_TO) {
         if (param->get_step == NULL) {
             return EC_ERROR;
@@ -119,19 +119,19 @@ static int car_op_op_handle(uint8_t op, op_op_param_s *param)
         if (param->get_step == NULL) {
             return EC_ERROR;
         }
-        to_step = car_task_get_op_index() - param->get_step();
+        to_step = car_task_get_op_cur() - param->get_step();
     } else if (op == OP_OP_FUNC_JUMP_NEXT) {
         if (param->get_step == NULL) {
             return EC_ERROR;
         }
-        to_step = car_task_get_op_index() + param->get_step();
+        to_step = car_task_get_op_cur() + param->get_step();
     } else if (op == OP_OP_END) {
         return EC_ERROR;
     } else {
         printf("invalid op op[%u]\r\n", op);
         return EC_ERROR;
     }
-    ret = car_task_set_op_index(to_step);
+    ret = car_task_set_op_next(to_step);
     if (ret != EC_OK) {
         return EC_ERROR;
     }

@@ -13,6 +13,7 @@
 #include "service_timer.h"
 #include "car_task_schedule.h"
 #include "task1.h"
+#include "test_car_task.h"
 
 /***************************定时器通道引脚********************************/
 //				CH1				CH2				CH3				CH4
@@ -96,7 +97,8 @@ static void service_init(void)
 	timer_service_register(TIMER_SERV_TIM6, car_scan);
 	timer_service_register(TIMER_SERV_TIM7, background_service_scan);
 	service_timer_init(20);
-	car_task1_info_init();
+	// car_task1_info_init();
+	test_car_task_info_init();
 	car_task_init(0);
 }
 

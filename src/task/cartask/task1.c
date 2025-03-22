@@ -15,6 +15,17 @@ static uint8_t room_num = 2;	//识别到的房间号数字
 static uint8_t nowNum1 = 0;		//识别到的当前数字1
 static uint8_t nowNum2 = 0;		//识别到的当前数字2
 static uint16_t jmp_next = 0;
+
+static void car_task_timer_async_cb(void *priv, bool is_finish)
+{
+	car_task_async_step_finish();
+}
+
+static void car_task_redwire_async_cb(void *priv)
+{
+	car_task_async_step_finish();
+}
+
 static uint16_t car_stop_jump_next(void)
 {
 	return (car_ctrl_get_mode() == STOP_MOVE) ? 1 : 0;
@@ -105,9 +116,9 @@ static uint16_t room_remote_2_car_turn(void)
 
 static car_op_s g_car_task1_op_list[] = {
 	{ CAR_OP_OBJ_ARM, ARM_OP_FOLD },
-	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = car_task_timer_async_cb } },
 	{ CAR_OP_OBJ_ARM, ARM_OP_MIDDLE },
-	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = car_task_timer_async_cb } },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_1_2_judge } },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_1_2_jump } },
 	// 1, 2号病房
@@ -122,7 +133,7 @@ static car_op_s g_car_task1_op_list[] = {
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
 	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 100, .speed = SPEED } },
 	{ CAR_OP_OBJ_LED, LED_OP_ON, .led_param = { .color = LED_RED } },
-	{ CAR_OP_OBJ_REDWIRE, REDWIRE_OP_IS_NOT_FULL, .redwire_param = { .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_REDWIRE, REDWIRE_OP_IS_NOT_FULL, .redwire_param = { .cb = car_task_redwire_async_cb } },
 	{ CAR_OP_OBJ_LED, LED_OP_OFF, .led_param = { .color = LED_RED } },
 	{ CAR_OP_OBJ_CAR, CAR_OP_BACK, .car_param = { .dist = 400, .speed = SPEED } },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
@@ -139,11 +150,11 @@ static car_op_s g_car_task1_op_list[] = {
 	{ CAR_OP_OBJ_ARM, ARM_OP_FOLD },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
 	{ CAR_OP_OBJ_ARM, ARM_OP_MIDDLE },
-	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1500, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1500, .cb = car_task_timer_async_cb } },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_3_4_judge } },
 	// 中部病房
 	{ CAR_OP_OBJ_ARM, ARM_OP_FOLD },
-	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1000, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1000, .cb = car_task_timer_async_cb } },
 	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 300, .speed = SPEED} },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_3_4_car_turn } },
@@ -153,7 +164,7 @@ static car_op_s g_car_task1_op_list[] = {
 	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 50, .speed = SPEED} },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
 	{ CAR_OP_OBJ_LED, LED_OP_ON, .led_param = { .color = LED_RED } },
-	{ CAR_OP_OBJ_REDWIRE, REDWIRE_OP_IS_NOT_FULL, .redwire_param = { .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_REDWIRE, REDWIRE_OP_IS_NOT_FULL, .redwire_param = { .cb = car_task_redwire_async_cb } },
 	{ CAR_OP_OBJ_LED, LED_OP_OFF, .led_param = { .color = LED_RED } },
 	{ CAR_OP_OBJ_CAR, CAR_OP_BACK, .car_param = { .dist = 450, .speed = SPEED } },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
@@ -165,13 +176,13 @@ static car_op_s g_car_task1_op_list[] = {
 	{ CAR_OP_OBJ_OP, OP_OP_END },
 	// K210识别判断病房在 远端第一交叉路口 左右（左，右边通过左边推断出）
 	{ CAR_OP_OBJ_ARM, ARM_OP_FOLD },
-	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1000, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1000, .cb = car_task_timer_async_cb } },
 	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 150, .speed = SPEED} },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
 	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 830, .speed = SPEED, .is_forward = 1 } },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
 	{ CAR_OP_OBJ_ARM, ARM_OP_LEFT },
-	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1500, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 1500, .cb = car_task_timer_async_cb } },
 	// 远端病房第一交叉路口-->远端病房第二交叉路口
 	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 150, .speed = SPEED} },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
@@ -180,7 +191,7 @@ static car_op_s g_car_task1_op_list[] = {
 	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 590, .speed = SPEED, .is_forward = 1 } },
 	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 50, .speed = SPEED} },
 	// K210识别判断病房在远端第二交叉路口左右
-	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = car_task_timer_async_cb } },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = room_remote_2_judge } },
 	// 远端病房&退回
 	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 200, .speed = SPEED} },
@@ -190,7 +201,7 @@ static car_op_s g_car_task1_op_list[] = {
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },
 	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 50, .speed = SPEED} },
 	{ CAR_OP_OBJ_LED, LED_OP_ON, .led_param = { .color = LED_RED } },
-	{ CAR_OP_OBJ_REDWIRE, REDWIRE_OP_IS_NOT_FULL, .redwire_param = { .cb = car_task_async_cb } },
+	{ CAR_OP_OBJ_REDWIRE, REDWIRE_OP_IS_NOT_FULL, .redwire_param = { .cb = car_task_redwire_async_cb } },
 	{ CAR_OP_OBJ_LED, LED_OP_OFF, .led_param = { .color = LED_RED } },
 	{ CAR_OP_OBJ_CAR, CAR_OP_BACK, .car_param = { .dist = 450, .speed = SPEED } },
 	{ CAR_OP_OBJ_OP, OP_OP_FUNC_JUMP_NEXT, .op_param = { .get_step = car_stop_jump_next } },

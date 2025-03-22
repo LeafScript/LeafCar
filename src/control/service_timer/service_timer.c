@@ -1,5 +1,6 @@
 #include "service_timer.h"
 #include "error_code.h"
+#include "log.h"
 
 #define SERVICE_TIMER_MAX_REGISTER_NUM 10
 
@@ -9,7 +10,7 @@ typedef struct {
     uint32_t trigger_times;     // 0: loop forever
     uint32_t counter;
     uint32_t times;
-    void (*cb)(void *priv);
+    service_timer_cb_func cb;
     void *priv;
 } register_counter_s;
 
@@ -38,11 +39,14 @@ static void service_timer_scan_one(register_counter_s *reg_counter)
     }
     reg_counter->counter = 0;
     reg_counter->times++;
-    reg_counter->cb(reg_counter->priv);
-    if (reg_counter->trigger_times != 0 && reg_counter->times >= reg_counter->trigger_times) {
-        reg_counter->is_registered = false;
-        reg_counter->cb = NULL;
+    if (reg_counter->trigger_times == 0 || reg_counter->times < reg_counter->trigger_times) {
+        reg_counter->cb(reg_counter->priv, false);
+        return;
     }
+    reg_counter->is_registered = false;
+    g_register_num--;
+    reg_counter->cb(reg_counter->priv, true);
+    reg_counter->cb = NULL;
 }
 
 void service_timer_scan(void)
@@ -59,13 +63,14 @@ void service_timer_scan(void)
     }
 }
 
-int service_timer_trigger_muti(uint32_t trigger_ms, void (*cb)(void *priv), void *priv, uint32_t trigger_times)
+int service_timer_trigger_muti(uint32_t trigger_ms, service_timer_cb_func cb, void *priv, uint32_t trigger_times)
 {
     register_counter_s *reg_counter = NULL;
     int i;
 
-    if (g_register_num >= SERVICE_TIMER_MAX_REGISTER_NUM ||
-        (trigger_ms % g_period_ms) != 0 || cb == NULL) {
+    if (g_register_num >= SERVICE_TIMER_MAX_REGISTER_NUM || (trigger_ms % g_period_ms) != 0 || cb == NULL) {
+        printf("service_timer_trigger_muti errpr, reg_num[%u] trigger_ms[%u] g_period_ms[%u] cb[%u]\r\n",
+            g_register_num, trigger_ms, g_period_ms, (cb == NULL));
         return EC_ERROR;
     }
     for (i = 0; i < ARRAY_SIZE(g_register_counter); i++) {
@@ -85,12 +90,12 @@ int service_timer_trigger_muti(uint32_t trigger_ms, void (*cb)(void *priv), void
     return EC_OK;
 }
 
-int service_timer_trigger_once(uint32_t trigger_ms, void (*cb)(void *priv), void *priv)
+int service_timer_trigger_once(uint32_t trigger_ms, service_timer_cb_func cb, void *priv)
 {
     return service_timer_trigger_muti(trigger_ms, cb, priv, 1);
 }
 
-int service_timer_loop(uint32_t trigger_ms, void (*cb)(void *priv), void *priv)
+int service_timer_loop(uint32_t trigger_ms, service_timer_cb_func cb, void *priv)
 {
     return service_timer_trigger_muti(trigger_ms, cb, priv, 0);
 }
