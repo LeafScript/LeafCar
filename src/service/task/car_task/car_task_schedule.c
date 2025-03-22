@@ -119,7 +119,7 @@ int car_task_init(uint8_t task_id)
     ctx->timeout = car_task_timeout;
     ctx->finish = car_task_finish;
     ctx->restart = car_task_restart;
-    return task_init(&g_car_task_ctx);
+    return task_init(ctx);
 }
 
 void car_task_start(void)

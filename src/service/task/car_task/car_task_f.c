@@ -1,5 +1,4 @@
 #include "car_task_f.h"
-#include "taskconf.h"
 #include "redwire.h"
 #include "car_ctrl.h"
 #include "car_op.h"
@@ -7,6 +6,14 @@
 #include "log.h"
 #include "car_task_op.h"
 #include "car_task_schedule.h"
+
+//行进速度
+#define SPEED		400
+//转弯速度
+#define TURN_SPEED	700
+//直角转弯路程
+#define VERTICAL_L	190
+#define VERTICAL_R	190
 
 extern uint8_t recNum1;
 extern uint8_t recNum2;

@@ -10,7 +10,6 @@ uint8_t ok_flag2 = 0;	//右边数字
 
 void k210_update_data(uint8_t ch)
 {
-	static uint8_t ok_flag = 0;
     if (ok_flag1 == 1) {
         ok_flag1 = 0;
         recNum1 = ch - 48;

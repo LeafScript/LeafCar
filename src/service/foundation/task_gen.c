@@ -18,10 +18,14 @@ typedef struct {
 
 int task_init(task_context_s *task_ctx)
 {
-    task_priv_info *info = (task_priv_info *)task_ctx->priv;
+    task_priv_info *info = NULL;
     int i;
 
     BUILD_BUG_ON(TASK_PRIV_INFO_SIZE != sizeof(task_priv_info));
+    if (task_ctx == NULL) {
+        return EC_ERROR;
+    }
+    info = (task_priv_info *)task_ctx->priv;
     if (task_ctx->max_step == 0 || task_ctx->exec_list == NULL) {
         return EC_ERROR;
     }
@@ -31,13 +35,18 @@ int task_init(task_context_s *task_ctx)
         }
     }
     info->step = 0;
-    info->status = TASK_STOP;
+    info->status = TASK_FINISHED;
     return EC_OK;
 }
 
 void task_start(task_context_s *task_ctx)
 {
-    task_priv_info *info = (task_priv_info *)task_ctx->priv;
+    task_priv_info *info = NULL;
+
+    if (task_ctx == NULL) {
+        return;
+    }
+    info = (task_priv_info *)task_ctx->priv;
     info->step = 0;
     info->status = TASK_RUNNING;
 }
@@ -97,7 +106,12 @@ static void task_async_wait(task_context_s *task_ctx)
 
 void task_async_cb(task_context_s *task_ctx)
 {
-    task_priv_info *info = (task_priv_info *)task_ctx->priv;
+    task_priv_info *info = NULL;
+
+    if (task_ctx == NULL) {
+        return;
+    }
+    info = (task_priv_info *)task_ctx->priv;
     if (info->status == TASK_STOP) {
         task_next(task_ctx);
     } else {
@@ -133,9 +147,13 @@ void task_scan(task_context_s *task_ctx)
         [TASK_RES_FINISH] = task_finish,
         [TASK_RES_RESTART] = task_restart
     };
-    task_priv_info *info = (task_priv_info *)task_ctx->priv;
+    task_priv_info *info = NULL;
     int res;
 
+    if (task_ctx == NULL) {
+        return;
+    }
+    info = (task_priv_info *)task_ctx->priv;
     if (info->status == TASK_FINISHED) {
         return;
     }
@@ -160,6 +178,11 @@ void task_scan(task_context_s *task_ctx)
 
 void task_next_step(task_context_s *task_ctx, uint8_t next_step)
 {
-    task_priv_info *info = (task_priv_info *)task_ctx->priv;
+    task_priv_info *info = NULL;
+
+    if (task_ctx == NULL) {
+        return;
+    }
+    info = (task_priv_info *)task_ctx->priv;
     info->next_step = next_step;
 }
