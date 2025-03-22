@@ -61,7 +61,7 @@ void timer_service_stop(void)
 	TIM_Cmd(TIM7, DISABLE);
 }
 
-static timer_serv_func g_serv_func[2] = { NULL, NULL };
+static timer_serv_func g_serv_func[TIMER_SERV_MAX] = { 0 };
 
 void timer_service_register(uint8_t timx, timer_serv_func func)
 {

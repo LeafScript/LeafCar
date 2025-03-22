@@ -14,6 +14,8 @@
 #include "car_task_schedule.h"
 #include "task1.h"
 #include "test_car_task.h"
+#include "openmv.h"
+#include "k210.h"
 
 /***************************定时器通道引脚********************************/
 //				CH1				CH2				CH3				CH4
@@ -71,9 +73,10 @@ static void board_init(void)
 {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);		//配置中断优先级
 
+	usart_service_register(USART_SERV_USART3, openmv_update_data);
+	usart_service_register(USART_SERV_UART5, k210_update_data);
 	USART1_Init(115200);
 	USART3_Init(9600);
-	UART4_Init(9600);
 	UART5_Init(9600);
 
 	LED_Init();
