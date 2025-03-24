@@ -3,7 +3,7 @@
 # 定义参数列表，使用关联数组存储每个 board 对应的 case
 declare -A BOARD_CASE_MAP
 BOARD_CASE_MAP["stm32/stm32f103c8t6"]="led_test freertos_test"
-BOARD_CASE_MAP["stm32/stm32f103zet6"]="led_test freertos_test"
+BOARD_CASE_MAP["stm32/stm32f103zet6"]="led_test freertos_test ucosii_test"
 
 # 提取所有的 board 选项
 BOARD_OPTIONS=("${!BOARD_CASE_MAP[@]}")
