@@ -8,7 +8,6 @@
 #define LEAFCLI_MAX_CTX_NUM     10
 #define LEAFCLI_MAX_PARAM_NUM   6
 #define LEAFCLI_MAX_PARAM_LEN   10
-#define LEAFCLI_GROUP_ID_ALL    0       // all groups contain the ctx
 
 typedef struct {
     uint8_t *cmd_name;
@@ -18,7 +17,7 @@ typedef struct {
 
 // fifo - ring buffer
 typedef struct {
-    uint8_t group_id;
+    uint8_t group_id;   // bind with leafcli buffer (one to one)
     uint32_t fifo_size;
     uint8_t *fifo;
     // private
@@ -38,7 +37,7 @@ typedef struct {
 
 int leafcli_register_buff(leafcli_buffer_s *buff);
 int leafcli_register_ctx(leafcli_context_s *ctx);
-int leafcli_register_builtin_ctx(void);
+int leafcli_register_builtin_ctx(uint8_t group_id);
 void leafcli_recv_data(uint8_t ch, uint8_t group_id);
 void leafcli_scan(void);
 

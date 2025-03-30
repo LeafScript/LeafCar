@@ -21,7 +21,7 @@ static leafcli_cmd_s g_builtin_cmd_list[] = {
     { "reg_cmd", leafcli_show_registerd_cmd, "show registered command list" },
 };
 static leafcli_context_s g_builtin_reg_ctx = {
-    .group_id = LEAFCLI_GROUP_ID_ALL,
+    .group_id = 0,
     .cmd_list_name = "builtin cmd list",
     .cmd_num = ARRAY_SIZE(g_builtin_cmd_list),
     .cmd_list = g_builtin_cmd_list,
@@ -136,8 +136,9 @@ int leafcli_register_ctx(leafcli_context_s *ctx)
     return EC_OK;
 }
 
-int leafcli_register_builtin_ctx(void)
+int leafcli_register_builtin_ctx(uint8_t group_id)
 {
+    g_builtin_reg_ctx.group_id = group_id;
     return leafcli_register_ctx(&g_builtin_reg_ctx);
 }
 
