@@ -13,8 +13,8 @@
 #define leafcli_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #define leafcli_printf_newline(fmt, ...) printf(fmt NEWLINE, ##__VA_ARGS__)
 
-static void leafcli_show_help(void);
-static void leafcli_show_registerd_cmd(void);
+static uint32_t leafcli_show_help(void);
+static uint32_t leafcli_show_registerd_cmd(void);
 
 static leafcli_cmd_s g_builtin_cmd_list[] = {
     { "help", leafcli_show_help, "show help" },
@@ -31,7 +31,7 @@ static uint8_t g_reg_buff_num = 0;
 static leafcli_context_s *g_reg_ctx_list[LEAFCLI_MAX_CTX_NUM] = { 0 };
 static uint8_t g_reg_ctx_num = 0;
 
-static void leafcli_show_help(void)
+static uint32_t leafcli_show_help(void)
 {
     leafcli_context_s *ctx = &g_builtin_reg_ctx;
     uint32_t i;
@@ -42,7 +42,7 @@ static void leafcli_show_help(void)
     }
 }
 
-static void leafcli_show_registerd_cmd(void)
+static uint32_t leafcli_show_registerd_cmd(void)
 {
     leafcli_context_s *ctx = NULL;
     uint32_t i, j;
@@ -146,13 +146,10 @@ int leafcli_register_builtin_ctx(uint8_t group_id)
 void leafcli_recv_data(uint8_t ch, uint8_t group_id)
 {
     leafcli_buffer_s *buff = leafcli_get_reg_buff(group_id);
-    if (buff == NULL) {
-        return;
-    }
     if (buff->wr_index - buff->rd_index >= buff->fifo_size) {
         buff->full_flag = true;
         if (buff->recv_cmd_num == buff->proc_cmd_num) {
-            leafcli_printf_newline("leafcli: clean full fifo, group_id[%u]", group_id);
+            // clean full fifo
             buff->rd_index = buff->wr_index;
         }
         return;
@@ -193,7 +190,7 @@ static bool leafcli_parse_cmd(leafcli_buffer_s *buff, uint8_t *cmd_list_name, ui
         return false;
     }
     if (leafcli_cmd_comp(buff, cmd_name, cmd_len)) {
-        leafcli_printf_newline("> %s: %s", cmd_list_name, cmd_name);
+        leafcli_printf_newline("-> %s: %s", cmd_list_name, cmd_name);
         buff->rd_index += cmd_len + 1;
         return true;
     }
@@ -267,7 +264,7 @@ static void leafcli_exec_cmd(void *cmd_func, uint32_t *param, uint8_t param_num)
             leafcli_printf_newline("leafcli: param_num[%u] invalid", param_num);
             break;
     }
-    leafcli_printf_newline("> %u (0x%x)", cmd_ret, cmd_ret);
+    leafcli_printf_newline("[ret] %u (0x%x)", cmd_ret, cmd_ret);
 }
 
 void leafcli_scan(void)

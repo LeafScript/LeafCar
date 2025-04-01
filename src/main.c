@@ -11,11 +11,10 @@
 #include "carled.h"
 #include "arm.h"
 #include "service_timer.h"
-#include "car_task_schedule.h"
-#include "car_task_f.h"
-#include "test_car_task.h"
 #include "openmv.h"
 #include "k210.h"
+#include "task_schedule.h"
+#include "debug_cli.h"
 
 /***************************定时器通道引脚********************************/
 //				CH1				CH2				CH3				CH4
@@ -73,6 +72,7 @@ static void board_init(void)
 {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);		//配置中断优先级
 
+	usart_service_register(USART_SERV_USART1, debug_cli_recv_data);
 	usart_service_register(USART_SERV_USART3, openmv_update_data);
 	usart_service_register(USART_SERV_UART5, k210_update_data);
 	USART1_Init(115200);
@@ -87,12 +87,12 @@ static void board_init(void)
 static void background_service_scan(void)
 {
 	service_timer_scan();
-	usmart_dev.scan();
+	// usmart_dev.scan();
 }
 
 static void service_init(void)
 {
-	usmart_dev.init(72);
+	// usmart_dev.init(72);
 	delay_init();
 	car_init();
 	Arm_Init();
@@ -100,15 +100,13 @@ static void service_init(void)
 	timer_service_register(TIMER_SERV_TIM6, car_scan);
 	timer_service_register(TIMER_SERV_TIM7, background_service_scan);
 	service_timer_init(20);
-	// car_task_f_info_init();
-	test_car_task_info_init();
-	car_task_init(0);
+	task_schedule_init();
 }
 
 static void service_start(void)
 {
 	timer_service_start();
-	car_task_start();
+	task_schedule_start();
 }
 
 int main(void)
@@ -118,6 +116,6 @@ int main(void)
 	service_start();
 	while(1)
 	{
-		car_task_scan();
+		task_schedule_scan();
 	}
 }

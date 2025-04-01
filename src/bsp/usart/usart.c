@@ -109,6 +109,7 @@ uint8_t USART1_RX_BUF[USART1_REC_LEN];     //接收缓冲,最大USART_REC_LEN个
 //bit13~0，	接收到的有效字节数目
 uint16_t USART1_RX_STA=0;       //接收状态标记	 
 
+#if 0
 void USART1_IRQHandler(void)
 {
 	uint8_t Res;
@@ -135,6 +136,19 @@ void USART1_IRQHandler(void)
 			}
 		}   		 
      }
+}
+#endif
+
+void USART1_IRQHandler(void)
+{
+	uint8_t ch;
+	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
+		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+		ch = USART_ReceiveData(USART1);
+		if (g_serv_func[USART_SERV_USART1] != NULL) {
+			g_serv_func[USART_SERV_USART1](ch);
+		}
+	}
 }
 
 void USART2_Init(uint32_t baudrate)

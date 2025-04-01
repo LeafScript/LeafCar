@@ -39,6 +39,10 @@ int leafcli_register_buff(leafcli_buffer_s *buff);
 int leafcli_register_ctx(leafcli_context_s *ctx);
 int leafcli_register_builtin_ctx(uint8_t group_id);
 void leafcli_recv_data(uint8_t ch, uint8_t group_id);
+/**
+ * suggest NOT call this function in interrupt, unless you have ensured your command
+ * will handle correctly in it.
+ */
 void leafcli_scan(void);
 
 #endif
