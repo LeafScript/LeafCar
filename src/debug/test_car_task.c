@@ -11,7 +11,7 @@
 static void test_led1_toggle(void *priv, bool is_finish)
 {
     LED_Toggle(1);
-    printf("test_led1_toggle is_finish[%u]\r\n", is_finish);
+    LEAF_LOG(LOG_INFO, "test_led1_toggle is_finish[%u]", is_finish);
     if (is_finish) {
         car_task_async_step_finish();
     }
@@ -20,7 +20,7 @@ static void test_led1_toggle(void *priv, bool is_finish)
 static void test_led2_toggle(void *priv, bool is_finish)
 {
     LED_Toggle(2);
-    printf("test_led2_toggle is_finish[%u]\r\n", is_finish);
+    LEAF_LOG(LOG_INFO, "test_led2_toggle is_finish[%u]", is_finish);
     if (is_finish) {
         car_task_async_step_finish();
     }

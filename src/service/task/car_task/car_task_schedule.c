@@ -3,6 +3,8 @@
 #include "task_gen.h"
 #include "log.h"
 #include "error_code.h"
+#include "test_car_task.h"
+#include "car_task_f.h"
 
 enum {
     CAR_STEP_HANDLE,
@@ -122,8 +124,24 @@ int car_task_init(uint8_t task_id)
     return task_init(ctx);
 }
 
+int car_task_register(uint8_t car_task_id)
+{
+    switch (car_task_id) {
+        case CAR_TASK_TEST:
+            return test_car_task_info_init();
+        case CAR_TASK_F:
+            return car_task_f_info_init();
+        default:
+            LEAF_LOG(LOG_ERROR, "car_task_id[%u] invalid", car_task_id);
+            return EC_ERROR;
+    }
+}
+
 void car_task_start(void)
 {
+    if (g_car_op_info.op_list_size == 0) {
+        return;
+    }
     task_start(&g_car_task_ctx);
 }
 

@@ -5,6 +5,7 @@
 #include "mem_cfg.h"
 #include "leafcli.h"
 #include "led.h"
+#include "car_task_schedule.h"
 
 #define DEBUG_CLI_FIFO_SIZE   256
 
@@ -15,7 +16,8 @@ static leafcli_buffer_s g_cli_buff = {
     .fifo = g_cli_fifo
 };
 static leafcli_cmd_s g_cli_cmd_list[] = {
-    { "led_toggle", LED_Toggle, "void LED_Toggle(uint8_t num)" }
+    { "led_toggle", LED_Toggle, "void LED_Toggle(uint8_t num)" },
+    { "car_task_register", car_task_register, "int car_task_register(uint8_t car_task_id)" }
 };
 static leafcli_context_s g_cli_ctx = {
     .group_id = LEAFCLI_GROUP_DEBUG_CLI,

@@ -37,26 +37,26 @@ typedef struct {
 	uint16_t USART_IT;
 } usart_init_info_s; 
 
-#define USART_PRINTF(USARTn, recv_len) \
+#define USART_PRINTF(USARTn, max_len) \
 void USARTn##_printf(char *fmt, ...) \
 { \
-	char buffer[(recv_len) + 1]; \
+	char buffer[(max_len) + 1]; \
 	uint32_t i = 0;	\
 	va_list arg_ptr; \
 	va_start(arg_ptr, fmt); \
-	vsnprintf(buffer, (recv_len) + 1, fmt, arg_ptr); \
-	while ((i < (recv_len)) && (i < strlen(buffer))) { \
+	vsnprintf(buffer, (max_len) + 1, fmt, arg_ptr); \
+	while ((i < (max_len)) && (i < strlen(buffer))) { \
         USART_SendData(USARTn, (uint16_t)buffer[i++]); \
         while (USART_GetFlagStatus(USARTn, USART_FLAG_TC) == RESET); \
 	} \
 	va_end(arg_ptr); \
 }
 
-USART_PRINTF(USART1, USART1_REC_LEN)
-USART_PRINTF(USART2, USART2_REC_LEN)
-USART_PRINTF(USART3, USART3_REC_LEN)
-USART_PRINTF(UART4, USART4_REC_LEN)
-USART_PRINTF(UART5, USART5_REC_LEN)
+USART_PRINTF(USART1, USART1_MAX_TX_LEN)
+USART_PRINTF(USART2, USART2_MAX_TX_LEN)
+USART_PRINTF(USART3, USART3_MAX_TX_LEN)
+USART_PRINTF(UART4, USART4_MAX_TX_LEN)
+USART_PRINTF(UART5, USART5_MAX_TX_LEN)
 
 static usart_serv_func g_serv_func[USART_SERV_MAX] = { 0 };
 
@@ -89,7 +89,6 @@ static void usart_init(usart_init_info_s *info)
 	NVIC_Init(&nvic_init);
 	USART_Init(info->USARTx, &usart_init);
 	USART_ITConfig(info->USARTx, info->USART_IT, ENABLE);
-	USART_ITConfig(info->USARTx, USART_IT_IDLE, ENABLE);
 	USART_Cmd(info->USARTx, ENABLE);
 }
 
@@ -102,46 +101,12 @@ void USART1_Init(uint32_t baudrate)
 	usart_init(&info);
 }
 
-uint8_t USART1_RX_BUF[USART1_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
-//接收状态
-//bit15，	接收完成标志
-//bit14，	接收到0x0d
-//bit13~0，	接收到的有效字节数目
-uint16_t USART1_RX_STA=0;       //接收状态标记	 
-
-#if 0
-void USART1_IRQHandler(void)
-{
-	uint8_t Res;
-	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)  //接收中断(接收到的数据必须是0x0d 0x0a结尾)
-	{
-		Res =USART_ReceiveData(USART1);	//读取接收到的数据
-		
-		if((USART1_RX_STA&0x8000)==0)//接收未完成
-		{
-			if(USART1_RX_STA&0x4000)//接收到了0x0d
-			{
-				if(Res!=0x0a)USART1_RX_STA=0;//接收错误,重新开始
-				else USART1_RX_STA|=0x8000;	//接收完成了 
-			}
-			else //还没收到0X0D
-			{	
-				if(Res==0x0d)USART1_RX_STA|=0x4000;
-				else
-				{
-					USART1_RX_BUF[USART1_RX_STA&0X3FFF]=Res ;
-					USART1_RX_STA++;
-					if(USART1_RX_STA>(USART1_REC_LEN-1))USART1_RX_STA=0;//接收数据错误,重新开始接收	  
-				}		 
-			}
-		}   		 
-     }
-}
-#endif
-
 void USART1_IRQHandler(void)
 {
 	uint8_t ch;
+	if (USART_GetFlagStatus(USART1, USART_FLAG_ORE) != RESET) {
+		ch = USART_ReceiveData(USART1);
+	}
 	if (USART_GetITStatus(USART1, USART_IT_RXNE) != RESET) {
 		USART_ClearITPendingBit(USART1, USART_IT_RXNE);
 		ch = USART_ReceiveData(USART1);

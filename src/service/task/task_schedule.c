@@ -9,12 +9,6 @@
 int task_schedule_init(void)
 {
     int ret;
-    // car_task_f_info_init();
-	ret = test_car_task_info_init();
-    if (ret != EC_OK) {
-        LEAF_LOG(LOG_ERROR, "test_car_task_info_init failed\n");
-        return ret;
-    }
 	ret = car_task_init(TASK_CAR);
     if (ret != EC_OK) {
         LEAF_LOG(LOG_ERROR, "car_task_init failed\n");
