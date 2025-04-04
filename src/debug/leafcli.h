@@ -5,9 +5,15 @@
 
 #define LEAFCLI_USE_CRLF        1
 #define LEAFCLI_MAX_BUFF_NUM    10
+#define LEAFCLI_MAX_CMD_LEN     32
 #define LEAFCLI_MAX_CTX_NUM     10
 #define LEAFCLI_MAX_PARAM_NUM   6
 #define LEAFCLI_MAX_PARAM_LEN   10
+
+enum leafcli_error_code_e {
+    LEAFCLI_EC_OK,
+    LEAFCLI_EC_ERROR
+};
 
 typedef struct {
     uint8_t *cmd_name;
@@ -18,13 +24,14 @@ typedef struct {
 // fifo - ring buffer
 typedef struct {
     uint8_t group_id;   // bind with leafcli buffer (one to one)
-    uint32_t fifo_size;
+    uint32_t fifo_size; // suggest >= 128 bytes
     uint8_t *fifo;
     // private
     uint32_t rd_index;
     uint32_t wr_index;
     uint32_t recv_cmd_num;
     uint32_t proc_cmd_num;
+    uint32_t parse_ch_num;
     bool full_flag;     // is full before
 } leafcli_buffer_s;
 

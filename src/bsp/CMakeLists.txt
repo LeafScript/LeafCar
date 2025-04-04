@@ -17,7 +17,6 @@ set(LOG_DIR ${BSP_DIR}/log)
 set(ALIENTEK_DIR ${3RD_DIR}/alientek)
 set(AT_SYS_DIR ${ALIENTEK_DIR}/system/sys)
 set(AT_DELAY_DIR ${ALIENTEK_DIR}/system/delay)
-set(AT_USMART_DIR ${ALIENTEK_DIR}/usmart)
 
 set(ARM_DIR ${3RD_DIR}/arm)
 set(CM3_DIR ${ARM_DIR}/cmsis/cmsis_core/cm3)
@@ -31,7 +30,7 @@ set(ST_USER_STM32F10X_DIR ${ST_USER_DIR}/stm32f10x)
 include_directories(${COMMON_DIR}
     ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR}
     ${USART_DIR} ${LOG_DIR}
-    ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR}
+    ${AT_SYS_DIR} ${AT_DELAY_DIR}
     ${CM3_DIR} ${ST_CMSIS_CORE_DIR} ${ST_SPL_INC_DIR} ${ST_USER_STM32F10X_DIR})
 
 file(GLOB_RECURSE BSP_SRCS "${BSP_DIR}/*.c")

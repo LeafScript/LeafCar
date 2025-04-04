@@ -40,6 +40,7 @@ static uint32_t leafcli_show_help(void)
     for (i = 0; i < ctx->cmd_num; i++) {
         leafcli_printf_newline("%s: %s", ctx->cmd_list[i].cmd_name, ctx->cmd_list[i].cmd_desc);
     }
+    return LEAFCLI_EC_OK;
 }
 
 static uint32_t leafcli_show_registerd_cmd(void)
@@ -48,9 +49,9 @@ static uint32_t leafcli_show_registerd_cmd(void)
     uint32_t i, j;
 
     leafcli_printf_newline(">>>>> LEAFCLI REGISTERED COMMAND LIST <<<<<");
-    for (i = 1; i < g_reg_ctx_num; i++) {
-        leafcli_printf_newline("> %s:", ctx->cmd_list_name);
+    for (i = 0; i < g_reg_ctx_num; i++) {
         ctx = g_reg_ctx_list[i];
+        leafcli_printf_newline("> %s:", ctx->cmd_list_name);
         for (j = 0; j < ctx->cmd_num; j++) {
             if (ctx->cmd_list[j].cmd_desc == NULL) {
                 leafcli_printf_newline("%s", ctx->cmd_list[j].cmd_name);
@@ -59,6 +60,7 @@ static uint32_t leafcli_show_registerd_cmd(void)
             }
         }
     }
+    return LEAFCLI_EC_OK;
 }
 
 int leafcli_register_buff(leafcli_buffer_s *buff)
@@ -67,27 +69,28 @@ int leafcli_register_buff(leafcli_buffer_s *buff)
 
     if (g_reg_buff_num >= LEAFCLI_MAX_BUFF_NUM || buff == NULL) {
         leafcli_printf_newline("leafcli: buff_num[%u] buff[%u]", g_reg_buff_num, buff == NULL);
-        return EC_ERROR;
+        return LEAFCLI_EC_ERROR;
     }
     if (buff->fifo == NULL || buff->fifo_size == 0) {
         leafcli_printf_newline("leafcli: fifo[%u] fifo_size[%u]", buff->fifo == NULL, buff->fifo_size);
-        return EC_ERROR;
+        return LEAFCLI_EC_ERROR;
     }
     for (i = 0; i < g_reg_buff_num; i++) {
         if (g_reg_buff_list[i]->group_id == buff->group_id || g_reg_buff_list[i]->fifo == buff->fifo) {
             leafcli_printf_newline("leafcli: group_id[%u,%u] fifo[%u]",
                 g_reg_buff_list[i]->group_id, buff->group_id, g_reg_buff_list[i]->fifo == buff->fifo);
-            return EC_ERROR;
+            return LEAFCLI_EC_ERROR;
         }
     }
     buff->rd_index = 0;
     buff->wr_index = 0;
     buff->recv_cmd_num = 0;
     buff->proc_cmd_num = 0;
+    buff->parse_ch_num = 0;
     buff->full_flag = false;
     g_reg_buff_list[g_reg_buff_num] = buff;
     g_reg_buff_num++;
-    return EC_OK;
+    return LEAFCLI_EC_OK;
 }
 
 static leafcli_buffer_s *leafcli_get_reg_buff(uint8_t group_id)
@@ -107,33 +110,37 @@ int leafcli_register_ctx(leafcli_context_s *ctx)
 
     if (g_reg_ctx_num >= LEAFCLI_MAX_CTX_NUM || ctx == NULL) {
         leafcli_printf_newline("leafcli: ctx_num[%u] ctx[%u]", g_reg_ctx_num, ctx == NULL);
-        return EC_ERROR;
+        return LEAFCLI_EC_ERROR;
     }
     if (leafcli_get_reg_buff(ctx->group_id) == NULL) {
         leafcli_printf_newline("leafcli: group_id[%u] not registed", ctx->group_id);
-        return EC_ERROR;
+        return LEAFCLI_EC_ERROR;
     }
     if (ctx->cmd_list_name == NULL) {
         leafcli_printf_newline("leafcli: list_name is NULL");
-        return EC_ERROR;
+        return LEAFCLI_EC_ERROR;
     }
     if (ctx->cmd_num == 0 || ctx->cmd_list == NULL) {
         leafcli_printf_newline("leafcli: cmd_num[%u] cmd_list[%u]", ctx->cmd_num, ctx->cmd_list == NULL);
-        return EC_ERROR;
+        return LEAFCLI_EC_ERROR;
     }
     for (i = 0; i < ctx->cmd_num; i++) {
         if (ctx->cmd_list[i].cmd_name == NULL) {
             leafcli_printf_newline("leafcli: cmd_name is NULL");
-            return EC_ERROR;
+            return LEAFCLI_EC_ERROR;
         }
         if (strchr(ctx->cmd_list[i].cmd_name, ' ') != NULL) {
             leafcli_printf_newline("leafcli: cmd_name[%s] has space", ctx->cmd_list[i].cmd_name);
-            return EC_ERROR;
+            return LEAFCLI_EC_ERROR;
+        }
+        if (strlen(ctx->cmd_list[i].cmd_name) > LEAFCLI_MAX_CMD_LEN) {
+            leafcli_printf_newline("leafcli: cmd_name[%s] is too long", ctx->cmd_list[i].cmd_name);
+            return LEAFCLI_EC_ERROR;
         }
     }
     g_reg_ctx_list[g_reg_ctx_num] = ctx;
     g_reg_ctx_num++;
-    return EC_OK;
+    return LEAFCLI_EC_OK;
 }
 
 int leafcli_register_builtin_ctx(uint8_t group_id)
@@ -142,41 +149,46 @@ int leafcli_register_builtin_ctx(uint8_t group_id)
     return leafcli_register_ctx(&g_builtin_reg_ctx);
 }
 
+#define IS_CMD_END(ch) ((ch) == '\r' || (ch) == '\n')
+
 // '/r' or '/n' represent the end of a command
+// NOTE: ONLY modify the charactor in fifo when parse it,
+//       so this function simplely write charactors into fifo
 void leafcli_recv_data(uint8_t ch, uint8_t group_id)
 {
     leafcli_buffer_s *buff = leafcli_get_reg_buff(group_id);
-    if (buff->wr_index - buff->rd_index >= buff->fifo_size) {
+    uint8_t last_wr_ch;
+
+    if (buff->wr_index >= buff->rd_index + buff->fifo_size) {
         buff->full_flag = true;
-        if (buff->recv_cmd_num == buff->proc_cmd_num) {
-            // clean full fifo
-            buff->rd_index = buff->wr_index;
-        }
         return;
     }
-    if (ch == '\0') {
-        return;
-    } else if (ch == '\r' || ch == '\n') {
-        ch = '\0';
-    }
-    if (ch == '\0') {
+    last_wr_ch = (buff->wr_index > 0) ? buff->fifo[(buff->wr_index - 1) % buff->fifo_size] : '\0';
+    if (IS_CMD_END(ch) && !IS_CMD_END(last_wr_ch)) {
         buff->recv_cmd_num++;
     }
-    buff->fifo[buff->wr_index] = ch;
+    buff->fifo[buff->wr_index % buff->fifo_size] = ch;
     buff->wr_index++;
+}
+
+// make sure (index + offset) >= 0
+static inline uint8_t get_fifo_rd_ch(leafcli_buffer_s *buff, uint32_t offset)
+{
+    return buff->fifo[(buff->rd_index + offset) % buff->fifo_size];
 }
 
 static bool leafcli_cmd_comp(leafcli_buffer_s *buff, uint8_t *cmd, uint32_t cmd_len)
 {
-    uint8_t last_ch;
+    uint32_t offset = buff->parse_ch_num;
+    uint8_t ch;
     uint32_t i;
     for (i = 0; i < cmd_len; i++) {
-        if (buff->fifo[(buff->rd_index + i) % buff->fifo_size] != cmd[i]) {
+        if (get_fifo_rd_ch(buff, offset + i) != cmd[i]) {
             return false;
         }
     }
-    last_ch = buff->fifo[(buff->rd_index + cmd_len) % buff->fifo_size];
-    if (last_ch != '\0' && last_ch != ' ') {
+    ch = get_fifo_rd_ch(buff, offset + cmd_len);
+    if (!IS_CMD_END(ch) && ch != ' ') {
         return false;
     }
     return true;
@@ -185,52 +197,47 @@ static bool leafcli_cmd_comp(leafcli_buffer_s *buff, uint8_t *cmd, uint32_t cmd_
 static bool leafcli_parse_cmd(leafcli_buffer_s *buff, uint8_t *cmd_list_name, uint8_t *cmd_name)
 {
     uint32_t cmd_len = strlen(cmd_name);
-
-    if (buff->recv_cmd_num <= buff->proc_cmd_num) {
+    if (!leafcli_cmd_comp(buff, cmd_name, cmd_len)) {
         return false;
     }
-    if (leafcli_cmd_comp(buff, cmd_name, cmd_len)) {
-        leafcli_printf_newline("-> %s: %s", cmd_list_name, cmd_name);
-        buff->rd_index += cmd_len + 1;
-        return true;
-    }
-    return false;
+    leafcli_printf_newline("-> %s: %s", cmd_list_name, cmd_name);
+    buff->parse_ch_num += cmd_len;
+    return true;
 }
 
 static bool leafcli_parse_cmd_param(leafcli_buffer_s *buff, uint32_t *param, uint8_t *param_num)
 {
+    // param_str[param_index][str_index]
     uint8_t param_str[LEAFCLI_MAX_PARAM_NUM][LEAFCLI_MAX_PARAM_LEN + 1] = { 0 };
     uint8_t param_index = 0;
     uint32_t str_index = 0;
-    uint8_t ch = buff->fifo[buff->rd_index % buff->fifo_size];
-    while (ch != '\0') {
-        ch = buff->fifo[buff->rd_index % buff->fifo_size];
+    uint32_t offset = buff->parse_ch_num;
+    uint8_t ch = get_fifo_rd_ch(buff, offset);
+
+    // parse cmd parameters
+    while (!IS_CMD_END(ch) && offset < buff->fifo_size) {
+        ch = get_fifo_rd_ch(buff, offset);
         if (param_index >= LEAFCLI_MAX_PARAM_NUM || str_index >= LEAFCLI_MAX_PARAM_LEN + 1) {
             leafcli_printf_newline("leafcli: param[%u] str_index[%u]", param_index, str_index);
-            while (buff->fifo[buff->rd_index % buff->fifo_size] != '\0') {
-                buff->rd_index++;
-            }
             return false;
         }
         if ((ch < '0' || ch > '9') && ch != ' ') {
-            leafcli_printf_newline("leafcli: param[%u] format invalid", param_index);
-            while (buff->fifo[buff->rd_index % buff->fifo_size] != '\0') {
-                buff->rd_index++;
-            }
+            leafcli_printf_newline("leafcli: param[%u] format invalid, offset[%u] ch[0x%x]",
+                param_index, offset, ch);
             return false;
         }
-        if (ch != ' ' && ch != '\0') {
+        if (IS_CMD_END(ch) || ch == ' ') {
+            param[param_index] = atoi(param_str[param_index]);
+            param_index++;
+            str_index = 0;
+        } else {
             param_str[param_index][str_index] = ch;
             str_index++;
-            buff->rd_index++;
-            continue;
         }
-        param[param_index] = atoi(param_str[param_index]);
-        str_index = 0;
-        param_index++;
-        buff->rd_index++;
+        offset++;
     }
     *param_num = param_index;
+    buff->parse_ch_num = offset;
     return true;
 }
 
@@ -267,24 +274,74 @@ static void leafcli_exec_cmd(void *cmd_func, uint32_t *param, uint8_t param_num)
     leafcli_printf_newline("[ret] %u (0x%x)", cmd_ret, cmd_ret);
 }
 
+static void skip_ch(leafcli_buffer_s *buff, bool (*skip_judge)(uint8_t ch))
+{
+    uint8_t ch = get_fifo_rd_ch(buff, buff->parse_ch_num);
+    while (skip_judge(ch) && buff->parse_ch_num < buff->fifo_size) {
+        buff->parse_ch_num++;
+        ch = get_fifo_rd_ch(buff, buff->parse_ch_num);
+    }
+}
+
+static bool cmd_end_and_space_judge(uint8_t ch) { return (IS_CMD_END(ch) || ch == ' '); }
+static bool cmd_end_judge(uint8_t ch) { return IS_CMD_END(ch); }
+static bool space_judge(uint8_t ch) { return (ch == ' '); }
+static bool not_cmd_end_judge(uint8_t ch) { return !IS_CMD_END(ch); }
+static void skip_cmd_end_and_space(leafcli_buffer_s *buff) { skip_ch(buff, cmd_end_and_space_judge); }
+static void skip_cmd_end(leafcli_buffer_s *buff) { skip_ch(buff, cmd_end_judge); }
+static void skip_space(leafcli_buffer_s *buff) { skip_ch(buff, space_judge); }
+
+static void skip_to_cmd_end(leafcli_buffer_s *buff) { skip_ch(buff, not_cmd_end_judge); }
+
+static void fifo_clear(leafcli_buffer_s *buff, uint32_t index, uint32_t len)
+{
+    uint32_t i;
+
+    if ((index + len) >= buff->wr_index) {
+        return;
+    }
+    for (i = 0; i < len; i++) {
+        buff->fifo[(index + i) % buff->fifo_size] = 0;
+    }
+}
+
 void leafcli_scan(void)
 {
     uint32_t param[LEAFCLI_MAX_PARAM_NUM] = { 0 };
     uint8_t param_num;
     leafcli_buffer_s *buff = NULL;
     leafcli_context_s *ctx = NULL;
+    bool parse_success = false;
     uint32_t i, j;
     for (i = 0; i < g_reg_ctx_num; i++) {
         ctx = g_reg_ctx_list[i];
+        buff = leafcli_get_reg_buff(ctx->group_id);
+        if (buff->proc_cmd_num >= buff->recv_cmd_num) {
+            continue;
+        }
         for (j = 0; j < ctx->cmd_num; j++) {
-            buff = leafcli_get_reg_buff(ctx->group_id);
-            if (!leafcli_parse_cmd(buff, ctx->cmd_list_name, ctx->cmd_list[j].cmd_name)) {
-                continue;
-            }
-            if (leafcli_parse_cmd_param(buff, param, &param_num)) {
-                leafcli_exec_cmd(ctx->cmd_list[j].cmd_func, param, param_num);
-                buff->proc_cmd_num++;
+            skip_cmd_end_and_space(buff);
+            if (leafcli_parse_cmd(buff, ctx->cmd_list_name, ctx->cmd_list[j].cmd_name)) {
+                skip_space(buff);
+                if (leafcli_parse_cmd_param(buff, param, &param_num)) {
+                    skip_cmd_end(buff);
+                    parse_success = true;
+                    leafcli_exec_cmd(ctx->cmd_list[j].cmd_func, param, param_num);
+                    buff->proc_cmd_num++;
+                }
             }
         }
+        // 1. command not match
+        // 2. command match but parameters format invalid
+        if (!parse_success) {
+            buff->proc_cmd_num++;
+            skip_to_cmd_end(buff);
+            skip_cmd_end(buff);
+            leafcli_printf_newline("leafcli: cmd parse failed");
+        }
+        // clear command and it's parameters
+        fifo_clear(buff, buff->rd_index, buff->parse_ch_num);
+        buff->rd_index += buff->parse_ch_num;
+        buff->parse_ch_num = 0;
     }
 }

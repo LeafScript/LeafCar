@@ -24,12 +24,11 @@ set(SERVICE_TIMER_DIR ${CONTROL_DIR}/service_timer)
 set(ALIENTEK_DIR ${3RD_DIR}/alientek)
 set(AT_SYS_DIR ${ALIENTEK_DIR}/system/sys)
 set(AT_DELAY_DIR ${ALIENTEK_DIR}/system/delay)
-set(AT_USMART_DIR ${ALIENTEK_DIR}/usmart)
 
 include_directories(${COMMON_DIR}
     ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR} ${USART_DIR}
     ${CAR_DIR} ${PID_DIR} ${MOTOR_DIR} ${K210_DIR} ${OPENMV_DIR} ${SERVICE_TIMER_DIR}
-    ${AT_SYS_DIR} ${AT_DELAY_DIR} ${AT_USMART_DIR})
+    ${AT_SYS_DIR} ${AT_DELAY_DIR})
 
 file(GLOB_RECURSE CONTROL_SRCS "${CONTROL_DIR}/*.c")
 add_library(control_lib STATIC ${CONTROL_SRCS})

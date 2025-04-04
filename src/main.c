@@ -2,7 +2,6 @@
 #include "sys.h"
 #include "usart.h"
 #include "delay.h"
-#include "usmart.h"
 #include "timer.h"
 #include "led.h"
 #include "car_basic.h"
@@ -87,12 +86,10 @@ static void board_init(void)
 static void background_service_scan(void)
 {
 	service_timer_scan();
-	// usmart_dev.scan();
 }
 
 static void service_init(void)
 {
-	// usmart_dev.init(72);
 	delay_init();
 	car_init();
 	Arm_Init();
