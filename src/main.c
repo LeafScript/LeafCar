@@ -75,7 +75,7 @@ static void board_init(void)
 	usart_service_register(USART_SERV_USART1, debug_cli_recv_data);
 	usart_service_register(USART_SERV_USART3, openmv_update_data);
 	usart_service_register(USART_SERV_UART5, k210_update_data);
-	USART1_Init(115200);
+	USART1_Init(9600);
 	USART3_Init(9600);
 	UART5_Init(9600);
 

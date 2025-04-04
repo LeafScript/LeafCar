@@ -25,17 +25,17 @@ static int debug_task_handle(task_context_s *task_ctx)
 
 static void debug_task_stop(task_context_s *task_ctx)
 {
-    printf("debug_task_stop\r\n");
+    LEAF_LOG(LOG_DEBUG, "debug_task_stop");
 }
 
 static void debug_task_async_back(task_context_s *task_ctx)
 {
-    // printf("debug_task_async_back\r\n");
+    LEAF_LOG(LOG_DEBUG, "debug_task_async_back");
 }
 
 static void debug_task_finish(task_context_s *task_ctx)
 {
-    printf("debug_task_finish\r\n");
+    LEAF_LOG(LOG_DEBUG, "debug_task_finish");
 }
 
 static int debug_task_ctx_init(uint8_t task_id)

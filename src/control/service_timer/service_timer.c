@@ -69,7 +69,7 @@ int service_timer_trigger_muti(uint32_t trigger_ms, service_timer_cb_func cb, vo
     int i;
 
     if (g_register_num >= SERVICE_TIMER_MAX_REGISTER_NUM || (trigger_ms % g_period_ms) != 0 || cb == NULL) {
-        printf("service_timer_trigger_muti errpr, reg_num[%u] trigger_ms[%u] g_period_ms[%u] cb[%u]\r\n",
+        LEAF_LOG(LOG_ERROR, "service_timer_trigger_muti errpr, reg_num[%u] trigger_ms[%u] g_period_ms[%u] cb[%u]",
             g_register_num, trigger_ms, g_period_ms, (cb == NULL));
         return EC_ERROR;
     }

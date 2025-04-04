@@ -28,17 +28,17 @@ int debug_cli_init(void)
 {
     int ret = leafcli_register_buff(&g_cli_buff);
     if (ret != EC_OK) {
-        printf("leafcli_register_buff failed\r\n");
+        LEAF_LOG(LOG_ERROR, "leafcli_register_buff failed");
         return EC_ERROR;
     }
     ret = leafcli_register_builtin_ctx(LEAFCLI_GROUP_DEBUG_CLI);
     if (ret != EC_OK) {
-        printf("leafcli_register_builtin_ctx failed\r\n");
+        LEAF_LOG(LOG_ERROR, "leafcli_register_builtin_ctx failed");
         return EC_ERROR;
     }
 	ret = leafcli_register_ctx(&g_cli_ctx);
     if (ret != EC_OK) {
-        printf("leafcli_register_ctx failed\r\n");
+        LEAF_LOG(LOG_ERROR, "leafcli_register_ctx failed");
         return EC_ERROR;
     }
     return EC_OK;

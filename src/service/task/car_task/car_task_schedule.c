@@ -83,27 +83,27 @@ static int car_task_debug_step(task_context_s *task_ctx)
 
 static void car_task_stop(task_context_s *task_ctx)
 {
-    printf("car_task_stop\r\n");
+    LEAF_LOG(LOG_DEBUG, "car_task_stop");
 }
 
 static void car_task_async_back(task_context_s *task_ctx)
 {
-    printf("car_task_async_back op_cur[%u] op_next[%u]\r\n", g_car_op_info.op_cur, g_car_op_info.op_next);
+    LEAF_LOG(LOG_DEBUG, "car_task_async_back op_cur[%u] op_next[%u]", g_car_op_info.op_cur, g_car_op_info.op_next);
 }
 
 static void car_task_timeout(task_context_s *task_ctx)
 {
-    printf("car_task_timeout\r\n");
+    LEAF_LOG(LOG_DEBUG, "car_task_timeout");
 }
 
 static void car_task_finish(task_context_s *task_ctx)
 {
-    printf("car_task_finish\r\n");
+    LEAF_LOG(LOG_DEBUG, "car_task_finish");
 }
 
 static void car_task_restart(task_context_s *task_ctx)
 {
-    printf("car_task_restart\r\n");
+    LEAF_LOG(LOG_DEBUG, "car_task_restart");
 }
 
 int car_task_init(uint8_t task_id)

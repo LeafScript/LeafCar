@@ -24,7 +24,7 @@ static int car_op_car_handle(uint8_t op, car_op_param_s *param)
     } else if (op == CAR_OP_TURN) {
         car_turn(param->dist, param->speed, param->is_right);
     } else {
-        printf("invalid car op[%u]\r\n", op);
+        LEAF_LOG(LOG_ERROR, "invalid car op[%u]", op);
         return EC_ERROR;
     }
     return EC_OK;
@@ -39,7 +39,7 @@ static int car_op_arm_handle(uint8_t op)
     } else if (op == ARM_OP_LEFT) {
         Arm_SetStatus(3);
     } else {
-        printf("invalid arm op[%u]\r\n", op);
+        LEAF_LOG(LOG_ERROR, "invalid arm op[%u]", op);
         return EC_ERROR;
     }
     car_op_async_cb();
@@ -57,7 +57,7 @@ static int car_op_redwire_handle(uint8_t op, redwire_op_param_s *param)
             param->cb(param->priv);
         }
     } else {
-        printf("invalid redwire op[%u]\r\n", op);
+        LEAF_LOG(LOG_ERROR, "invalid redwire op[%u]", op);
         return EC_ERROR;
     }
     return EC_OK;
@@ -73,7 +73,7 @@ static int car_op_led_handle(uint8_t op, led_op_param_s *param)
     } else if (param->color == LED_GREEN) {
         GreLed = is_on;
     } else {
-        printf("invalid led op[%u]\r\n", op);
+        LEAF_LOG(LOG_ERROR, "invalid led op[%u]", op);
         return EC_ERROR;
     }
     car_op_async_cb();
@@ -84,16 +84,16 @@ static int car_op_timer_handle(uint8_t op, timer_op_param_s *param)
 {
     if (op == TIMER_OP_TRIGGER_ONCE) {
         if (service_timer_trigger_once(param->trigger_ms, param->cb, param->priv) != EC_OK) {
-            printf("service timer trigger once error\r\n");
+            LEAF_LOG(LOG_ERROR, "service timer trigger once error");
             return EC_ERROR;
         }
     } else if (op == TIMER_OP_TRIGGER_MUTI) {
         if (service_timer_trigger_muti(param->trigger_ms, param->cb, param->priv, param->trigger_times) != EC_OK) {
-            printf("service timer trigger muti error\r\n");
+            LEAF_LOG(LOG_ERROR, "service timer trigger muti error");
             return EC_ERROR;
         }
     } else {
-        printf("invalid timer op[%u]\r\n", op);
+        LEAF_LOG(LOG_ERROR, "invalid timer op[%u]", op);
         return EC_ERROR;
     }
     return EC_OK;
@@ -128,7 +128,7 @@ static int car_op_op_handle(uint8_t op, op_op_param_s *param)
     } else if (op == OP_OP_END) {
         return EC_ERROR;
     } else {
-        printf("invalid op op[%u]\r\n", op);
+        LEAF_LOG(LOG_ERROR, "invalid op op[%u]", op);
         return EC_ERROR;
     }
     ret = car_task_set_op_next(to_step);
@@ -155,7 +155,7 @@ int car_op_handle(car_op_s *op)
         case CAR_OP_OBJ_OP:
             return car_op_op_handle(op->op, &op->op_param);
         default:
-            printf("invalid car op obj[%u]\r\n", op->op_obj);
+            LEAF_LOG(LOG_ERROR, "invalid car op obj[%u]", op->op_obj);
             return EC_ERROR;
     }
 }

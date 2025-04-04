@@ -24,17 +24,17 @@ static int check_new_fw(task_context_s *task_ctx)
 
 static void update_fw_task_stop(task_context_s *task_ctx)
 {
-    printf("update_fw_task_stop\r\n");
+    LEAF_LOG(LOG_DEBUG, "update_fw_task_stop");
 }
 
 static void update_fw_task_async_back(task_context_s *task_ctx)
 {
-    printf("update_fw_task_async_back\r\n");
+    LEAF_LOG(LOG_DEBUG, "update_fw_task_async_back");
 }
 
 static void update_fw_task_finish(task_context_s *task_ctx)
 {
-    printf("update_fw_task_finish\r\n");
+    LEAF_LOG(LOG_DEBUG, "update_fw_task_finish");
 }
 
 int update_fw_task_init(uint8_t task_id)
