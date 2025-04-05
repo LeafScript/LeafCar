@@ -24,9 +24,9 @@ typedef struct {
 // fifo - ring buffer
 typedef struct {
     uint8_t group_id;   // bind with leafcli buffer (one to one)
-    uint32_t fifo_size; // suggest >= 128 bytes
-    void (*fifo_full_cb)(uint8_t group_id);
-    void (*fifo_full_solved)(uint8_t group_id);
+    uint32_t fifo_size; // suggest >= 64 bytes
+    void (*fifo_full_cb)(uint8_t group_id);     // OPTIONAL
+    void (*fifo_full_solved)(uint8_t group_id); // OPTIONAL
     uint8_t *fifo;
     // private
     uint32_t rd_index;
@@ -34,7 +34,7 @@ typedef struct {
     uint32_t recv_cmd_num;
     uint32_t proc_cmd_num;
     uint32_t parse_ch_num;
-    bool full_flag;     // is full before
+    bool full_flag;     // is fifo full
 } leafcli_buffer_s;
 
 typedef struct {
