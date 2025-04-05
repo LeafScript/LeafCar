@@ -25,6 +25,8 @@ typedef struct {
 typedef struct {
     uint8_t group_id;   // bind with leafcli buffer (one to one)
     uint32_t fifo_size; // suggest >= 128 bytes
+    void (*fifo_full_cb)(uint8_t group_id);
+    void (*fifo_full_solved)(uint8_t group_id);
     uint8_t *fifo;
     // private
     uint32_t rd_index;
