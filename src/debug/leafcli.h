@@ -3,6 +3,15 @@
 
 #include "base_type.h"
 
+/**
+ *   platform       compiler        flash        flash (no builtin cmd)
+ * stm32f103zet6     gcc O1         5716         4220
+ */
+// 1: enable leafcli  0: disable leafcli
+#define LEAFCLI_ENABLE_SW               1
+// 1: enable builtin command  0: disable builtin command
+#define LEAFCLI_ENABLE_BUILTIN_CMD      1
+
 #define LEAFCLI_USE_CRLF        1
 #define LEAFCLI_MAX_BUFF_NUM    10
 #define LEAFCLI_MAX_CMD_LEN     32
@@ -44,14 +53,31 @@ typedef struct {
     leafcli_cmd_s *cmd_list;
 } leafcli_context_s;
 
+#if (LEAFCLI_ENABLE_SW == 1)
+
 int leafcli_register_buff(leafcli_buffer_s *buff);
 int leafcli_register_ctx(leafcli_context_s *ctx);
-int leafcli_register_builtin_ctx(uint8_t group_id);
 void leafcli_recv_data(uint8_t ch, uint8_t group_id);
 /**
  * suggest NOT call this function in interrupt, unless you have ensured your command
  * will handle correctly in it.
  */
 void leafcli_scan(void);
+
+#if (LEAFCLI_ENABLE_BUILTIN_CMD == 1)
+int leafcli_register_builtin_ctx(uint8_t group_id);
+#else
+static inline int leafcli_register_builtin_ctx(uint8_t group_id) { return LEAFCLI_EC_OK; }
+#endif
+
+#else
+// mock all interface
+static inline int leafcli_register_buff(leafcli_buffer_s *buff) { return LEAFCLI_EC_OK; }
+static inline int leafcli_register_ctx(leafcli_context_s *ctx) { return LEAFCLI_EC_OK; }
+static inline void leafcli_recv_data(uint8_t ch, uint8_t group_id) { }
+static inline void leafcli_scan(void) { }
+static inline int leafcli_register_builtin_ctx(uint8_t group_id) { return LEAFCLI_EC_OK; }
+
+#endif
 
 #endif

@@ -57,7 +57,9 @@ static uint32_t debug_cli_delay_ms(uint32_t ms)
     for (i = 0; i < s; i++) {
         delay_ms(1000);
     }
-    delay_ms(remain_ms);
+    if (remain_ms > 0) {
+        delay_ms(remain_ms);
+    }
     return 0;
 }
 

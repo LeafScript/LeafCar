@@ -1,4 +1,7 @@
 #include "leafcli.h"
+
+#if (LEAFCLI_ENABLE_SW == 1)
+
 #include <string.h>
 #include <stdlib.h>
 #include "base_type.h"
@@ -12,6 +15,13 @@
 #endif
 #define leafcli_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #define leafcli_printf_newline(fmt, ...) printf(fmt NEWLINE, ##__VA_ARGS__)
+
+static leafcli_buffer_s *g_reg_buff_list[LEAFCLI_MAX_BUFF_NUM] = { 0 };
+static uint8_t g_reg_buff_num = 0;
+static leafcli_context_s *g_reg_ctx_list[LEAFCLI_MAX_CTX_NUM] = { 0 };
+static uint8_t g_reg_ctx_num = 0;
+
+#if (LEAFCLI_ENABLE_BUILTIN_CMD == 1)
 
 static uint32_t leafcli_show_help(void);
 static uint32_t leafcli_show_registerd_cmd(void);
@@ -36,10 +46,6 @@ static leafcli_context_s g_builtin_reg_ctx = {
     .cmd_num = ARRAY_SIZE(g_builtin_cmd_list),
     .cmd_list = g_builtin_cmd_list,
 };
-static leafcli_buffer_s *g_reg_buff_list[LEAFCLI_MAX_BUFF_NUM] = { 0 };
-static uint8_t g_reg_buff_num = 0;
-static leafcli_context_s *g_reg_ctx_list[LEAFCLI_MAX_CTX_NUM] = { 0 };
-static uint8_t g_reg_ctx_num = 0;
 
 static uint32_t leafcli_show_help(void)
 {
@@ -61,6 +67,9 @@ static uint32_t leafcli_show_registerd_cmd(void)
     leafcli_printf_newline(">>>>> LEAFCLI REGISTERED COMMAND LIST <<<<<");
     for (i = 0; i < g_reg_ctx_num; i++) {
         ctx = g_reg_ctx_list[i];
+        if (ctx == &g_builtin_reg_ctx) {
+            continue;
+        }
         leafcli_printf_newline("> %s:", ctx->cmd_list_name);
         for (j = 0; j < ctx->cmd_num; j++) {
             if (ctx->cmd_list[j].cmd_desc == NULL) {
@@ -160,6 +169,8 @@ static uint32_t leafcli_show_memory(uint32_t addr, uint32_t num)
     return LEAFCLI_EC_OK;
 }
 
+#endif
+
 int leafcli_register_buff(leafcli_buffer_s *buff)
 {
     uint32_t i;
@@ -240,11 +251,15 @@ int leafcli_register_ctx(leafcli_context_s *ctx)
     return LEAFCLI_EC_OK;
 }
 
+#if (LEAFCLI_ENABLE_BUILTIN_CMD == 1)
+
 int leafcli_register_builtin_ctx(uint8_t group_id)
 {
     g_builtin_reg_ctx.group_id = group_id;
     return leafcli_register_ctx(&g_builtin_reg_ctx);
 }
+
+#endif
 
 #define IS_CMD_END(ch) ((ch) == '\r' || (ch) == '\n')
 
@@ -509,3 +524,5 @@ void leafcli_scan(void)
         }
     }
 }
+
+#endif
