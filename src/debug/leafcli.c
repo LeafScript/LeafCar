@@ -15,10 +15,14 @@
 
 static uint32_t leafcli_show_help(void);
 static uint32_t leafcli_show_registerd_cmd(void);
+static uint32_t leafcli_show_registerd_buff(void);
+static uint32_t leafcli_show_registerd_fifo(void);
 
 static leafcli_cmd_s g_builtin_cmd_list[] = {
     { "help", leafcli_show_help, "show help" },
     { "reg_cmd", leafcli_show_registerd_cmd, "show registered command list" },
+    { "buff", leafcli_show_registerd_buff, "show registered buffer info" },
+    { "fifo", leafcli_show_registerd_fifo, "show registered fifo content" },
 };
 static leafcli_context_s g_builtin_reg_ctx = {
     .group_id = 0,
@@ -57,6 +61,47 @@ static uint32_t leafcli_show_registerd_cmd(void)
                 leafcli_printf_newline("%s", ctx->cmd_list[j].cmd_name);
             } else {
                 leafcli_printf_newline("%s: %s", ctx->cmd_list[j].cmd_name, ctx->cmd_list[j].cmd_desc);
+            }
+        }
+    }
+    return LEAFCLI_EC_OK;
+}
+
+static uint32_t leafcli_show_registerd_buff(void)
+{
+    leafcli_buffer_s *buff = NULL;
+    uint32_t i;
+
+    leafcli_printf_newline(">>>>> LEAFCLI BUFF LIST <<<<<");
+    leafcli_printf_newline("group_id | size | rd_index | wr_index | recv_cmd | proc_cmd | parse_ch | full_flag");
+    for (i = 0; i < g_reg_buff_num; i++) {
+        buff = g_reg_buff_list[i];
+        leafcli_printf_newline("%8u | %4u | %8u | %8u | %8u | %8u | %8u | %9s",
+            buff->group_id, buff->fifo_size, buff->rd_index, buff->wr_index,
+            buff->recv_cmd_num, buff->proc_cmd_num, buff->parse_ch_num, buff->full_flag ? "true" : "false");
+    }
+    return LEAFCLI_EC_OK;
+}
+
+#define FIFO_PRINT_LINE_BYTES 16
+
+static uint32_t leafcli_show_registerd_fifo(void)
+{
+    uint8_t *fifo = NULL;
+    uint32_t i, j, fifo_size;
+
+    leafcli_printf_newline(">>>>> LEAFCLI FIFO LIST <<<<<");
+    for (i = 0; i < g_reg_buff_num; i++) {
+        fifo = g_reg_buff_list[i]->fifo;
+        fifo_size = g_reg_buff_list[i]->fifo_size;
+        leafcli_printf_newline("group_id: %u", g_reg_buff_list[i]->group_id);
+        for (j = 0; j < fifo_size; j++) {
+            if (j % FIFO_PRINT_LINE_BYTES == 0) {
+                leafcli_printf("[%03u]-[%03u]: ", j, j + FIFO_PRINT_LINE_BYTES);
+            }
+            leafcli_printf("%02x ", fifo[j]);
+            if (j % FIFO_PRINT_LINE_BYTES == FIFO_PRINT_LINE_BYTES - 1) {
+                leafcli_printf_newline("");
             }
         }
     }
@@ -293,55 +338,72 @@ static void skip_space(leafcli_buffer_s *buff) { skip_ch(buff, space_judge); }
 
 static void skip_to_cmd_end(leafcli_buffer_s *buff) { skip_ch(buff, not_cmd_end_judge); }
 
-static void fifo_clear(leafcli_buffer_s *buff, uint32_t index, uint32_t len)
+// clear command and it's parameters
+static void fifo_rd_clear(leafcli_buffer_s *buff)
 {
+    uint32_t index = buff->rd_index;
+    uint32_t len = buff->parse_ch_num;
     uint32_t i;
 
-    if ((index + len) >= buff->wr_index) {
-        return;
+    if ((index + len) > buff->wr_index) {
+        leafcli_printf_newline("leafcli: fifo_rd_clear abnormal, rd_index[%u] + parse_ch_num[%u] > wr_index[%u]",
+            index, len, buff->wr_index);
+        len = buff->fifo_size;
     }
     for (i = 0; i < len; i++) {
         buff->fifo[(index + i) % buff->fifo_size] = 0;
     }
+    buff->rd_index += buff->parse_ch_num;
+    buff->parse_ch_num = 0;
 }
 
-void leafcli_scan(void)
+// process one command at a time
+static void leafcli_parse_exec_cmd(leafcli_buffer_s *buff)
 {
     uint32_t param[LEAFCLI_MAX_PARAM_NUM] = { 0 };
     uint8_t param_num;
-    leafcli_buffer_s *buff = NULL;
     leafcli_context_s *ctx = NULL;
-    bool parse_success = false;
     uint32_t i, j;
     for (i = 0; i < g_reg_ctx_num; i++) {
         ctx = g_reg_ctx_list[i];
-        buff = leafcli_get_reg_buff(ctx->group_id);
-        if (buff->proc_cmd_num >= buff->recv_cmd_num) {
+        if (ctx->group_id != buff->group_id) {
             continue;
         }
         for (j = 0; j < ctx->cmd_num; j++) {
             skip_cmd_end_and_space(buff);
-            if (leafcli_parse_cmd(buff, ctx->cmd_list_name, ctx->cmd_list[j].cmd_name)) {
-                skip_space(buff);
-                if (leafcli_parse_cmd_param(buff, param, &param_num)) {
-                    skip_cmd_end(buff);
-                    parse_success = true;
-                    leafcli_exec_cmd(ctx->cmd_list[j].cmd_func, param, param_num);
-                    buff->proc_cmd_num++;
-                }
+            leafcli_printf_newline("leafcli: parse cmd[%s]", ctx->cmd_list[j].cmd_name);
+            if (!leafcli_parse_cmd(buff, ctx->cmd_list_name, ctx->cmd_list[j].cmd_name)) {
+                continue;
             }
-        }
-        // 1. command not match
-        // 2. command match but parameters format invalid
-        if (!parse_success) {
-            buff->proc_cmd_num++;
-            skip_to_cmd_end(buff);
+            skip_space(buff);
+            if (!leafcli_parse_cmd_param(buff, param, &param_num)) {
+                continue;
+            }
             skip_cmd_end(buff);
-            leafcli_printf_newline("leafcli: cmd parse failed");
+            leafcli_exec_cmd(ctx->cmd_list[j].cmd_func, param, param_num);
+            fifo_rd_clear(buff);
+            return;
         }
-        // clear command and it's parameters
-        fifo_clear(buff, buff->rd_index, buff->parse_ch_num);
-        buff->rd_index += buff->parse_ch_num;
-        buff->parse_ch_num = 0;
+    }
+    // command parse failed
+    // 1. command not match
+    // 2. command match but parameters format invalid
+    leafcli_printf_newline("leafcli: cmd parse failed, group_id[%u]", buff->group_id);
+    skip_to_cmd_end(buff);
+    skip_cmd_end(buff);
+    fifo_rd_clear(buff);
+}
+
+void leafcli_scan(void)
+{
+    leafcli_buffer_s *buff = NULL;
+    uint32_t i;
+    for (i = 0; i < g_reg_buff_num; i++) {
+        buff = g_reg_buff_list[i];
+        // parse and execute all commands in buff
+        while (buff->proc_cmd_num < buff->recv_cmd_num) {
+            leafcli_parse_exec_cmd(buff);
+            buff->proc_cmd_num++;
+        }
     }
 }
