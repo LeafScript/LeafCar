@@ -23,8 +23,6 @@ enum usart_serv_usartx {
 };
 typedef void (*usart_serv_func)(uint8_t ch);
 
-#define printf USART1_printf
-
 void USART1_Init(uint32_t baudrate);
 void USART2_Init(uint32_t baudrate);
 void USART3_Init(uint32_t baudrate);

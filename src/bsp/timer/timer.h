@@ -10,7 +10,6 @@ enum timer_serv_timx {
 };
 typedef void (*timer_serv_func)(void);
 
-/* TIM7: usmart扫描, TIM6: 小车控制扫描 */
 void timer_service_init(void);
 void timer_service_register(uint8_t timx, timer_serv_func func);
 void timer_service_start(void);

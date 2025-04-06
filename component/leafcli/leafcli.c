@@ -2,19 +2,17 @@
 
 #if (LEAFCLI_ENABLE_SW == 1)
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "base_type.h"
-#include "error_code.h"
-#include "usart.h"
 
 #if (LEAFCLI_USE_CRLF == 1)
-#define NEWLINE "\r\n"
+#define leafcli_printf_newline(fmt, ...) printf(fmt "\r\n", ##__VA_ARGS__)
 #else
-#define NEWLINE "\n"
+#define leafcli_printf_newline(fmt, ...) printf(fmt "\n", ##__VA_ARGS__)
 #endif
 #define leafcli_printf(fmt, ...) printf(fmt, ##__VA_ARGS__)
-#define leafcli_printf_newline(fmt, ...) printf(fmt NEWLINE, ##__VA_ARGS__)
 
 static leafcli_buffer_s *g_reg_buff_list[LEAFCLI_MAX_BUFF_NUM] = { 0 };
 static uint8_t g_reg_buff_num = 0;

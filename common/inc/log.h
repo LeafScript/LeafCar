@@ -1,8 +1,8 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
+#include <stdio.h>
 #include "base_type.h"
-#include "usart.h"
 
 #define LEAF_LOG_NEW_LINE "\r\n"
 

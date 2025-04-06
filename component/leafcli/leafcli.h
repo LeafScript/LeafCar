@@ -4,13 +4,13 @@
 #include "base_type.h"
 
 /**
- *   platform       compiler        flash        flash (no builtin cmd)
- * stm32f103zet6     gcc O1         5716         4220
+ *   platform       compiler        flash        flash (no builtin cmd)    ram      ram (no builtin cmd)
+ * stm32f103zet6     gcc O1         +6184        +4688                     +208     +108
  */
 // 1: enable leafcli  0: disable leafcli
 #define LEAFCLI_ENABLE_SW               1
 // 1: enable builtin command  0: disable builtin command
-#define LEAFCLI_ENABLE_BUILTIN_CMD      1
+#define LEAFCLI_ENABLE_BUILTIN_CMD      0
 
 #define LEAFCLI_USE_CRLF        1
 #define LEAFCLI_MAX_BUFF_NUM    10

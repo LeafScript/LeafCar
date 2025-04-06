@@ -4,7 +4,20 @@
 #include <string.h>
 #include "usart.h"
 
-#pragma import(__use_no_semihosting)             
+#ifdef __GNUC__
+
+int _write(int file, char *ch, int len)
+{
+	for (int i = 0; i < len; i++) {
+        while((USART1->SR & 0x40) == 0);
+        USART1->DR = (uint8_t)ch[i];
+    }
+	return len;
+}
+
+#else
+
+#pragma import(__use_no_semihosting)           
 
 struct __FILE {
 	int handle; 
@@ -22,6 +35,8 @@ int fputc(int ch, FILE *f)
     USART_n->DR = (uint8_t)ch;      
 	return ch;
 }
+
+#endif
 
 typedef struct {
 	USART_TypeDef *USARTx;

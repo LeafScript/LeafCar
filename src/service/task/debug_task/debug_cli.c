@@ -74,7 +74,8 @@ static uint32_t debug_cli_delay_s(uint32_t s)
 
 int debug_cli_init(void)
 {
-    int ret = leafcli_register_buff(&g_cli_buff);
+    int ret;
+    ret = leafcli_register_buff(&g_cli_buff);
     if (ret != LEAFCLI_EC_OK) {
         LEAF_LOG(LOG_ERROR, "leafcli_register_buff failed");
         return EC_ERROR;
