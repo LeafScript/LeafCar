@@ -31,8 +31,8 @@ set(DEBUG_DIR ${SRC_DIR}/debug)
 set(FOUNDATION_DIR ${SERVICE_DIR}/foundation)
 set(TASK_DIR ${SERVICE_DIR}/task)
 set(CAR_TASK_DIR ${TASK_DIR}/car_task)
-set(DEBUG_TASK_DIR ${TASK_DIR}/debug_task)
-set(UPDATE_TASK_DIR ${TASK_DIR}/update_task)
+set(CLI_TASK_DIR ${TASK_DIR}/cli_task)
+set(UPDATE_FW_TASK_DIR ${TASK_DIR}/update_fw_task)
 
 # control
 set(CAR_DIR ${CONTROL_DIR}/car)
@@ -53,7 +53,7 @@ include_directories(
     ${PLAT_DIR}
     # service
     ${FOUNDATION_DIR}
-    ${TASK_DIR} ${CAR_TASK_DIR} ${DEBUG_TASK_DIR} ${UPDATE_TASK_DIR}
+    ${TASK_DIR} ${CAR_TASK_DIR} ${CLI_TASK_DIR} ${UPDATE_FW_TASK_DIR}
     # control
     ${CAR_DIR} ${CARARM_DIR} ${MOTOR_DIR} ${K210_DIR} ${OPENMV_DIR} ${PID_DIR}
     # debug

@@ -11,6 +11,7 @@ static task_exec_func g_update_fw_task_exec_list[] = {
     check_new_fw,
 };
 static task_context_s g_update_fw_task_ctx;
+static bool g_update_fw_started = false;
 
 static int download_fw_handle(task_context_s *task_ctx)
 {
@@ -35,6 +36,7 @@ static void update_fw_task_async_back(task_context_s *task_ctx)
 static void update_fw_task_finish(task_context_s *task_ctx)
 {
     LEAF_LOG(LOG_DEBUG, "update_fw_task_finish");
+    g_update_fw_started = false;
 }
 
 int update_fw_task_init(uint8_t task_id)
@@ -55,9 +57,13 @@ int update_fw_task_init(uint8_t task_id)
 void update_fw_task_start(void)
 {
     task_start(&g_update_fw_task_ctx);
+    g_update_fw_started = true;
 }
 
 void update_fw_task_scan(void)
 {
+    if (!g_update_fw_started) {
+        return;
+    }
     task_scan(&g_update_fw_task_ctx);
 }

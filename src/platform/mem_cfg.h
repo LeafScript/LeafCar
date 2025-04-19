@@ -2,7 +2,7 @@
 #define _MEM_CFG_H_
 
 enum leafcli_mem_group_e {
-    LEAFCLI_GROUP_DEBUG_CLI = 0,
+    LEAFCLI_GROUP_LEAFCAR = 0,
 };
 
 #endif

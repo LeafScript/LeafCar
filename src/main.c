@@ -13,7 +13,7 @@
 #include "openmv.h"
 #include "k210.h"
 #include "task_schedule.h"
-#include "debug_cli.h"
+#include "cli_task.h"
 
 /***************************定时器通道引脚********************************/
 //				CH1				CH2				CH3				CH4
@@ -71,7 +71,7 @@ static void board_init(void)
 {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);		//配置中断优先级
 
-	usart_service_register(USART_SERV_USART1, debug_cli_recv_data);
+	usart_service_register(USART_SERV_USART1, cli_recv_data);
 	usart_service_register(USART_SERV_USART3, openmv_update_data);
 	usart_service_register(USART_SERV_UART5, k210_update_data);
 	USART1_Init(9600);
