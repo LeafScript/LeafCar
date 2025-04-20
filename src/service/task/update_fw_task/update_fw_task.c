@@ -3,17 +3,21 @@
 #include "log.h"
 #include "error_code.h"
 
-static int download_fw_handle(task_context_s *task_ctx);
+#define FLUSH_FW_START_ADDR     0x8020000UL
+#define FLUSH_FW_MAX_SIZE       0x20000UL
+
+static int flush_fw_handle(task_context_s *task_ctx);
 static int check_new_fw(task_context_s *task_ctx);
 
 static task_exec_func g_update_fw_task_exec_list[] = {
-    download_fw_handle,
+    flush_fw_handle,
     check_new_fw,
 };
 static task_context_s g_update_fw_task_ctx;
 static bool g_update_fw_started = false;
+static uint8_t *g_flush_addr = (uint8_t *)FLUSH_FW_START_ADDR;
 
-static int download_fw_handle(task_context_s *task_ctx)
+static int flush_fw_handle(task_context_s *task_ctx)
 {
     return TASK_RES_ASYNC_WAIT;
 }
