@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 enable_language(ASM)
-project(stm32f103c8t6_test)
+project(stm32f103zet6_test)
 set(TARGET ${PROJECT_NAME})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -O1 -mcpu=cortex-m3 -mthumb -g -ffreestanding \

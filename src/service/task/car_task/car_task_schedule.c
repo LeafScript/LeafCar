@@ -142,6 +142,8 @@ void car_task_start(void)
     if (g_car_op_info.op_list_size == 0) {
         return;
     }
+    g_car_op_info.op_cur = 0;
+    g_car_op_info.op_next = 0;
     task_start(&g_car_task_ctx);
 }
 
