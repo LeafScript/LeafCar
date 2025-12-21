@@ -6,6 +6,6 @@
 void car_init(void);
 void car_print(void);
 void car_scan(void);
-void car_set_pwm(uint8_t dir, int16_t pwm);
+void car_set_pwm(int16_t pwm);
 
 #endif

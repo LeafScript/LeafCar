@@ -9,6 +9,7 @@ enum car_mode_e {
 	TARGET_MOVE,	// 移动目标距离 - 前后移动，可以控制移动距离和速度
 	TRACK_MOVE,		// 循迹模式     - 循迹，可以控制循迹移动距离和速度
 	TURN_MOVE,		// 转动目标距离 - 转动，可以控制转动距离和速度
+	MOTOR_TEST_MODE,	// 电机调试模式 - 可控制单个电机
 	CAR_MODE_MAX
 };
 

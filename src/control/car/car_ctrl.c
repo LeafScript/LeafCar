@@ -157,6 +157,22 @@ static void car_update_pwm_turn_mode(void)
 	car_update_pwm_val();
 }
 
+static void car_set_motor_test_mode(void)
+{
+	g_car_ctrl.mode = MOTOR_TEST_MODE;
+	g_car_ctrl.dir = MOTOR_STOP;
+	g_car_ctrl.speed = 0;
+	g_car_ctrl.distance = 0;
+	g_car_ctrl.target_dist = 0;
+	g_car_ctrl.enc_val = 0;
+	car_start();
+}
+
+static void car_update_motor_test_mode(void)
+{
+	return;
+}
+
 struct {
 	uint8_t mode;
 	void (*set_mode)(void);
@@ -167,6 +183,7 @@ struct {
 	{ TARGET_MOVE, car_set_target_mode, car_update_pwm_target_mode },
 	{ TRACK_MOVE,  car_set_track_mode, car_update_pwm_track_mode },
 	{ TURN_MOVE,   car_set_turn_mode, car_update_pwm_turn_mode },
+	{ MOTOR_TEST_MODE,	car_set_motor_test_mode, car_update_motor_test_mode },
 };
 
 void car_ctrl_set_mode(uint8_t mode)

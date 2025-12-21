@@ -49,15 +49,13 @@
 //	TIM1: PE9  PE11
 //	TIM4: PD12 PD13
 /*************************************************************************/
-
+ 
 /*******************************引脚配置**********************************/
-//	TB6612方向引脚:    FL_AIN1:PB9  FL_AIN2:PB13    FR_BIN1:PB14 FR_BIN2:PB15
-//					   BL_BIN1:PD0  BL_BIN2:PD1     BR_AIN1:PD4  BR_AIN2:PD3
-//
-//  TB6612的PWM引脚:   FL_PWMA:PA15    FR_PWMB:PB3    BL_PWMB:PA2    BR_PWMA:PA3 (TIM2)
-//
-//  TB6612编码器引脚:  FLA:PA6  FLB:PA7 (TIM3)    FRA:PC6  FRB:PC7 (TIM8)
-//					   BLA:PE9  BLB:PE11(TIM1)    BRA:PD12 BRB:PD13(TIM4)
+//                  TB6612方向引脚          TB6612 PWM引脚       TB6612编码器引脚
+//  TB6612_ID_0     IN1:PB13  IN2:PB9       PA15 (TIM2)         A:PA6  B:PA7  (TIM3)
+//  TB6612_ID_1     IN1:PB15 IN2:PB14       PB3  (TIM2)         A:PC6  B:PC7  (TIM8)
+//  TB6612_ID_2     IN1:PD0  IN2:PD1        PA2  (TIM2)         A:PE9  B:PE11 (TIM1)
+//  TB6612_ID_3     IN1:PD4  IN2:PD3        PA3  (TIM2)         A:PD12 B:PD13 (TIM4)
 //
 //	灰度传感器引脚:    1~5: PE10 PE8 PE12 PE13 PE14
 //

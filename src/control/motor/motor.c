@@ -21,10 +21,10 @@ static float g_motor_dist_1mm[MOTOR_NUM] = {
 	FL_DISRANCE, FR_DISRANCE, BL_DISRANCE, BR_DISRANCE
 };
 static uint8_t g_motor_tb6612_map[] = {
-	[FL_MOTOR] = TB6612_ID_0,
-	[FR_MOTOR] = TB6612_ID_1,
-	[BL_MOTOR] = TB6612_ID_2,
-	[BR_MOTOR] = TB6612_ID_3
+	[FL_MOTOR] = TB6612_ID_3,
+	[FR_MOTOR] = TB6612_ID_2,
+	[BL_MOTOR] = TB6612_ID_1,
+	[BR_MOTOR] = TB6612_ID_0
 };
 
 void motor_set_dir(uint8_t id, uint8_t dir)

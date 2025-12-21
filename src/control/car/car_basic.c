@@ -35,7 +35,7 @@ void car_print(void)
 }
 
 //设置小车4个电机PWM以及方向
-void car_set_pwm(uint8_t dir, int16_t pwm)
+void car_set_pwm(int16_t pwm)
 {
 	uint8_t id;
 	for (id = 0; id < MOTOR_NUM; id++) {
