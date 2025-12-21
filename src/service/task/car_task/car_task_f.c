@@ -8,12 +8,12 @@
 #include "car_task_schedule.h"
 
 //行进速度
-#define SPEED		400
+#define SPEED		3000
 //转弯速度
-#define TURN_SPEED	700
+#define TURN_SPEED	3000
 //直角转弯路程
-#define VERTICAL_L	190
-#define VERTICAL_R	190
+#define VERTICAL_L	500
+#define VERTICAL_R	500
 
 extern uint8_t recNum1;
 extern uint8_t recNum2;
@@ -25,7 +25,9 @@ static uint16_t jmp_next = 0;
 
 static void car_task_timer_async_cb(void *priv, bool is_finish)
 {
-	car_task_async_step_finish();
+	if (is_finish) {
+		car_task_async_step_finish();
+	}
 }
 
 static void car_task_redwire_async_cb(void *priv)

@@ -73,18 +73,26 @@ int test_car_timer_op_test_task_info_init(void)
 
 /*-------------------------------- CAR TEST --------------------------------*/
 //行进速度
-#define TEST_SPEED		400
+#define TEST_SPEED		3000
 //转弯速度
-#define TEST_TURN_SPEED	700
+#define TEST_TURN_SPEED	3000
 //直角转弯路程
-#define TEST_VERTICAL_L	190
-#define TEST_VERTICAL_R	190
+#define TEST_VERTICAL_L	500
+#define TEST_VERTICAL_R	500
 
 static car_op_s g_car_test_op_list[] = {
     // car test START
 	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = test_led1_toggle } },
     // car forward test
-	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 180, .speed = TEST_SPEED} },
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 500, .speed = TEST_SPEED } },
+    // car back test
+	{ CAR_OP_OBJ_CAR, CAR_OP_BACK, .car_param = { .dist = 500, .speed = TEST_SPEED } },
+    // car trace test
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 500, .speed = TEST_SPEED, .is_forward = true } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_TRACK, .car_param = { .dist = 500, .speed = TEST_SPEED, .is_forward = false } },
+    // car turn test
+	{ CAR_OP_OBJ_CAR, CAR_OP_TURN, .car_param = { .dist = TEST_VERTICAL_R, .speed = TEST_SPEED, .is_right = true } },
+	{ CAR_OP_OBJ_CAR, CAR_OP_TURN, .car_param = { .dist = TEST_VERTICAL_L, .speed = TEST_SPEED, .is_right = false } },
     // car test END
 	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = test_led1_toggle } },
 	{ CAR_OP_OBJ_OP, OP_OP_END },

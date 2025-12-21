@@ -140,8 +140,8 @@ static void car_update_pwm_track_mode(void)
 	}
 	g_car_ctrl.speed = car_get_speed();
 	g_car_ctrl.distance = car_get_distance(false);
-	// 寻迹
-	vpid_set_car_speed_by_offset(g_car_ctrl.enc_val);
+	// 寻迹 - 当前小车硬件暂不支持
+	// vpid_set_car_speed_by_offset(g_car_ctrl.enc_val);
 	car_update_pwm_val();
 }
 
