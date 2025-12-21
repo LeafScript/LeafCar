@@ -1,3 +1,4 @@
+#include "log.h"
 #include "car_ctrl.h"
 #include "motor.h"
 #include "pid.h"
@@ -25,10 +26,10 @@ static float car_get_distance(bool is_turn)
 {
 	if (is_turn) {
 		//小车路程 = (左前轮-右前轮)/2
-		return (motor_get_distance(FL_MOTOR) - motor_get_distance(FR_MOTOR)) / 2.0;
+		return (motor_get_distance_val(FL_MOTOR) - motor_get_distance_val(FR_MOTOR)) / 2.0;
 	} else {
 		//小车路程 = (左前轮+右前轮)/2
-		return (motor_get_distance(FL_MOTOR) + motor_get_distance(FR_MOTOR)) / 2.0;
+		return (motor_get_distance_val(FL_MOTOR) + motor_get_distance_val(FR_MOTOR)) / 2.0;
 	}
 }
 
@@ -219,4 +220,11 @@ float car_ctrl_get_dist(void)
 void car_ctrl_set_target_dist(float dist)
 {
 	g_car_ctrl.target_dist = dist;
+}
+
+void car_ctrl_print(void)
+{
+	LEAF_LOG(LOG_DEBUG, "CAR CTRL: mode[%u] dir[%u] speed[%f] distance[%f] target_dist[%f] enc_val[%u]",
+		g_car_ctrl.mode, g_car_ctrl.dir, g_car_ctrl.speed, g_car_ctrl.distance, g_car_ctrl.target_dist,
+		g_car_ctrl.enc_val);
 }

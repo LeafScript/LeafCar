@@ -1,8 +1,8 @@
+#include "log.h"
 #include "motor.h"
 #include <stdlib.h>
 #include <math.h>
 #include "tb6612.h"
-#include "log.h"
 
 ////电机1mm路程编码值（经典轮胎）
 //#define FL_DISRANCE		31.1
@@ -92,6 +92,11 @@ void motor_update_encoder(void)
 	uint8_t id;
 	for (id = 0; id < MOTOR_NUM; id++) {
 		g_motor_ctrl[id].encoder = tb6612_encoder_read_and_reset(id) - ENCODER_TIM_INIT_VAL;
+		if (id == FL_MOTOR || id == BL_MOTOR) {
+			g_motor_ctrl[id].encCnter += g_motor_ctrl[id].encoder;
+		} else {
+			g_motor_ctrl[id].encCnter -= g_motor_ctrl[id].encoder;
+		}
 	}
 }
 
@@ -100,10 +105,17 @@ int16_t motor_get_encoder_val(uint8_t id)
 	return g_motor_ctrl[id].encoder;
 }
 
-//计算电机带动轮子的路程
-float motor_get_distance(uint8_t id)
+void motor_update_distance(void)
 {
-	g_motor_ctrl[id].distance = g_motor_ctrl[id].encCnter / g_motor_ctrl[id].dist_1mm;
+	uint8_t id;
+	for (id = 0; id < MOTOR_NUM; id++) {
+		g_motor_ctrl[id].distance = g_motor_ctrl[id].encCnter / g_motor_ctrl[id].dist_1mm;
+	}
+}
+
+//计算电机带动轮子的路程
+float motor_get_distance_val(uint8_t id)
+{
 	return g_motor_ctrl[id].distance;
 }
 
@@ -111,6 +123,7 @@ void motor_set_stop(uint8_t id)
 {
 	motor_set_dir(id, TB6612_STOP);
 	motor_set_pwm(id, 0);
+	g_motor_ctrl[id].pwm = 0;
 	g_motor_ctrl[id].is_stop = true;
 }
 
@@ -148,14 +161,7 @@ static void motor_encoder_init(void)
 	}
 }
 
-void motor_init(void)
-{
-	tb6612_init();
-	motor_encoder_init();
-	motor_ctrl_init();
-}
-
-void motor_start(void)
+static void motor_start(void)
 {
 	uint8_t id;
 
@@ -166,10 +172,17 @@ void motor_start(void)
 	}
 }
 
+void motor_init(void)
+{
+	tb6612_init();
+	motor_encoder_init();
+	motor_ctrl_init();
+	motor_start();
+}
+
 //打印电机参数
 void motor_print(uint8_t id)
 {
-	printf("\r\n");
 	switch(id){
 		case FL_MOTOR: printf("FLMotor - "); break;
 		case FR_MOTOR: printf("FRMotor - "); break;
@@ -183,11 +196,11 @@ void motor_print(uint8_t id)
 		printf("encoder:%d - ", -g_motor_ctrl[id].encoder);
 	}
 	printf("encCnter:%d - ", g_motor_ctrl[id].encCnter);
-	printf("distance:%.2f - ", motor_get_distance(id));
+	printf("distance:%.2f - ", motor_get_distance_val(id));
 	switch(g_motor_ctrl[id].dir){
 		case TB6612_FORWARD:	printf("Forward"); break;
         case TB6612_BACK:      printf("Back");    break;
         case TB6612_STOP:      printf("Stop");    break;
 	}
-	printf("\r\n---------------------------------------------------------");
+	printf(LEAF_LOG_NEW_LINE);
 }

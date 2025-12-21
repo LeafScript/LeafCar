@@ -8,6 +8,8 @@
 #include "carled.h"
 #include "led.h"
 
+/*-------------------------------- TIMER & OP TEST --------------------------------*/
+
 static void test_led1_toggle(void *priv, bool is_finish)
 {
     LED_Toggle(1);
@@ -41,7 +43,7 @@ static uint16_t test_get_step_15(void)
     return 15;
 }
 
-static car_op_s g_car_task_test_op_list[] = {
+static car_op_s g_timer_op_test_op_list[] = {
     // timer test
 	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = test_led1_toggle } },
 	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = test_led1_toggle } },
@@ -64,7 +66,31 @@ static car_op_s g_car_task_test_op_list[] = {
 	{ CAR_OP_OBJ_OP, OP_OP_END },
 };
 
-int test_car_task_info_init(void)
+int test_car_timer_op_test_task_info_init(void)
 {
-	return car_task_info_init(g_car_task_test_op_list, ARRAY_SIZE(g_car_task_test_op_list));
+	return car_task_info_init(g_timer_op_test_op_list, ARRAY_SIZE(g_timer_op_test_op_list));
+}
+
+/*-------------------------------- CAR TEST --------------------------------*/
+//行进速度
+#define TEST_SPEED		400
+//转弯速度
+#define TEST_TURN_SPEED	700
+//直角转弯路程
+#define TEST_VERTICAL_L	190
+#define TEST_VERTICAL_R	190
+
+static car_op_s g_car_test_op_list[] = {
+    // car test START
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = test_led1_toggle } },
+    // car forward test
+	{ CAR_OP_OBJ_CAR, CAR_OP_FORWARD, .car_param = { .dist = 180, .speed = TEST_SPEED} },
+    // car test END
+	{ CAR_OP_OBJ_TIMER, TIMER_OP_TRIGGER_ONCE, .timer_param = { .trigger_ms = 500, .cb = test_led1_toggle } },
+	{ CAR_OP_OBJ_OP, OP_OP_END },
+};
+
+int test_car_car_test_task_info_init(void)
+{
+	return car_task_info_init(g_car_test_op_list, ARRAY_SIZE(g_car_test_op_list));
 }

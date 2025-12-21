@@ -7,8 +7,8 @@
 //
 //  TB6612的PWM引脚:   FL_PWMA:PA15    FR_PWMB:PB3    BL_PWMB:PA2    BR_PWMA:PA3 (TIM2)
 //
-//  TB6612编码器引脚:  FLA:PB4  FLB:PB5 (TIM3)    FRA:PC6  FRB:PC7 (TIM8)
-//					   BLA:PE9  BLB:PE11(TIM1)    BRA:PB6  BRB:PB7 (TIM4)
+//  TB6612编码器引脚:  FLA:PA6  FLB:PA7 (TIM3)    FRA:PC6  FRB:PC7 (TIM8)
+//					   BLA:PE9  BLB:PE11(TIM1)    BRA:PD12 BRB:PD13 (TIM4)
 /*************************************************************************/
 
 static struct tb6612_bind {

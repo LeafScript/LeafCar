@@ -127,8 +127,10 @@ int car_task_init(uint8_t task_id)
 int car_task_register(uint8_t car_task_id)
 {
     switch (car_task_id) {
-        case CAR_TASK_TEST:
-            return test_car_task_info_init();
+        case CAR_TASK_TIMER_OP_TEST:
+            return test_car_timer_op_test_task_info_init();
+        case CAR_TASK_CAR_TEST:
+            return test_car_car_test_task_info_init();
         case CAR_TASK_F:
             return car_task_f_info_init();
         default:

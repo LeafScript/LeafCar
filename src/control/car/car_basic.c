@@ -1,3 +1,4 @@
+#include "log.h"
 #include "car_basic.h"
 #include "car_ctrl.h"
 #include "motor.h"
@@ -13,6 +14,7 @@ void car_scan(void)
 {
 	uint8_t id;
 	motor_update_encoder();
+	motor_update_distance();
 	car_ctrl_update_pwm();
 	for (id = 0; id < MOTOR_NUM; id++) {
 		motor_update_dir_val(id);
@@ -25,6 +27,8 @@ void car_scan(void)
 void car_print(void)
 {
 	uint8_t id;
+    LEAF_LOG(LOG_DEBUG, "----------- car_print -----------");
+	car_ctrl_print();
 	for (id = 0; id < MOTOR_NUM; id++) {
 		motor_print(id);
 	}

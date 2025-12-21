@@ -5,7 +5,8 @@
 #include "car_task_op.h"
 
 enum car_task_id_e {
-    CAR_TASK_TEST,
+    CAR_TASK_TIMER_OP_TEST,
+    CAR_TASK_CAR_TEST,
     CAR_TASK_F,
     CAR_TASK_ID_MAX
 };

@@ -44,7 +44,8 @@ void motor_set_pwm_val(uint8_t id, int16_t pwm);
 void motor_inc_pwm_val(uint8_t id, int16_t pwm);
 void motor_update_encoder(void);
 int16_t motor_get_encoder_val(uint8_t id);
-float motor_get_distance(uint8_t id);
+void motor_update_distance(void);
+float motor_get_distance_val(uint8_t id);
 void motor_set_stop(uint8_t id);
 void motor_cancel_stop(uint8_t id);
 

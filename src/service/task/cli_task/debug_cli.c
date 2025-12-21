@@ -7,18 +7,20 @@
 #include "led.h"
 #include "car_task_schedule.h"
 #include "delay.h"
+#include "car_basic.h"
 
 static uint32_t debug_cli_delay_ms(uint32_t ms);
 static uint32_t debug_cli_delay_s(uint32_t s);
 
 static leafcli_cmd_s g_debug_cli_cmd_list[] = {
-    { "led_toggle", LED_Toggle, "void LED_Toggle(uint8_t num)" },
-    { "car_task_register", car_task_register, "int car_task_register(uint8_t car_task_id)" },
-    { "car_task_start", car_task_start, "void car_task_start(void)" },
     { "get_log_level", leaf_log_get_level, "uint8_t leaf_log_get_level(void)" },
     { "set_log_level", leaf_log_set_level, "void leaf_log_set_level(uint8_t level)" },
     { "delay_ms", debug_cli_delay_ms, "uint32_t debug_cli_delay_ms(uint32_t ms)" },
     { "delay_s", debug_cli_delay_s, "uint32_t debug_cli_delay_s(uint32_t s)" },
+    { "led_toggle", LED_Toggle, "void LED_Toggle(uint8_t num)" },
+    { "car_task_register", car_task_register, "int car_task_register(uint8_t car_task_id)" },
+    { "car_task_start", car_task_start, "void car_task_start(void)" },
+    { "car_status_print", car_print, "void car_print(void)" },
 };
 static leafcli_context_s g_debug_cli_ctx = {
     .group_id = LEAFCLI_GROUP_LEAFCAR,

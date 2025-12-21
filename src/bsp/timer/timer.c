@@ -194,6 +194,7 @@ void timer_encoder_init(uint16_t period)
 	// GPIO init
 	timer_encoder_gpio_init(GPIOA, GPIO_Pin_6 | GPIO_Pin_7);
 	timer_encoder_gpio_init(GPIOC, GPIO_Pin_6 | GPIO_Pin_7);
+	GPIO_PinRemapConfig(GPIO_FullRemap_TIM1, ENABLE);
 	timer_encoder_gpio_init(GPIOE, GPIO_Pin_9 | GPIO_Pin_11);
 	GPIO_PinRemapConfig(GPIO_Remap_TIM4, ENABLE);
 	timer_encoder_gpio_init(GPIOD, GPIO_Pin_12 | GPIO_Pin_13);

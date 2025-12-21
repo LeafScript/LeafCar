@@ -49,4 +49,6 @@ void car_ctrl_set_target_dist(float dist);
 void car_stop(void);
 void car_start(void);
 
+void car_ctrl_print(void);
+
 #endif
