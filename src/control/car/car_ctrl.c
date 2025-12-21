@@ -33,6 +33,14 @@ static float car_get_distance(bool is_turn)
 	}
 }
 
+static void car_clear_motors_distance(void)
+{
+	uint8_t id;
+	for (id = 0; id < MOTOR_NUM; id++) {
+		motor_clear_distance(id);
+	}
+}
+
 static float car_get_speed(void)
 {
 	int16_t fl_enc_val, fr_enc_val;
@@ -191,6 +199,7 @@ void car_ctrl_set_mode(uint8_t mode)
 	if (mode >= ARRAY_SIZE(g_car_mode_list)) {
 		return;
 	}
+	car_clear_motors_distance();
 	g_car_mode_list[mode].set_mode();
 }
 

@@ -11,6 +11,7 @@
 #include "car_ctrl.h"
 #include "car_op.h"
 #include "motor.h"
+#include "pid.h"
 
 static uint32_t debug_cli_delay_ms(uint32_t ms);
 static uint32_t debug_cli_delay_s(uint32_t s);
@@ -23,7 +24,6 @@ static leafcli_cmd_s g_debug_cli_cmd_list[] = {
     { "led_toggle", LED_Toggle, "void LED_Toggle(uint8_t num)" },
     { "car_task_register", car_task_register, "int car_task_register(uint8_t car_task_id)" },
     { "car_task_start", car_task_start, "void car_task_start(void)" },
-    { "car_status_print", car_print, "void car_print(void)" },
     { "motor_set_pwm", motor_set_pwm_val, "void motor_set_pwm_val(uint8_t id, int16_t pwm)" },
     { "car_set_pwm", car_set_pwm, "void car_set_pwm(int16_t pwm)" },
     { "car_ctrl_set_mode", car_ctrl_set_mode, "void car_ctrl_set_mode(uint8_t mode)" },
@@ -32,6 +32,9 @@ static leafcli_cmd_s g_debug_cli_cmd_list[] = {
     { "car_back", car_back, "void car_back(uint16_t dist, uint16_t speed)" },
     { "car_track", car_track, "void car_track(uint32_t dist, uint16_t speed, bool is_forward)" },
     { "car_turn", car_turn, "void car_turn(uint16_t dist, uint16_t speed, bool is_right)" },
+    { "set_car_pid", vpid_set_car_param, "void vpid_set_car_param(uint32_t Kp_x100, uint32_t Ki_x100, uint32_t Kd_x100)" },
+    { "car_status_print", car_print, "void car_print(void)" },
+    { "pid_print", vpid_print, "void vpid_print(void)" },
 };
 static leafcli_context_s g_debug_cli_ctx = {
     .group_id = LEAFCLI_GROUP_LEAFCAR,

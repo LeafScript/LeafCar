@@ -91,7 +91,8 @@ void motor_update_encoder(void)
 {
 	uint8_t id;
 	for (id = 0; id < MOTOR_NUM; id++) {
-		g_motor_ctrl[id].encoder = tb6612_encoder_read_and_reset(id) - ENCODER_TIM_INIT_VAL;
+		g_motor_ctrl[id].encoder = tb6612_encoder_read_and_reset(g_motor_tb6612_map[id]) - ENCODER_TIM_INIT_VAL;
+		// 小车前进时编码器的正负与tb6612方向引脚接线相关，此处前进统一换算为正数
 		if (id == FL_MOTOR || id == BL_MOTOR) {
 			g_motor_ctrl[id].encCnter += g_motor_ctrl[id].encoder;
 		} else {
@@ -111,6 +112,13 @@ void motor_update_distance(void)
 	for (id = 0; id < MOTOR_NUM; id++) {
 		g_motor_ctrl[id].distance = g_motor_ctrl[id].encCnter / g_motor_ctrl[id].dist_1mm;
 	}
+}
+
+// encCnter与distance为换算关系，一起清除
+void motor_clear_distance(uint8_t id)
+{
+	g_motor_ctrl[id].encCnter = 0;
+	g_motor_ctrl[id].distance = 0;
 }
 
 //计算电机带动轮子的路程
@@ -156,8 +164,8 @@ static void motor_ctrl_init(void)
 static void motor_encoder_init(void)
 {
 	uint8_t id;
-	for (id = 0; id < TB6612_ID_MAX; id++) {
-		tb6612_encoder_read_and_reset(id);
+	for (id = 0; id < MOTOR_NUM; id++) {
+		tb6612_encoder_read_and_reset(g_motor_tb6612_map[id]);
 	}
 }
 

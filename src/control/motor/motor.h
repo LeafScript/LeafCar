@@ -34,7 +34,6 @@ typedef struct{
 } sMotor;
 
 void motor_init(void);
-void motor_print(uint8_t id);
 void motor_set_dir(uint8_t id, uint8_t dir);
 uint8_t motor_get_dir_val(uint8_t id);
 void motor_update_dir_val(uint8_t id);
@@ -45,8 +44,11 @@ void motor_inc_pwm_val(uint8_t id, int16_t pwm);
 void motor_update_encoder(void);
 int16_t motor_get_encoder_val(uint8_t id);
 void motor_update_distance(void);
+void motor_clear_distance(uint8_t id);
 float motor_get_distance_val(uint8_t id);
 void motor_set_stop(uint8_t id);
 void motor_cancel_stop(uint8_t id);
+
+void motor_print(uint8_t id);
 
 #endif

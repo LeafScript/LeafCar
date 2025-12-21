@@ -2,6 +2,7 @@
 #include "car_basic.h"
 #include "car_ctrl.h"
 #include "motor.h"
+#include "pid.h"
 
 void car_init(void)
 {
@@ -29,6 +30,7 @@ void car_print(void)
 	uint8_t id;
     LEAF_LOG(LOG_DEBUG, "----------- car_print -----------");
 	car_ctrl_print();
+	vpid_print();
 	for (id = 0; id < MOTOR_NUM; id++) {
 		motor_print(id);
 	}

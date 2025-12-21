@@ -1,56 +1,57 @@
 #include "pid.h"
 #include "base_type.h"
+#include "log.h"
 #include "motor.h"
 
-////经典小车
-//#define INIT_KP		1.25
-//#define INIT_KI		2.85
-//#define INIT_KD		0.3
+//经典小车
+#define INIT_KP		3
+#define INIT_KI		0
+#define INIT_KD		1
 
-//小蓝电机小车
-#define INIT_KP		1.25
-#define INIT_KI		2.0
-#define INIT_KD		0.4
+// //小蓝电机小车
+// #define INIT_KP		1.25
+// #define INIT_KI		2.0
+// #define INIT_KD		0.4
 
 static sMotorPid g_vpid_ctrl[MOTOR_NUM];
 
 static void vpid_ctrl_init_one(uint8_t id)
 {
-	sMotorPid *vpid = &g_vpid_ctrl[id];
-	vpid->target_val = 0;
-	vpid->actual_val = 0;
-	vpid->err = 0;
-	vpid->err_next = 0;
-	vpid->err_last = 0;
-	vpid->Kp = INIT_KP;
-	vpid->Ki = INIT_KI;
-	vpid->Kd = INIT_KD;
+    sMotorPid *vpid = &g_vpid_ctrl[id];
+    vpid->target_val = 0;
+    vpid->actual_val = 0;
+    vpid->err = 0;
+    vpid->err_next = 0;
+    vpid->err_last = 0;
+    vpid->Kp = INIT_KP;
+    vpid->Ki = INIT_KI;
+    vpid->Kd = INIT_KD;
 }
 
 void vpid_ctrl_init(void)
 {
-	uint8_t id;
-	for (id = 0; id < MOTOR_NUM; id++) {
-		vpid_ctrl_init_one(id);
-	}
+    uint8_t id;
+    for (id = 0; id < MOTOR_NUM; id++) {
+        vpid_ctrl_init_one(id);
+    }
 }
 
 static void vpid_ctrl_deinit_one(uint8_t id)
 {
-	sMotorPid *vpid = &g_vpid_ctrl[id];
-	vpid->target_val = 0;
-	vpid->actual_val = 0;
-	vpid->err = 0;
-	vpid->err_next = 0;
-	vpid->err_last = 0;
+    sMotorPid *vpid = &g_vpid_ctrl[id];
+    vpid->target_val = 0;
+    vpid->actual_val = 0;
+    vpid->err = 0;
+    vpid->err_next = 0;
+    vpid->err_last = 0;
 }
 
 void vpid_ctrl_deinit(void)
 {
-	uint8_t id;
-	for (id = 0; id < MOTOR_NUM; id++) {
-		vpid_ctrl_deinit_one(id);
-	}
+    uint8_t id;
+    for (id = 0; id < MOTOR_NUM; id++) {
+        vpid_ctrl_deinit_one(id);
+    }
 }
 
 //设置电机PID目标值 - 一个周期的编码值
@@ -58,26 +59,26 @@ void vpid_ctrl_deinit(void)
 //enc_val - 为正即正转，为负即反转
 void vpid_set_motor_speed(uint8_t id, int16_t enc_val)
 {
-	g_vpid_ctrl[id].target_val = MIN(enc_val, MAX_ENCODER);
+    g_vpid_ctrl[id].target_val = MIN(enc_val, MAX_ENCODER);
 }
 
 //设置小车4个电机PID目标值
 void vpid_set_car_speed(int16_t enc_val)
 {
-	uint8_t id;
-	for (id = 0; id < MOTOR_NUM; id++) {
-		g_vpid_ctrl[id].target_val = MIN(enc_val, MAX_ENCODER);
-	}
+    uint8_t id;
+    for (id = 0; id < MOTOR_NUM; id++) {
+        g_vpid_ctrl[id].target_val = MIN(enc_val, MAX_ENCODER);
+    }
 }
 
 //设置小车4个电机PID目标值
 void vpid_set_round_speed(int16_t enc_val)
 {
-	int16_t val = MIN(enc_val, MAX_ENCODER);
-	g_vpid_ctrl[FL_MOTOR].target_val = val;
-	g_vpid_ctrl[FR_MOTOR].target_val = -val;
-	g_vpid_ctrl[BL_MOTOR].target_val = val;
-	g_vpid_ctrl[BR_MOTOR].target_val = -val;
+    int16_t val = MIN(enc_val, MAX_ENCODER);
+    g_vpid_ctrl[FL_MOTOR].target_val = val;
+    g_vpid_ctrl[FR_MOTOR].target_val = -val;
+    g_vpid_ctrl[BL_MOTOR].target_val = val;
+    g_vpid_ctrl[BR_MOTOR].target_val = -val;
 }
 
 //接收偏移程度
@@ -102,37 +103,45 @@ extern int8_t line_k;
 //精简入门版
 void vpid_set_car_speed_by_offset(int16_t enc_val)
 {
-	static float Kp = 0.55, Kd = 6.5;
-	static float cur_err = 0, next_err = 0;		//偏差加上->速度PD控制
-	int8_t feedback = 0;
+    static float Kp = 0.55, Kd = 6.5;
+    static float cur_err = 0, next_err = 0;		//偏差加上->速度PD控制
+    int8_t feedback = 0;
 
-	next_err = cur_err;
-	cur_err = carOffset;
-	feedback = Kp * carOffset + Kd * (cur_err - next_err);
-	g_vpid_ctrl[FL_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) + feedback;
-	g_vpid_ctrl[FR_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) - feedback;
-	g_vpid_ctrl[BL_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) + feedback;
-	g_vpid_ctrl[BR_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) - feedback;
+    next_err = cur_err;
+    cur_err = carOffset;
+    feedback = Kp * carOffset + Kd * (cur_err - next_err);
+    g_vpid_ctrl[FL_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) + feedback;
+    g_vpid_ctrl[FR_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) - feedback;
+    g_vpid_ctrl[BL_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) + feedback;
+    g_vpid_ctrl[BR_MOTOR].target_val = MIN(enc_val, MAX_ENCODER) - feedback;
 }
 
 //设置电机PID参数值
 void vpid_set_motor_param(uint8_t id, float Kp, float Ki, float Kd)
 {
-	if (id >= MOTOR_NUM) {
-		return;
-	}
-	g_vpid_ctrl[id].Kp = Kp;
-	g_vpid_ctrl[id].Ki = Ki;
-	g_vpid_ctrl[id].Kd = Kd;
+    if (id >= MOTOR_NUM) {
+        return;
+    }
+    g_vpid_ctrl[id].Kp = Kp;
+    g_vpid_ctrl[id].Ki = Ki;
+    g_vpid_ctrl[id].Kd = Kd;
+}
+
+void vpid_set_car_param(uint32_t Kp_x100, uint32_t Ki_x100, uint32_t Kd_x100)
+{
+    uint8_t id;
+    for (id = 0; id < MOTOR_NUM; id++) {
+        vpid_set_motor_param(id, Kp_x100 / 100.0f, Ki_x100 / 100.0f, Kd_x100 / 100.0f);
+    }
 }
 
 //得到电机PID实际值 - 一个周期的编码值
 int vpid_get_motor_actual_speed(uint8_t id)
 {
-	if (id >= MOTOR_NUM) {
-		return 0;
-	}
-	return g_vpid_ctrl[id].actual_val;
+    if (id >= MOTOR_NUM) {
+        return 0;
+    }
+    return g_vpid_ctrl[id].actual_val;
 }
 
 //电机PID计算
@@ -140,22 +149,33 @@ int vpid_get_motor_actual_speed(uint8_t id)
 //输出 - pwm的增量
 int16_t vpid_get_inc_pwm(uint8_t id, int encoder)
 {
-	sMotorPid *vpid = &g_vpid_ctrl[id];
-	float inc_val;	//调整增量
-	/*获得实际值*/
-	vpid->actual_val = encoder;
-	/*计算目标值与实际值的误差*/
-	vpid->err = vpid->target_val - vpid->actual_val;
-	/*--------------------------PID算法实现-------------------------*/
-	
-	inc_val = vpid->Kp * (vpid->err - vpid->err_next) +
-		vpid->Ki * vpid->err +
-		vpid->Kd * (vpid->err - 2 * vpid->err_next + vpid->err_last);
-	
-	/*--------------------------------------------------------------*/	
-	/*传递误差*/
-	vpid->err_last = vpid->err_next;
-	vpid->err_next = vpid->err;
-	/*返回增量*/
-	return (int16_t)inc_val;
+    sMotorPid *vpid = &g_vpid_ctrl[id];
+    float inc_val;	//调整增量
+    /*获得实际值*/
+    vpid->actual_val = encoder;
+    /*计算目标值与实际值的误差*/
+    vpid->err = vpid->target_val - vpid->actual_val;
+    /*--------------------------PID算法实现-------------------------*/
+    
+    inc_val = vpid->Kp * (vpid->err - vpid->err_next) +
+        vpid->Ki * vpid->err +
+        vpid->Kd * (vpid->err - 2 * vpid->err_next + vpid->err_last);
+    
+    /*--------------------------------------------------------------*/	
+    /*传递误差*/
+    vpid->err_last = vpid->err_next;
+    vpid->err_next = vpid->err;
+    /*返回增量*/
+    return (int16_t)inc_val;
+}
+
+void vpid_print(void)
+{
+    uint8_t id;
+    for (id = 0; id < MOTOR_NUM; id++) {
+        LEAF_LOG(LOG_DEBUG,
+            "VPID[%u]: target_val[%d] actual_val[%d] err[%d] err_next[%d] err_last[%d] Kp[%f] Ki[%f] Kd[%f]",
+            id, g_vpid_ctrl[id].target_val, g_vpid_ctrl[id].actual_val, g_vpid_ctrl[id].err, g_vpid_ctrl[id].err_next,
+            g_vpid_ctrl[id].err_last, g_vpid_ctrl[id].Kp, g_vpid_ctrl[id].Ki, g_vpid_ctrl[id].Kd);
+    }
 }

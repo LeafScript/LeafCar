@@ -27,4 +27,7 @@ void vpid_set_motor_param(uint8_t id, float Kp, float Ki, float Kd);
 int vpid_get_motor_actual_speed(uint8_t id);
 int16_t vpid_get_inc_pwm(uint8_t id, int encoder);
 
+void vpid_print(void);
+void vpid_set_car_param(uint32_t Kp_x100, uint32_t Ki_x100, uint32_t Kd_x100);
+
 #endif
