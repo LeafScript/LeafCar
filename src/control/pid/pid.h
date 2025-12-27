@@ -1,7 +1,7 @@
-#ifndef __PID_H
-#define __PID_H
+#ifndef _PID_H_
+#define _PID_H_
 
-#include "sys.h"
+#include "base_type.h"
 
 //限制一个周期最大编码值 100
 #define MAX_ENCODER  1000

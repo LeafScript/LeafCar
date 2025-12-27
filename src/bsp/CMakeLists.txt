@@ -24,6 +24,7 @@ set(COMMON_INC_DIR ${COMMON_DIR}/inc)
 
 # src
 set(PLAT_DIR ${SRC_DIR}/platform)
+set(BOARD_CFG_DIR ${PLAT_DIR}/leafcar)
 set(BSP_DIR ${SRC_DIR}/bsp)
 set(DEBUG_DIR ${SRC_DIR}/debug)
 
@@ -41,7 +42,7 @@ include_directories(
     # common
     ${COMMON_INC_DIR}
     # platform
-    ${PLAT_DIR}
+    ${PLAT_DIR} ${BOARD_CFG_DIR}
     # bsp
     ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR} ${USART_DIR}
     # debug

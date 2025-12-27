@@ -1,16 +1,9 @@
-#ifndef __REDWIRE_H
-#define __REDWIRE_H
+#ifndef _REDWIRE_H_
+#define _REDWIRE_H_
 
-#include "sys.h"
-
-//红外引脚
-#define REDWIRE_RCC_PORT RCC_APB2Periph_GPIOF
-#define REDWIRE_PORT     GPIOF
-#define REDWIRE_PIN    	 GPIO_Pin_0
-
-#define RedIn  PFin(0)
+#include "base_type.h"
 
 void Redwire_Init(void);
-u8 Redwire_isFull(void);
+bool Redwire_isFull(void);
 
 #endif

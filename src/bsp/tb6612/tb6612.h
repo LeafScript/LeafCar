@@ -1,7 +1,7 @@
-#ifndef __TB6612_H
-#define __TB6612_H
+#ifndef _TB6612_H_
+#define _TB6612_H_
 
-#include "sys.h"
+#include "base_type.h"
 
 #define ENCODER_TIM_PERIOD 60000   // number of pulses per revolution
 #define ENCODER_TIM_INIT_VAL 30000

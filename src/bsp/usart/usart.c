@@ -1,8 +1,8 @@
-#include "stm32f10x_conf.h"
+#include "usart.h"
+#include "board_config.h"
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include "usart.h"
 
 #ifdef __GNUC__
 

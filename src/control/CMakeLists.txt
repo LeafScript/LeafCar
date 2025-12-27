@@ -21,6 +21,7 @@ set(SERVICE_TIMER_DIR ${COMPONENT_DIR}/service_timer)
 
 # src
 set(PLAT_DIR ${SRC_DIR}/platform)
+set(BOARD_CFG_DIR ${PLAT_DIR}/leafcar)
 set(CONTROL_DIR ${SRC_DIR}/control)
 set(BSP_DIR ${SRC_DIR}/bsp)
 set(DEBUG_DIR ${SRC_DIR}/debug)
@@ -48,7 +49,7 @@ include_directories(
     # component
     ${SERVICE_TIMER_DIR}
     # platform
-    ${PLAT_DIR}
+    ${PLAT_DIR} ${BOARD_CFG_DIR}
     # control
     ${CAR_DIR} ${CARARM_DIR} ${MOTOR_DIR} ${K210_DIR} ${OPENMV_DIR} ${PID_DIR}
     # bsp

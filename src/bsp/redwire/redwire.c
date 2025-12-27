@@ -1,9 +1,10 @@
 #include "redwire.h"
+#include "board_config.h"
 
 void Redwire_Init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	RCC_APB2PeriphClockCmd(REDWIRE_RCC_PORT,ENABLE);
+	RCC_APB2PeriphClockCmd(REDWIRE_RCC_PORT, ENABLE);
 	
 	GPIO_InitStructure.GPIO_Pin = REDWIRE_PIN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -12,9 +13,9 @@ void Redwire_Init(void)
 }
 
 //若用东西遮挡，返回1
-u8 Redwire_isFull(void)
+bool Redwire_isFull(void)
 {
-	if(RedIn == 1){
+	if(GPIO_ReadInputDataBit(REDWIRE_PORT, REDWIRE_PIN) == Bit_SET){
 		return 1;
 	}
 	return 0;

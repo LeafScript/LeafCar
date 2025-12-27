@@ -1,8 +1,5 @@
 #include "timer.h"
-#include "stm32f10x_tim.h"
-#include "misc.h"
-#include "stm32f10x_rcc.h"
-#include "stm32f10x.h"
+#include "board_config.h"
 
 /*****************************定时器分配**********************************/
 //	TIM3 TIM8 TIM1 TIM4: TB6612编码器计数

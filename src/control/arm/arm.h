@@ -1,18 +1,16 @@
-#ifndef __ARM_H
-#define __ARM_H
+#ifndef _ARM_H_
+#define _ARM_H_
 
-#include "sys.h"
+#include "base_type.h"
 
-#define ARM_RCC_PORT RCC_APB2Periph_GPIOE
-#define ARM_PORT     GPIOE
-#define ARM_PIN0      GPIO_Pin_0
-#define ARM_PIN1      GPIO_Pin_1
-
-#define ArmOut0		 PEout(0)
-#define ArmOut1		 PEout(1)
-
+typedef enum {
+    ARM_STATUS_FOLD,
+    ARM_STATUS_MIDDLE,
+    ARM_STATUS_LEFT,
+    ARM_STATUS_MAX
+} arm_status_e;
 
 void Arm_Init(void);
-void Arm_SetStatus(uint8_t status);
+void Arm_SetStatus(arm_status_e status);
 	
 #endif

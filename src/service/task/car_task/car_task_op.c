@@ -33,11 +33,11 @@ static int car_op_car_handle(uint8_t op, car_op_param_s *param)
 static int car_op_arm_handle(uint8_t op)
 {
     if (op == ARM_OP_FOLD) {
-        Arm_SetStatus(1);
+        Arm_SetStatus(ARM_STATUS_FOLD);
     } else if (op == ARM_OP_MIDDLE) {
-        Arm_SetStatus(2);
+        Arm_SetStatus(ARM_STATUS_MIDDLE);
     } else if (op == ARM_OP_LEFT) {
-        Arm_SetStatus(3);
+        Arm_SetStatus(ARM_STATUS_LEFT);
     } else {
         LEAF_LOG(LOG_ERROR, "invalid arm op[%u]", op);
         return EC_ERROR;

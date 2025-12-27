@@ -1,4 +1,5 @@
 #include "tb6612.h"
+#include "board_config.h"
 #include "timer.h"
 
 /*******************************引脚配置**********************************/
@@ -17,10 +18,10 @@ static struct tb6612_bind {
     TIM_TypeDef *tim;
     uint8_t tim_comp;
 } g_tb6612_bind_map[] = {
-    { TB6612_ID_0, GPIO_Pin_13,  GPIO_Pin_9, GPIOB, TIM2, 1 },
-    { TB6612_ID_1, GPIO_Pin_15, GPIO_Pin_14, GPIOB, TIM2, 2 },
-    { TB6612_ID_2, GPIO_Pin_0,  GPIO_Pin_1,  GPIOD, TIM2, 3 },
-    { TB6612_ID_3, GPIO_Pin_4,  GPIO_Pin_3,  GPIOD, TIM2, 4 },
+    { TB6612_ID_0, TB6612_ID_0_DIR_IN1_PIN, TB6612_ID_0_DIR_IN2_PIN, TB6612_ID_0_DIR_PORT, TIM2, 1 },
+    { TB6612_ID_1, TB6612_ID_1_DIR_IN1_PIN, TB6612_ID_1_DIR_IN2_PIN, TB6612_ID_1_DIR_PORT, TIM2, 2 },
+    { TB6612_ID_2, TB6612_ID_2_DIR_IN1_PIN, TB6612_ID_2_DIR_IN2_PIN, TB6612_ID_2_DIR_PORT, TIM2, 3 },
+    { TB6612_ID_3, TB6612_ID_3_DIR_IN1_PIN, TB6612_ID_3_DIR_IN2_PIN, TB6612_ID_3_DIR_PORT, TIM2, 4 },
 };
 
 static void tb6612_init_one(uint8_t id)

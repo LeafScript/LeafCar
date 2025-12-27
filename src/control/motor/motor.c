@@ -1,7 +1,7 @@
-#include "log.h"
 #include "motor.h"
 #include <stdlib.h>
 #include <math.h>
+#include "log.h"
 #include "tb6612.h"
 
 ////电机1mm路程编码值（经典轮胎）
