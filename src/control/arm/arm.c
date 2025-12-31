@@ -20,6 +20,6 @@ void Arm_SetStatus(arm_status_e status)
 {
     uint8_t arm_pin0 = (status == ARM_STATUS_MIDDLE) ? Bit_SET : Bit_RESET;
     uint8_t arm_pin1 = (status == ARM_STATUS_LEFT) ? Bit_SET : Bit_RESET;
-    GPIO_WriteBit(ARM_PORT, ARM_PIN0, Bit_RESET);
-    GPIO_WriteBit(ARM_PORT, ARM_PIN1, Bit_RESET);
+    GPIO_WriteBit(ARM_PORT, ARM_PIN0, arm_pin0);
+    GPIO_WriteBit(ARM_PORT, ARM_PIN1, arm_pin1);
 }

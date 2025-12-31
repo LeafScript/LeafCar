@@ -31,6 +31,7 @@ set(SERVICE_TIMER_DIR ${COMPONENT_DIR}/service_timer)
 
 # src
 set(PLAT_DIR ${SRC_DIR}/platform)
+set(PLAT_LEAFCAR_DIR ${PLAT_DIR}/leafcar)
 set(SERVICE_DIR ${SRC_DIR}/service)
 set(CONTROL_DIR ${SRC_DIR}/control)
 set(BSP_DIR ${SRC_DIR}/bsp)
@@ -52,11 +53,13 @@ set(OPENMV_DIR ${CONTROL_DIR}/openmv)
 set(PID_DIR ${CONTROL_DIR}/pid)
 
 # bsp
-set(LED_DIR ${BSP_DIR}/led)
-set(REDWIRE_DIR ${BSP_DIR}/redwire)
-set(TB6612_DIR ${BSP_DIR}/tb6612)
-set(TIMER_DIR ${BSP_DIR}/timer)
-set(USART_DIR ${BSP_DIR}/usart)
+set(BSP_SHARED_DIR ${BSP_DIR}/bsp_shared)
+set(BSP_LEAFCAR_DIR ${BSP_DIR}/bsp_leafcar)
+set(LED_DIR ${BSP_LEAFCAR_DIR}/led)
+set(REDWIRE_DIR ${BSP_LEAFCAR_DIR}/redwire)
+set(TB6612_DIR ${BSP_SHARED_DIR}/tb6612)
+set(TIMER_DIR ${BSP_LEAFCAR_DIR}/timer)
+set(USART_DIR ${BSP_SHARED_DIR}/usart)
 
 include_directories(
     # 3rd_party
@@ -67,7 +70,7 @@ include_directories(
     # component
     ${LEAFCLI_DIR} ${TASK_GEN_DIR} ${SERVICE_TIMER_DIR}
     # platform
-    ${PLAT_DIR}
+    ${PLAT_DIR} ${PLAT_LEAFCAR_DIR}
     # service
     ${FOUNDATION_DIR}
     ${TASK_DIR} ${CAR_TASK_DIR} ${CLI_TASK_DIR} ${UPDATE_FW_TASK_DIR}

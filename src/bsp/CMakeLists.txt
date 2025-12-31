@@ -24,16 +24,19 @@ set(COMMON_INC_DIR ${COMMON_DIR}/inc)
 
 # src
 set(PLAT_DIR ${SRC_DIR}/platform)
+set(PLAT_LEAFCAR_DIR ${PLAT_DIR}/leafcar)
 set(BOARD_CFG_DIR ${PLAT_DIR}/leafcar)
 set(BSP_DIR ${SRC_DIR}/bsp)
 set(DEBUG_DIR ${SRC_DIR}/debug)
 
 # bsp
-set(LED_DIR ${BSP_DIR}/led)
-set(REDWIRE_DIR ${BSP_DIR}/redwire)
-set(TB6612_DIR ${BSP_DIR}/tb6612)
-set(TIMER_DIR ${BSP_DIR}/timer)
-set(USART_DIR ${BSP_DIR}/usart)
+set(BSP_SHARED_DIR ${BSP_DIR}/bsp_shared)
+set(BSP_LEAFCAR_DIR ${BSP_DIR}/bsp_leafcar)
+set(LED_DIR ${BSP_LEAFCAR_DIR}/led)
+set(REDWIRE_DIR ${BSP_LEAFCAR_DIR}/redwire)
+set(TB6612_DIR ${BSP_SHARED_DIR}/tb6612)
+set(TIMER_DIR ${BSP_LEAFCAR_DIR}/timer)
+set(USART_DIR ${BSP_SHARED_DIR}/usart)
 
 include_directories(
     # 3rd_party
@@ -42,7 +45,7 @@ include_directories(
     # common
     ${COMMON_INC_DIR}
     # platform
-    ${PLAT_DIR} ${BOARD_CFG_DIR}
+    ${PLAT_DIR} ${PLAT_LEAFCAR_DIR} ${BOARD_CFG_DIR}
     # bsp
     ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR} ${USART_DIR}
     # debug

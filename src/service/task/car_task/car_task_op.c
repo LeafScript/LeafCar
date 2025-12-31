@@ -1,4 +1,5 @@
 #include "car_task_op.h"
+#include "board_config.h"
 #include "car_op.h"
 #include "arm.h"
 #include "redwire.h"
@@ -67,11 +68,11 @@ static int car_op_led_handle(uint8_t op, led_op_param_s *param)
 {
     uint8_t is_on = (op == LED_OP_ON) ? 1 : 0;
     if (param->color == LED_RED) {
-        RedLed = is_on;
+        GPIO_WriteBit(CARLED_PORT, RED_LED_PIN, Bit_SET);
     } else if (param->color == LED_YELLOW) {
-        YelLed = is_on;
+        GPIO_WriteBit(CARLED_PORT, YEL_LED_PIN, Bit_SET);
     } else if (param->color == LED_GREEN) {
-        GreLed = is_on;
+        GPIO_WriteBit(CARLED_PORT, GRE_LED_PIN, Bit_SET);
     } else {
         LEAF_LOG(LOG_ERROR, "invalid led op[%u]", op);
         return EC_ERROR;

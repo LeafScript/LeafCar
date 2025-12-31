@@ -1,4 +1,5 @@
 #include "led.h"
+#include "board_config.h"
 
 static uint8_t timer[2] = {0};
 static uint8_t led_flag = 0;
@@ -25,8 +26,14 @@ void LED_Init(void)
 void LED_Toggle(uint8_t num)
 {
 	switch(num){
-		case 1: LED1 = !LED1; break;
-		case 2: LED2 = !LED2; break;
+		case 1: 
+			GPIO_WriteBit(LED1_PORT, LED1_PIN,
+				(GPIO_ReadOutputDataBit(LED1_PORT, LED1_PIN) == Bit_SET) ? Bit_RESET : Bit_SET);
+			break;
+		case 2:
+			GPIO_WriteBit(LED2_PORT, LED2_PIN,
+				(GPIO_ReadOutputDataBit(LED2_PORT, LED2_PIN) == Bit_SET) ? Bit_RESET : Bit_SET);
+			break;
 	}
 }
 

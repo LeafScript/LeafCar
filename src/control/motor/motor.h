@@ -4,6 +4,17 @@
 #include "base_type.h"
 #include "tb6612.h"
 
+#define ENCODER_TIM_PERIOD 60000   // number of pulses per revolution
+#define ENCODER_TIM_INIT_VAL 30000
+
+enum encoder_id_e {
+    TB6612_ID_0,
+    TB6612_ID_1,
+    TB6612_ID_2,
+    TB6612_ID_3,
+    TB6612_ID_MAX
+};
+
 enum motor_id_e {
 	FL_MOTOR,
 	FR_MOTOR,

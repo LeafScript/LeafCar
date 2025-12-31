@@ -23,6 +23,7 @@ set(SERVICE_TIMER_DIR ${COMPONENT_DIR}/service_timer)
 
 # src
 set(PLAT_DIR ${SRC_DIR}/platform)
+set(PLAT_LEAFCAR_DIR ${PLAT_DIR}/leafcar)
 set(SERVICE_DIR ${SRC_DIR}/service)
 set(CONTROL_DIR ${SRC_DIR}/control)
 set(DEBUG_DIR ${SRC_DIR}/debug)
@@ -50,7 +51,7 @@ include_directories(
     # component
     ${LEAFCLI_DIR} ${TASK_GEN_DIR} ${SERVICE_TIMER_DIR}
     # platform
-    ${PLAT_DIR}
+    ${PLAT_DIR} ${PLAT_LEAFCAR_DIR}
     # service
     ${FOUNDATION_DIR}
     ${TASK_DIR} ${CAR_TASK_DIR} ${CLI_TASK_DIR} ${UPDATE_FW_TASK_DIR}
