@@ -4,33 +4,9 @@ project(leafcar C ASM)
 
 set(CMAKE_C_STANDARD 99)
 
-# 用列表存储编译选项，避免空格导致的解析错误
-set(C_CPU_FLAGS
-    -O1
-    -mcpu=cortex-m3
-    -mthumb
-    -mfloat-abi=soft
-    -g
-    -Wall
-    -ffreestanding
-    --specs=nano.specs
-    --specs=nosys.specs
-    -u _printf_float
-    -fno-common
-    -fno-exceptions
-    -nostdlib
-)
-set(ASM_CPU_FLAGS
-    -g
-    -mcpu=cortex-m3
-    -mthumb
-    -nostdlib
-    -lgcc
-)
-
-# 可选：如需追加默认FLAGS，用list(APPEND)
-list(APPEND C_CPU_FLAGS ${CMAKE_C_FLAGS})
-list(APPEND ASM_CPU_FLAGS ${CMAKE_ASM_FLAGS})
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O1 -Wall -g -mcpu=cortex-m3 -mthumb -ffreestanding \
+    --specs=nano.specs --specs=nosys.specs -u _printf_float -Wno-format-type-confusion")
+set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -g -mcpu=cortex-m3 -mthumb")
 
 add_compile_definitions(
     STM32F10X_HD
@@ -196,13 +172,7 @@ add_subdirectory(${CONTROL_DIR} control_lib)
 add_subdirectory(${BSP_DIR} bsp_lib)
 add_subdirectory(${DEBUG_DIR} debug_lib)
 
-# 可执行文件配置
-set(CMAKE_EXE_LINKER_FLAGS 
-    "-T ${PLAT_DIR}/STM32F103ZETX_FLASH.ld \
-    -g \
-    --specs=nano.specs \
-    --specs=nosys.specs"
-)
+set(CMAKE_EXE_LINKER_FLAGS "-T ${PLAT_DIR}/STM32F103ZETX_FLASH.ld -g")
 
 add_executable(leafcar 
     ${SRC_DIR}/main.c 

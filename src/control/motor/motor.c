@@ -1,7 +1,6 @@
 #include "motor.h"
 #include "board_config.h"
 #include <stdlib.h>
-#include <math.h>
 #include "log.h"
 #include "tb6612.h"
 
@@ -147,6 +146,8 @@ int16_t motor_get_pwm_val(uint8_t id)
 
 void motor_set_pwm(uint8_t id, int16_t pwm)
 {
+    uint8_t tb6612_id;
+    uint16_t pwm_abs;
     if (g_motor_ctrl[id].is_stop) {
         return;
     }
@@ -156,7 +157,9 @@ void motor_set_pwm(uint8_t id, int16_t pwm)
     } else if(pwm < -MAX_PWM) {
         pwm = -MAX_PWM;
     }
-    tb6612_set_pwm(&g_tb6612_ctx[g_motor_tb6612_map[id]], (uint16_t)abs(pwm));
+    tb6612_id = g_motor_tb6612_map[id];
+    pwm_abs = (uint16_t)ABS(pwm);
+    tb6612_set_pwm(&g_tb6612_ctx[tb6612_id], pwm_abs);
 }
 
 void motor_set_pwm_val(uint8_t id, int16_t pwm)

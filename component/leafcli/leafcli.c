@@ -307,7 +307,7 @@ static bool leafcli_cmd_comp(leafcli_buffer_s *buff, uint8_t *cmd, uint32_t cmd_
     return true;
 }
 
-static bool leafcli_parse_cmd(leafcli_buffer_s *buff, uint8_t *cmd_name)
+static bool leafcli_parse_cmd(leafcli_buffer_s *buff, char *cmd_name)
 {
     uint32_t cmd_len = strlen(cmd_name);
     if (!leafcli_cmd_comp(buff, cmd_name, cmd_len)) {
