@@ -9,16 +9,23 @@ set(C_CPU_FLAGS
     -O1
     -mcpu=cortex-m3
     -mthumb
+    -mfloat-abi=soft
     -g
+    -Wall
     -ffreestanding
     --specs=nano.specs
     --specs=nosys.specs
     -u _printf_float
+    -fno-common
+    -fno-exceptions
+    -nostdlib
 )
 set(ASM_CPU_FLAGS
     -g
     -mcpu=cortex-m3
     -mthumb
+    -nostdlib
+    -lgcc
 )
 
 # 可选：如需追加默认FLAGS，用list(APPEND)
@@ -228,12 +235,12 @@ set(MAP_FILE ${ELF_FILE}.map)
 set(ASM_FILE ${ELF_FILE}.asm)
 
 add_custom_command(TARGET ${ELF_FILE} POST_BUILD
-    COMMAND ${ARM_SIZE} ${ELF_FILE}
-    COMMAND ${ARM_NM} ${ELF_FILE} > ${MAP_FILE}
-    COMMAND ${ARM_OBJDUMP} -d ${ELF_FILE} > ${ASM_FILE}
+    COMMAND ${ARM_SIZE} --format=berkeley ${ELF_FILE}
+    COMMAND ${ARM_NM} -n ${ELF_FILE} > ${MAP_FILE}  # -n：按地址排序，更易读
+    COMMAND ${ARM_OBJDUMP} -S -d -C ${ELF_FILE} > ${ASM_FILE}
     COMMAND ${ARM_OBJCOPY} -O ihex ${ELF_FILE} ${HEX_FILE}
     COMMAND ${ARM_OBJCOPY} -O binary ${ELF_FILE} ${BIN_FILE}
-    COMMENT "Post-build steps: size → map → asm → hex → bin"
+    COMMENT "Post-build steps: size -> map -> asm -> hex -> bin"
 )
 
 add_custom_target(convert_to_hex_bin ALL DEPENDS ${ELF_FILE})

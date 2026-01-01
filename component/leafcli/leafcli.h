@@ -25,9 +25,9 @@ enum leafcli_error_code_e {
 };
 
 typedef struct {
-    uint8_t *cmd_name;
+    char *cmd_name;
     void *cmd_func;     // only support base type argument
-    uint8_t *cmd_desc;  // OPTIONAL
+    char *cmd_desc;     // OPTIONAL
 } leafcli_cmd_s;
 
 // fifo - ring buffer
@@ -48,7 +48,7 @@ typedef struct {
 
 typedef struct {
     uint8_t group_id;
-    uint8_t *cmd_list_name;
+    char *cmd_list_name;
     uint32_t cmd_num;
     leafcli_cmd_s *cmd_list;
 } leafcli_context_s;

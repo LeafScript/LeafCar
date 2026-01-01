@@ -61,7 +61,6 @@ void car_task_async_step_finish(void)
 static int car_task_handle(task_context_s *task_ctx)
 {
     uint16_t op_cur = g_car_op_info.op_next;
-    car_op_s *op = NULL;
     int ret;
 
     if (op_cur >= g_car_op_info.op_list_size) {

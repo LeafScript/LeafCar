@@ -87,18 +87,6 @@ static uint16_t room_3_4_car_turn(void)
 	return 1;
 }
 
-static uint16_t room_remote_1_judge(void)
-{
-	if (recNum1 <= 2 && recNum2 <= 2){		//未识别到数字
-		return 0;
-	}
-	nowNum1 = recNum1;
-	nowNum2 = recNum2;
-	recNum1 = 0;
-	recNum2 = 0;
-	return 1;
-}
-
 static uint16_t room_remote_1_car_turn(void)
 {
 	car_turn(VERTICAL_L, TURN_SPEED, (nowNum1 == room_num || nowNum2 == room_num) ? 0 : 1);

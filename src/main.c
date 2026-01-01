@@ -1,5 +1,5 @@
+#include <stdio.h>
 #include "misc.h"
-#include "sys.h"
 #include "usart.h"
 #include "delay.h"
 #include "timer.h"
@@ -68,50 +68,50 @@
 
 static void board_init(void)
 {
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);		//配置中断优先级
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);		//配置中断优先级
 
-	usart_service_register(USART_SERV_USART1, cli_recv_data);
-	usart_service_register(USART_SERV_USART3, openmv_update_data);
-	usart_service_register(USART_SERV_UART5, k210_update_data);
-	USART1_Init(9600);
-	USART3_Init(9600);
-	UART5_Init(9600);
+    usart_service_register(USART_SERV_USART1, cli_recv_data);
+    usart_service_register(USART_SERV_USART3, openmv_update_data);
+    usart_service_register(USART_SERV_UART5, k210_update_data);
+    USART1_Init(9600);
+    USART3_Init(9600);
+    UART5_Init(9600);
 
-	LED_Init();
-	Carled_Init();
-	Redwire_Init();
+    LED_Init();
+    Carled_Init();
+    Redwire_Init();
 }
 
 static void background_service_scan(void)
 {
-	service_timer_scan();
+    service_timer_scan();
 }
 
 static void service_init(void)
 {
-	delay_init();
-	car_init();
-	Arm_Init();
-	timer_service_init();
-	timer_service_register(TIMER_SERV_TIM6, car_scan);
-	timer_service_register(TIMER_SERV_TIM7, background_service_scan);
-	service_timer_init(20);
-	task_schedule_init();
+    delay_init();
+    car_init();
+    Arm_Init();
+    timer_service_init();
+    timer_service_register(TIMER_SERV_TIM6, car_scan);
+    timer_service_register(TIMER_SERV_TIM7, background_service_scan);
+    service_timer_init(20);
+    task_schedule_init();
 }
 
 static void service_start(void)
 {
-	timer_service_start();
-	task_schedule_start();
+    timer_service_start();
+    task_schedule_start();
 }
 
 int main(void)
 {
-	board_init();
-	service_init();
-	service_start();
-	while(1)
-	{
-		task_schedule_scan();
-	}
+    board_init();
+    service_init();
+    service_start();
+    while(1)
+    {
+        task_schedule_scan();
+    }
 }

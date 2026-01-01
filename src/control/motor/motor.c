@@ -299,7 +299,7 @@ void motor_print(uint8_t id)
     } else if(id == FR_MOTOR || id == BR_MOTOR) {
         printf("encoder:%d - ", -g_motor_ctrl[id].encoder);
     }
-    printf("encCnter:%d - ", g_motor_ctrl[id].encCnter);
+    printf("encCnter:%ld - ", g_motor_ctrl[id].encCnter);
     printf("distance:%.2f - ", motor_get_distance_val(id));
     switch(g_motor_ctrl[id].dir){
         case TB6612_FORWARD:	printf("Forward"); break;

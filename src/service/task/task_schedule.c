@@ -30,6 +30,7 @@ int task_schedule_start(void)
 {
     car_task_start();
     cli_task_start();
+    return EC_OK;
 }
 
 void task_schedule_scan(void)
