@@ -5,6 +5,7 @@ project(leafcar C ASM)
 if(NOT DEFINED PRODUCT)
     message(FATAL_ERROR "must define PRODUCT=[leafcar|standcar]")
 endif()
+message("PRODUCT=${PRODUCT}")
 
 set(CMAKE_C_STANDARD 99)
 
@@ -81,7 +82,6 @@ set(UPDATE_FW_TASK_DIR ${TASK_DIR}/update_fw_task)
 
 # control
 if(PRODUCT STREQUAL "leafcar")
-    message("Defined leafcar")
     set(CONTROL_SUB_DIR ${CONTROL_DIR}/control_leafcar)
     set(CAR_DIR     ${CONTROL_SUB_DIR}/car)
     set(CARARM_DIR  ${CONTROL_SUB_DIR}/arm)
@@ -92,18 +92,23 @@ if(PRODUCT STREQUAL "leafcar")
     set(CONTROL_DIRS ${CAR_DIR} ${CARARM_DIR} ${MOTOR_DIR}
         ${K210_DIR} ${OPENMV_DIR} ${PID_DIR})
 elseif(PRODUCT STREQUAL "standcar")
-    message("Defined standcar")
     set(CONTROL_SUB_DIR ${CONTROL_DIR}/control_standcar)
 endif()
 
 # bsp
 set(BSP_SHARED_DIR  ${BSP_DIR}/bsp_shared)
-set(BSP_LEAFCAR_DIR ${BSP_DIR}/bsp_leafcar)
-set(LED_DIR         ${BSP_LEAFCAR_DIR}/led)
-set(REDWIRE_DIR     ${BSP_LEAFCAR_DIR}/redwire)
-set(TB6612_DIR      ${BSP_SHARED_DIR}/tb6612)
-set(TIMER_DIR       ${BSP_LEAFCAR_DIR}/timer)
-set(USART_DIR       ${BSP_SHARED_DIR}/usart)
+if(PRODUCT STREQUAL "leafcar")
+    set(BSP_LEAFCAR_DIR ${BSP_DIR}/bsp_leafcar)
+    set(TB6612_DIR      ${BSP_SHARED_DIR}/tb6612)
+    set(USART_DIR       ${BSP_SHARED_DIR}/usart)
+    set(LED_DIR         ${BSP_LEAFCAR_DIR}/led)
+    set(REDWIRE_DIR     ${BSP_LEAFCAR_DIR}/redwire)
+    set(TIMER_DIR       ${BSP_LEAFCAR_DIR}/timer)
+    set(BSP_DIRS ${TB6612_DIR} ${USART_DIR}
+        ${LED_DIR} ${REDWIRE_DIR} ${TIMER_DIR})
+elseif(PRODUCT STREQUAL "standcar")
+    set(BSP_STANDCAR_DIR ${BSP_DIR}/bsp_standcar)
+endif()
 
 # 验证目录是否存在
 macro(verify_dir dir_name)
@@ -140,7 +145,7 @@ target_include_directories(project_common INTERFACE
     # control
     ${CONTROL_DIRS}
     # bsp
-    ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR} ${USART_DIR}
+    ${BSP_DIRS}
     # debug
     ${DEBUG_DIR}
 )
