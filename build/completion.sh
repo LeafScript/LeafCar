@@ -16,7 +16,7 @@ _leafcar_completion() {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     # 命令选项
-    opts="-h --help build clean test -b --board -c --case"
+    opts="-h --help build clean test -p --product -b --board -c --case"
 
     # 查找当前选择的 board
     local i

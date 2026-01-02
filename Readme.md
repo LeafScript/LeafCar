@@ -23,11 +23,14 @@ telnet 127.0.0.1 4444
 # 在telnet连接命令行下载程序
 halt
 # 指定烧写文件以及flash起始地址
-flash write_image erase ../src/output/leafcar.bin 0x08000000
+flash write_image erase ../src/output/leafcar/leafcar.bin 0x08000000
 reset
 
 # 以上步骤也可用一行命令完成
-openocd -f ../src/openocd.cfg -c init -c halt -c "flash write_image erase ../src/output/leafcar.bin 0x08000000" -c reset -c shutdown
+# 下载leafcar程序
+openocd -f ../src/openocd.cfg -c init -c halt -c "flash write_image erase ../src/output/leafcar/leafcar.bin 0x08000000" -c reset -c shutdown
+# 下载standcar程序
+openocd -f ../src/openocd.cfg -c init -c halt -c "flash write_image erase ../src/output/standcar/standcar.bin 0x08000000" -c reset -c shutdown
 
 # 同理，下载test程序
 openocd -f openocd.cfg -c init -c halt -c "flash write_image erase ./output/stm32f103zet6_test.bin 0x08000000" -c reset -c shutdown

@@ -2,9 +2,13 @@ cmake_minimum_required(VERSION 3.15)
 enable_language(ASM)
 project(leafcar C ASM)
 
+if(NOT DEFINED PRODUCT)
+    message(FATAL_ERROR "must define PRODUCT=[leafcar|standcar]")
+endif()
+
 set(CMAKE_C_STANDARD 99)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O1 -Wall -g -mcpu=cortex-m3 -mthumb -ffreestanding \
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O1 -g -mcpu=cortex-m3 -mthumb -ffreestanding \
     --specs=nano.specs --specs=nosys.specs -u _printf_float -Wno-format-type-confusion")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -g -mcpu=cortex-m3 -mthumb")
 
@@ -76,12 +80,21 @@ set(CLI_TASK_DIR       ${TASK_DIR}/cli_task)
 set(UPDATE_FW_TASK_DIR ${TASK_DIR}/update_fw_task)
 
 # control
-set(CAR_DIR     ${CONTROL_DIR}/car)
-set(CARARM_DIR  ${CONTROL_DIR}/arm)
-set(MOTOR_DIR   ${CONTROL_DIR}/motor)
-set(K210_DIR    ${CONTROL_DIR}/k210)
-set(OPENMV_DIR  ${CONTROL_DIR}/openmv)
-set(PID_DIR     ${CONTROL_DIR}/pid)
+if(PRODUCT STREQUAL "leafcar")
+    message("Defined leafcar")
+    set(CONTROL_SUB_DIR ${CONTROL_DIR}/control_leafcar)
+    set(CAR_DIR     ${CONTROL_SUB_DIR}/car)
+    set(CARARM_DIR  ${CONTROL_SUB_DIR}/arm)
+    set(MOTOR_DIR   ${CONTROL_SUB_DIR}/motor)
+    set(K210_DIR    ${CONTROL_SUB_DIR}/k210)
+    set(OPENMV_DIR  ${CONTROL_SUB_DIR}/openmv)
+    set(PID_DIR     ${CONTROL_SUB_DIR}/pid)
+    set(CONTROL_DIRS ${CAR_DIR} ${CARARM_DIR} ${MOTOR_DIR}
+        ${K210_DIR} ${OPENMV_DIR} ${PID_DIR})
+elseif(PRODUCT STREQUAL "standcar")
+    message("Defined standcar")
+    set(CONTROL_SUB_DIR ${CONTROL_DIR}/control_standcar)
+endif()
 
 # bsp
 set(BSP_SHARED_DIR  ${BSP_DIR}/bsp_shared)
@@ -125,7 +138,7 @@ target_include_directories(project_common INTERFACE
     # service
     ${FOUNDATION_DIR} ${TASK_DIR} ${CAR_TASK_DIR} ${CLI_TASK_DIR} ${UPDATE_FW_TASK_DIR}
     # control
-    ${CAR_DIR} ${CARARM_DIR} ${MOTOR_DIR} ${K210_DIR} ${OPENMV_DIR} ${PID_DIR}
+    ${CONTROL_DIRS}
     # bsp
     ${LED_DIR} ${REDWIRE_DIR} ${TB6612_DIR} ${TIMER_DIR} ${USART_DIR}
     # debug

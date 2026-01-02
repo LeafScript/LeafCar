@@ -6,6 +6,7 @@ show_help() {
     echo "command & options:"
     echo "  -h, --help          Show this help message and exit."
     echo "  build               Build leafcar project."
+    echo "    -p, --product [dir]  Build for specified product."
     echo "  clean               Clean project."
     echo "    -b, --board [dir]  Build test project for specified board."
     echo "    -c, --case [case]  Choose test case."
@@ -15,6 +16,7 @@ show_help() {
 }
 
 command=""
+product=""
 test_mode=""
 board_name=""
 test_case=""
@@ -24,6 +26,10 @@ while [[ $# -gt 0 ]]; do
         -h|--help)
             show_help
             exit 0
+            ;;
+        -p|--product)
+            product="$2"
+            shift
             ;;
         -b|--board)
             test_mode="board"
@@ -44,7 +50,7 @@ done
 case $command in
     build)
         echo "===== Building project ====="
-        ./build.sh
+        ./build.sh $product
         ;;
     clean)
         echo "===== Cleaning project ====="
