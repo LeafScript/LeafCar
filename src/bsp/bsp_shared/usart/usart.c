@@ -40,7 +40,6 @@ int fputc(int ch, FILE *f)
 
 typedef struct {
 	USART_TypeDef *USARTx;
-	uint32_t RCC_APB2Periph;
 	uint32_t baudrate;
 	uint8_t nvic_irq;
 	uint8_t nvic_pri;
@@ -89,9 +88,6 @@ static void usart_init(usart_init_info_s *info)
 		USART_Parity_No, USART_Mode_Rx | USART_Mode_Tx, USART_HardwareFlowControl_None };
 	NVIC_InitTypeDef nvic_init = { info->nvic_irq, info->nvic_pri, info->nvic_sub_pri, ENABLE };
 	GPIO_InitTypeDef gpio_init;
-
-	RCC_APB2PeriphClockCmd(info->RCC_APB2Periph, ENABLE);
-
 	gpio_init.GPIO_Pin = info->tx_pin;
 	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
 	gpio_init.GPIO_Mode = GPIO_Mode_AF_PP;
@@ -110,7 +106,7 @@ static void usart_init(usart_init_info_s *info)
 void USART1_Init(uint32_t baudrate)
 {
 	usart_init_info_s info = {
-		USART1, RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA, baudrate, USART1_IRQn, 3, 3,
+		USART1, baudrate, USART1_IRQn, 3, 3,
 		GPIOA, GPIO_Pin_9, GPIOA, GPIO_Pin_10, USART_IT_RXNE
 	};
 	usart_init(&info);
@@ -134,7 +130,7 @@ void USART1_IRQHandler(void)
 void USART2_Init(uint32_t baudrate)
 {
 	usart_init_info_s info = {
-		USART2, RCC_APB1Periph_USART2 | RCC_APB2Periph_GPIOA, baudrate, USART2_IRQn, 3, 1,
+		USART2, baudrate, USART2_IRQn, 3, 1,
 		GPIOA, GPIO_Pin_2, GPIOA, GPIO_Pin_3, USART_IT_RXNE
 	};
 	usart_init(&info);
@@ -155,7 +151,7 @@ void USART2_IRQHandler(void)
 void USART3_Init(uint32_t baudrate)
 {
 	usart_init_info_s info = {
-		USART3, RCC_APB1Periph_USART3 | RCC_APB2Periph_GPIOB, baudrate, USART3_IRQn, 2, 3,
+		USART3, baudrate, USART3_IRQn, 2, 3,
 		GPIOB, GPIO_Pin_10, GPIOB, GPIO_Pin_11, USART_IT_RXNE
 	};
 	usart_init(&info);
@@ -176,7 +172,7 @@ void USART3_IRQHandler(void)
 void UART4_Init(uint32_t baudrate)
 {
 	usart_init_info_s info = {
-		UART4, RCC_APB1Periph_UART4 | RCC_APB2Periph_GPIOC, baudrate, UART4_IRQn, 3, 2,
+		UART4, baudrate, UART4_IRQn, 3, 2,
 		GPIOC, GPIO_Pin_10, GPIOC, GPIO_Pin_11, USART_IT_RXNE
 	};
 	usart_init(&info);
@@ -197,7 +193,7 @@ void UART4_IRQHandler(void)
 void UART5_Init(uint32_t baudrate)
 {
 	usart_init_info_s info = {
-		UART5, RCC_APB1Periph_UART5 | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD, baudrate, UART5_IRQn, 2, 0,
+		UART5, baudrate, UART5_IRQn, 2, 0,
 		GPIOC, GPIO_Pin_12, GPIOD, GPIO_Pin_2, USART_IT_RXNE
 	};
 	usart_init(&info);

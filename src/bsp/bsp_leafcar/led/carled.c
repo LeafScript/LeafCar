@@ -9,9 +9,6 @@
 void Carled_Init()
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	
-	RCC_APB2PeriphClockCmd(CARLED_RCC_PORT, ENABLE);
-	
 	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Pin   = RED_LED_PIN | YEL_LED_PIN | GRE_LED_PIN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;

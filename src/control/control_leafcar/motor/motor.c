@@ -1,8 +1,8 @@
 #include "motor.h"
 #include "board_config.h"
-#include <stdlib.h>
 #include "log.h"
 #include "tb6612.h"
+#include "rcc_mng.h"
 
 ////电机1mm路程编码值（经典轮胎）
 //#define FL_DISRANCE		31.1
@@ -20,84 +20,72 @@ static tb6612_context_s g_tb6612_ctx[TB6612_ID_MAX] = {
     // TB6612_ID_0
     {
         .dir = {
-            .port = TB6612_ID_0_DIR_PORT, .port_rcc = TB6612_ID_0_1_DIR_RCC,
+            .port = TB6612_ID_0_DIR_PORT,
             .in1_pin = TB6612_ID_0_DIR_IN1_PIN, .in2_pin = TB6612_ID_0_DIR_IN2_PIN
         },
         .pwm = {
-            .tim_port_rcc = TB6612_PWM_TIMER_RCC | TB6612_ID_0_1_PWM_GPIO_RCC,
             .tim = TB6612_PWM_TIMER, .tim_comp = TB6612_PWM_COMP_1,
             .tim_remap = GPIO_PartialRemap1_TIM2 | GPIO_Remap_SWJ_JTAGDisable,
             .prescaler = 3599, .period = 1,
-            .port = TB6612_ID_0_PWM_PORT, .is_port_apb1 = true,
-            .pin = TB6612_ID_0_PWM_PIN,
+            .port = TB6612_ID_0_PWM_PORT, .pin = TB6612_ID_0_PWM_PIN,
         },
         .enc = {
-            .tim_port_rcc = TB6612_ID_0_ENC_TIMER_RCC, .tim = TB6612_ID_0_ENC_TIMER,
-            .tim_remap = 0, .tim_period = ENCODER_TIM_PERIOD,
-            .port = TB6612_ID_0_ENC_PORT, .is_port_apb1 = true,
+            .tim = TB6612_ID_0_ENC_TIMER, .tim_remap = 0,
+            .tim_period = ENCODER_TIM_PERIOD, .port = TB6612_ID_0_ENC_PORT,
             .a_pin = TB6612_ID_0_ENC_A_PIN, .b_pin = TB6612_ID_0_ENC_B_PIN
         }
     },
     // TB6612_ID_1
     {
         .dir = {
-            .port = TB6612_ID_1_DIR_PORT, .port_rcc = TB6612_ID_0_1_DIR_RCC,
+            .port = TB6612_ID_1_DIR_PORT,
             .in1_pin = TB6612_ID_1_DIR_IN1_PIN, .in2_pin = TB6612_ID_1_DIR_IN2_PIN
         },
         .pwm = {
-            .tim_port_rcc = TB6612_PWM_TIMER_RCC | TB6612_ID_0_1_PWM_GPIO_RCC,
             .tim = TB6612_PWM_TIMER, .tim_comp = TB6612_PWM_COMP_2,
             .tim_remap = GPIO_PartialRemap1_TIM2 | GPIO_Remap_SWJ_JTAGDisable,
             .prescaler = 3599, .period = 1,
-            .port = TB6612_ID_1_PWM_PORT, .is_port_apb1 = true,
-            .pin = TB6612_ID_1_PWM_PIN,
+            .port = TB6612_ID_1_PWM_PORT, .pin = TB6612_ID_1_PWM_PIN,
         },
         .enc = {
-            .tim_port_rcc = TB6612_ID_1_ENC_TIMER_RCC, .tim = TB6612_ID_1_ENC_TIMER,
-            .tim_remap = 0, .tim_period = ENCODER_TIM_PERIOD,
-            .port = TB6612_ID_1_ENC_PORT, .is_port_apb1 = false,
+            .tim = TB6612_ID_1_ENC_TIMER, .tim_remap = 0,
+            .tim_period = ENCODER_TIM_PERIOD, .port = TB6612_ID_1_ENC_PORT,
             .a_pin = TB6612_ID_1_ENC_A_PIN, .b_pin = TB6612_ID_1_ENC_B_PIN
         }
     },
     // TB6612_ID_2
     {
         .dir = {
-            .port = TB6612_ID_2_DIR_PORT, .port_rcc = TB6612_ID_2_3_DIR_RCC,
+            .port = TB6612_ID_2_DIR_PORT,
             .in1_pin = TB6612_ID_2_DIR_IN1_PIN, .in2_pin = TB6612_ID_2_DIR_IN2_PIN
         },
         .pwm = {
-            .tim_port_rcc = TB6612_PWM_TIMER_RCC | TB6612_ID_2_3_PWM_GPIO_RCC,
             .tim = TB6612_PWM_TIMER, .tim_comp = TB6612_PWM_COMP_3,
             .tim_remap = GPIO_PartialRemap1_TIM2 | GPIO_Remap_SWJ_JTAGDisable,
             .prescaler = 3599, .period = 1,
-            .port = TB6612_ID_2_PWM_PORT, .is_port_apb1 = true,
-            .pin = TB6612_ID_2_PWM_PIN,
+            .port = TB6612_ID_2_PWM_PORT, .pin = TB6612_ID_2_PWM_PIN,
         },
         .enc = {
-            .tim_port_rcc = TB6612_ID_2_ENC_TIMER_RCC, .tim = TB6612_ID_2_ENC_TIMER,
-            .tim_remap = 0, .tim_period = ENCODER_TIM_PERIOD,
-            .port = TB6612_ID_2_ENC_PORT, .is_port_apb1 = true,
+            .tim = TB6612_ID_2_ENC_TIMER, .tim_remap = 0,
+            .tim_period = ENCODER_TIM_PERIOD, .port = TB6612_ID_2_ENC_PORT,
             .a_pin = TB6612_ID_2_ENC_A_PIN, .b_pin = TB6612_ID_2_ENC_B_PIN
         }
     },
     // TB6612_ID_3
     {
         .dir = {
-            .port = TB6612_ID_3_DIR_PORT, .port_rcc = TB6612_ID_2_3_DIR_RCC,
+            .port = TB6612_ID_3_DIR_PORT,
             .in1_pin = TB6612_ID_3_DIR_IN1_PIN, .in2_pin = TB6612_ID_3_DIR_IN2_PIN
         },
         .pwm = {
-            .tim_port_rcc = TB6612_PWM_TIMER_RCC | TB6612_ID_2_3_PWM_GPIO_RCC,
             .tim = TB6612_PWM_TIMER, .tim_comp = TB6612_PWM_COMP_4,
             .tim_remap = GPIO_PartialRemap1_TIM2 | GPIO_Remap_SWJ_JTAGDisable,
             .prescaler = 3599, .period = 1,
-            .port = TB6612_ID_3_PWM_PORT, .is_port_apb1 = true,
-            .pin = TB6612_ID_3_PWM_PIN,
+            .port = TB6612_ID_3_PWM_PORT, .pin = TB6612_ID_3_PWM_PIN,
         },
         .enc = {
-            .tim_port_rcc = TB6612_ID_3_ENC_TIMER_RCC, .tim = TB6612_ID_3_ENC_TIMER,
-            .tim_remap = 0, .tim_period = ENCODER_TIM_PERIOD,
-            .port = TB6612_ID_3_ENC_PORT, .is_port_apb1 = true,
+            .tim = TB6612_ID_3_ENC_TIMER, .tim_remap = 0,
+            .tim_period = ENCODER_TIM_PERIOD, .port = TB6612_ID_3_ENC_PORT,
             .a_pin = TB6612_ID_3_ENC_A_PIN, .b_pin = TB6612_ID_3_ENC_B_PIN
         }
     },
@@ -242,7 +230,7 @@ static void motor_ctrl_init_one(uint8_t id)
     motor->pwm = 0;
     motor->encoder = 0;
     motor->encCnter = 0;
-    motor->is_stop = false;
+    motor->is_stop = true;
     motor->distance = 0;
     motor->dist_1mm = g_motor_dist_1mm[id];
 }
@@ -279,6 +267,12 @@ static void motor_start(void)
 void motor_init(void)
 {
     uint8_t id;
+
+    rcc_enable(RCC_APB1, RCC_APB1Periph_TIM2 | RCC_APB1Periph_TIM3 | RCC_APB1Periph_TIM4);
+    rcc_enable(RCC_APB2, RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
+        RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE |
+        RCC_APB2Periph_TIM1 | RCC_APB2Periph_TIM8 | RCC_APB2Periph_AFIO);
+
     for (id = 0; id < TB6612_ID_MAX; id++) {
         tb6612_init(&g_tb6612_ctx[id]);
     }

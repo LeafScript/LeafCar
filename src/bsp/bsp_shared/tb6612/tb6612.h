@@ -29,30 +29,25 @@ typedef struct {
     /* dir */
     struct {
         GPIO_TypeDef *port;     // see: Peripheral_declaration
-        uint32_t port_rcc;      // see: APB2_peripheral
         uint16_t in1_pin;       // see: GPIO_pins_define
         uint16_t in2_pin;       // see: GPIO_pins_define
     } dir;
     /* pwm */
     struct {
-        uint32_t tim_port_rcc;  // see: APB1_peripheral or APB2_peripheral
         TIM_TypeDef *tim;       // see: Peripheral_declaration
         uint8_t tim_comp;       // see: enum tb6612_pwm_tim_comp
         uint32_t tim_remap;     // see: GPIO_Remap_define
         uint16_t prescaler;     // max_pwm_val = FREQ / (prescaler * period)
         uint16_t period;
         GPIO_TypeDef *port;     // see: Peripheral_declaration
-        bool is_port_apb1;      // true: apb1, false: apb2
         uint16_t pin;           // see: GPIO_pins_define
     } pwm;
     /* encoder */
     struct {
-        uint32_t tim_port_rcc;  // see: APB1_peripheral or APB2_peripheral
         TIM_TypeDef *tim;       // see: Peripheral_declaration
         uint32_t tim_remap;     // see: GPIO_Remap_define
         uint16_t tim_period;
         GPIO_TypeDef *port;     // see: Peripheral_declaration
-        bool is_port_apb1;      // true: apb1, false: apb2
         uint16_t a_pin;         // see: GPIO_pins_define
         uint16_t b_pin;         // see: GPIO_pins_define
     } enc;

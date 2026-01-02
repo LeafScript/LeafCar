@@ -14,6 +14,7 @@
 #include "k210.h"
 #include "task_schedule.h"
 #include "cli_task.h"
+#include "rcc_mng.h"
 
 /***************************定时器通道引脚********************************/
 //				CH1				CH2				CH3				CH4
@@ -73,12 +74,25 @@ static void board_init(void)
     usart_service_register(USART_SERV_USART1, cli_recv_data);
     usart_service_register(USART_SERV_USART3, openmv_update_data);
     usart_service_register(USART_SERV_UART5, k210_update_data);
+
+    rcc_enable(RCC_APB2, RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA);
     USART1_Init(9600);
+
+    rcc_enable(RCC_APB1, RCC_APB1Periph_USART2);
+    rcc_enable(RCC_APB2, RCC_APB2Periph_GPIOA);
     USART3_Init(9600);
+
+    rcc_enable(RCC_APB1, RCC_APB1Periph_UART5);
+    rcc_enable(RCC_APB2, RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD);
     UART5_Init(9600);
 
+    rcc_enable(RCC_APB2, RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOE);
     LED_Init();
+
+    rcc_enable(RCC_APB2, RCC_APB2Periph_GPIOF);
     Carled_Init();
+
+    rcc_enable(RCC_APB2, RCC_APB2Periph_GPIOF);
     Redwire_Init();
 }
 

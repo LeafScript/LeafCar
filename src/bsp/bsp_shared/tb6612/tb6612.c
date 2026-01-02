@@ -92,21 +92,11 @@ void tb6612_pwm_init(tb6612_context_s *ctx)
 
 int tb6612_init(tb6612_context_s *ctx)
 {
-    uint32_t apb1_rcc = 0, apb2_rcc = 0;
-
     BUILD_BUG_ON(sizeof(bool) != sizeof(uint8_t));
     if (ctx->pwm.tim_comp >= TB6612_PWM_COMP_MAX) {
         return EC_ERROR;
     }
 
-    // RCC init
-    apb1_rcc |= ctx->enc.is_port_apb1 ? ctx->enc.tim_port_rcc : apb1_rcc;
-    apb1_rcc |= ctx->pwm.is_port_apb1 ? ctx->pwm.tim_port_rcc : apb1_rcc;
-    apb2_rcc |= ctx->dir.port_rcc;
-    apb2_rcc |= !ctx->enc.is_port_apb1 ? ctx->enc.tim_port_rcc : apb2_rcc;
-    apb2_rcc |= ((ctx->enc.tim_remap != 0) || (ctx->pwm.tim_remap != 0)) ? RCC_APB2Periph_AFIO : apb2_rcc;
-    RCC_APB1PeriphClockCmd(apb1_rcc, ENABLE);
-    RCC_APB2PeriphClockCmd(apb2_rcc, ENABLE);
     // dir gpio init
     tb6612_dir_gpio_init(ctx);
     // encoder timer & gpio init

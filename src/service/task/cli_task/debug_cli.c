@@ -25,6 +25,7 @@ static leafcli_cmd_s g_debug_cli_cmd_list[] = {
     { "car_task_register", car_task_register, "int car_task_register(uint8_t car_task_id)" },
     { "car_task_start", car_task_start, "void car_task_start(void)" },
     { "motor_set_pwm", motor_set_pwm_val, "void motor_set_pwm_val(uint8_t id, int16_t pwm)" },
+    { "motor_get_pwm", motor_get_pwm_val, "int16_t motor_get_pwm_val(uint8_t id)" },
     { "car_set_pwm", car_set_pwm, "void car_set_pwm(int16_t pwm)" },
     { "car_ctrl_set_mode", car_ctrl_set_mode, "void car_ctrl_set_mode(uint8_t mode)" },
     { "car_ctrl_set_mode", car_ctrl_set_mode, "void car_ctrl_set_mode(uint8_t mode)" },
