@@ -10,7 +10,8 @@ message("PRODUCT=${PRODUCT}")
 set(CMAKE_C_STANDARD 99)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O1 -g -mcpu=cortex-m3 -mthumb -ffreestanding \
-    --specs=nano.specs --specs=nosys.specs -u _printf_float -Wno-format-type-confusion")
+    --specs=nano.specs --specs=nosys.specs -u _printf_float -Wno-format-type-confusion \
+    -DPRODUCT")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -g -mcpu=cortex-m3 -mthumb")
 
 add_compile_definitions(
