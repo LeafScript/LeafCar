@@ -78,7 +78,7 @@ static void board_init(void)
     rcc_enable(RCC_APB2, RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA);
     USART1_Init(9600);
 
-    rcc_enable(RCC_APB1, RCC_APB1Periph_USART2);
+    rcc_enable(RCC_APB1, RCC_APB1Periph_USART3);
     rcc_enable(RCC_APB2, RCC_APB2Periph_GPIOA);
     USART3_Init(9600);
 

@@ -16,79 +16,36 @@
 #define BL_DISRANCE		11.465
 #define BR_DISRANCE		11.336
 
-static tb6612_context_s g_tb6612_ctx[TB6612_ID_MAX] = {
-    // TB6612_ID_0
+static tb6612_dir_context_s g_tb6612_dir_ctx[TB6612_ID_MAX] = {
+    {TB6612_ID_0_1_DIR_PORT, TB6612_ID_0_DIR_IN1_PIN, TB6612_ID_0_DIR_IN2_PIN },
+    {TB6612_ID_0_1_DIR_PORT, TB6612_ID_1_DIR_IN1_PIN, TB6612_ID_1_DIR_IN2_PIN },
+    {TB6612_ID_2_3_DIR_PORT, TB6612_ID_2_DIR_IN1_PIN, TB6612_ID_2_DIR_IN2_PIN },
+    {TB6612_ID_2_3_DIR_PORT, TB6612_ID_3_DIR_IN1_PIN, TB6612_ID_3_DIR_IN2_PIN }
+};
+static tb6612_pwm_context_s g_tb6612_pwm_ctx = {
+    .tim = TB6612_PWM_TIMER, .tim_remap = GPIO_PartialRemap1_TIM2,
+    .prescaler = 1, .period = 3599,
+    // oc 0~3: TB6612_ID_0, TB6612_ID_1, TB6612_ID_2, TB6612_ID_3
+    .tim_oc_enable = { true, true, true, true },
+    .port_num = 2,
+    .port1 = TB6612_ID_0_2_3_PWM_PORT,
+    .port1_pin = TB6612_ID_0_PWM_PIN | TB6612_ID_2_PWM_PIN | TB6612_ID_3_PWM_PIN,
+    .port2 = TB6612_ID_1_PWM_PORT, .port2_pin = TB6612_ID_1_PWM_PIN
+};
+static tb6612_enc_context_s g_tb6612_enc_ctx[TB6612_ID_MAX] = {
     {
-        .dir = {
-            .port = TB6612_ID_0_DIR_PORT,
-            .in1_pin = TB6612_ID_0_DIR_IN1_PIN, .in2_pin = TB6612_ID_0_DIR_IN2_PIN
-        },
-        .pwm = {
-            .tim = TB6612_PWM_TIMER, .tim_comp = TB6612_PWM_COMP_1,
-            .tim_remap = GPIO_PartialRemap1_TIM2 | GPIO_Remap_SWJ_JTAGDisable,
-            .prescaler = 3599, .period = 1,
-            .port = TB6612_ID_0_PWM_PORT, .pin = TB6612_ID_0_PWM_PIN,
-        },
-        .enc = {
-            .tim = TB6612_ID_0_ENC_TIMER, .tim_remap = 0,
-            .tim_period = ENCODER_TIM_PERIOD, .port = TB6612_ID_0_ENC_PORT,
-            .a_pin = TB6612_ID_0_ENC_A_PIN, .b_pin = TB6612_ID_0_ENC_B_PIN
-        }
-    },
-    // TB6612_ID_1
-    {
-        .dir = {
-            .port = TB6612_ID_1_DIR_PORT,
-            .in1_pin = TB6612_ID_1_DIR_IN1_PIN, .in2_pin = TB6612_ID_1_DIR_IN2_PIN
-        },
-        .pwm = {
-            .tim = TB6612_PWM_TIMER, .tim_comp = TB6612_PWM_COMP_2,
-            .tim_remap = GPIO_PartialRemap1_TIM2 | GPIO_Remap_SWJ_JTAGDisable,
-            .prescaler = 3599, .period = 1,
-            .port = TB6612_ID_1_PWM_PORT, .pin = TB6612_ID_1_PWM_PIN,
-        },
-        .enc = {
-            .tim = TB6612_ID_1_ENC_TIMER, .tim_remap = 0,
-            .tim_period = ENCODER_TIM_PERIOD, .port = TB6612_ID_1_ENC_PORT,
-            .a_pin = TB6612_ID_1_ENC_A_PIN, .b_pin = TB6612_ID_1_ENC_B_PIN
-        }
-    },
-    // TB6612_ID_2
-    {
-        .dir = {
-            .port = TB6612_ID_2_DIR_PORT,
-            .in1_pin = TB6612_ID_2_DIR_IN1_PIN, .in2_pin = TB6612_ID_2_DIR_IN2_PIN
-        },
-        .pwm = {
-            .tim = TB6612_PWM_TIMER, .tim_comp = TB6612_PWM_COMP_3,
-            .tim_remap = GPIO_PartialRemap1_TIM2 | GPIO_Remap_SWJ_JTAGDisable,
-            .prescaler = 3599, .period = 1,
-            .port = TB6612_ID_2_PWM_PORT, .pin = TB6612_ID_2_PWM_PIN,
-        },
-        .enc = {
-            .tim = TB6612_ID_2_ENC_TIMER, .tim_remap = 0,
-            .tim_period = ENCODER_TIM_PERIOD, .port = TB6612_ID_2_ENC_PORT,
-            .a_pin = TB6612_ID_2_ENC_A_PIN, .b_pin = TB6612_ID_2_ENC_B_PIN
-        }
-    },
-    // TB6612_ID_3
-    {
-        .dir = {
-            .port = TB6612_ID_3_DIR_PORT,
-            .in1_pin = TB6612_ID_3_DIR_IN1_PIN, .in2_pin = TB6612_ID_3_DIR_IN2_PIN
-        },
-        .pwm = {
-            .tim = TB6612_PWM_TIMER, .tim_comp = TB6612_PWM_COMP_4,
-            .tim_remap = GPIO_PartialRemap1_TIM2 | GPIO_Remap_SWJ_JTAGDisable,
-            .prescaler = 3599, .period = 1,
-            .port = TB6612_ID_3_PWM_PORT, .pin = TB6612_ID_3_PWM_PIN,
-        },
-        .enc = {
-            .tim = TB6612_ID_3_ENC_TIMER, .tim_remap = 0,
-            .tim_period = ENCODER_TIM_PERIOD, .port = TB6612_ID_3_ENC_PORT,
-            .a_pin = TB6612_ID_3_ENC_A_PIN, .b_pin = TB6612_ID_3_ENC_B_PIN
-        }
-    },
+        .tim = TB6612_ID_0_ENC_TIMER, .tim_remap = 0, .tim_period = ENCODER_TIM_PERIOD,
+        .port = TB6612_ID_0_ENC_PORT, .a_pin = TB6612_ID_0_ENC_A_PIN, .b_pin = TB6612_ID_0_ENC_B_PIN
+    }, {
+        .tim = TB6612_ID_1_ENC_TIMER, .tim_remap = 0, .tim_period = ENCODER_TIM_PERIOD,
+        .port = TB6612_ID_1_ENC_PORT, .a_pin = TB6612_ID_1_ENC_A_PIN, .b_pin = TB6612_ID_1_ENC_B_PIN
+    }, {
+        .tim = TB6612_ID_2_ENC_TIMER, .tim_remap = GPIO_FullRemap_TIM1, .tim_period = ENCODER_TIM_PERIOD,
+        .port = TB6612_ID_2_ENC_PORT, .a_pin = TB6612_ID_2_ENC_A_PIN, .b_pin = TB6612_ID_2_ENC_B_PIN
+    }, {
+        .tim = TB6612_ID_3_ENC_TIMER, .tim_remap = GPIO_Remap_TIM4, .tim_period = ENCODER_TIM_PERIOD,
+        .port = TB6612_ID_3_ENC_PORT, .a_pin = TB6612_ID_3_ENC_A_PIN, .b_pin = TB6612_ID_3_ENC_B_PIN
+    }
 };
 static sMotor g_motor_ctrl[MOTOR_NUM];
 static float g_motor_dist_1mm[MOTOR_NUM] = {
@@ -107,7 +64,7 @@ void motor_set_dir(uint8_t id, uint8_t dir)
         return;
     }
     
-    tb6612_set_dir(&g_tb6612_ctx[g_motor_tb6612_map[id]], dir);
+    tb6612_set_dir(&g_tb6612_dir_ctx[g_motor_tb6612_map[id]], dir);
 }
 
 uint8_t motor_get_dir_val(uint8_t id)
@@ -146,8 +103,7 @@ void motor_set_pwm(uint8_t id, int16_t pwm)
         pwm = -MAX_PWM;
     }
     tb6612_id = g_motor_tb6612_map[id];
-    pwm_abs = (uint16_t)ABS(pwm);
-    tb6612_set_pwm(&g_tb6612_ctx[tb6612_id], pwm_abs);
+    tb6612_set_pwm(&g_tb6612_pwm_ctx, tb6612_id, (uint16_t)ABS(pwm));
 }
 
 void motor_set_pwm_val(uint8_t id, int16_t pwm)
@@ -172,7 +128,7 @@ void motor_update_encoder(void)
     for (id = 0; id < MOTOR_NUM; id++) {
         tb6612_id = g_motor_tb6612_map[id];
         g_motor_ctrl[id].encoder = 
-            tb6612_encoder_read_and_reset(&g_tb6612_ctx[tb6612_id], ENCODER_TIM_INIT_VAL) -
+            tb6612_encoder_read_and_reset(&g_tb6612_enc_ctx[tb6612_id], ENCODER_TIM_INIT_VAL) -
             ENCODER_TIM_INIT_VAL;
         // 小车前进时编码器的正负与tb6612方向引脚接线相关，此处前进统一换算为正数
         if (id == FL_MOTOR || id == BL_MOTOR) {
@@ -248,19 +204,20 @@ static void motor_encoder_init(void)
     uint8_t id, tb6612_id;
     for (id = 0; id < MOTOR_NUM; id++) {
         tb6612_id = g_motor_tb6612_map[id];
-        tb6612_encoder_read_and_reset(&g_tb6612_ctx[tb6612_id], ENCODER_TIM_INIT_VAL);
+        tb6612_encoder_read_and_reset(&g_tb6612_enc_ctx[tb6612_id], ENCODER_TIM_INIT_VAL);
     }
 }
 
 static void motor_start(void)
 {
     uint8_t id;
+    tb6612_pwm_timer_start(&g_tb6612_pwm_ctx);
     for (id = 0; id < TB6612_ID_MAX; id++) {
-        tb6612_start(&g_tb6612_ctx[id]);
+        tb6612_encoder_timer_start(&g_tb6612_enc_ctx[id]);
     }
     for (id = 0; id < MOTOR_NUM; id++) {
-        motor_set_dir(id, TB6612_STOP);
         motor_set_pwm(id, 0);
+        motor_set_dir(id, TB6612_STOP);
     }
 }
 
@@ -272,9 +229,14 @@ void motor_init(void)
     rcc_enable(RCC_APB2, RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB |
         RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE |
         RCC_APB2Periph_TIM1 | RCC_APB2Periph_TIM8 | RCC_APB2Periph_AFIO);
+    // see: 《STM32参考手册》 JTAG/SWD alternate function remapping
+    // TIM2 Partial1 Alternate Function mapping use PA15, PB3
+    GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);
 
+    tb6612_pwm_init(&g_tb6612_pwm_ctx);
     for (id = 0; id < TB6612_ID_MAX; id++) {
-        tb6612_init(&g_tb6612_ctx[id]);
+        tb6612_dir_init(&g_tb6612_dir_ctx[id]);
+        tb6612_enc_init(&g_tb6612_enc_ctx[id]);
     }
     motor_encoder_init();
     motor_ctrl_init();

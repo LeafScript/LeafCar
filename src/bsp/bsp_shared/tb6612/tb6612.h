@@ -17,46 +17,49 @@ enum tb6612_dir_e {
 	TB6612_STOP
 };
 
-enum tb6612_pwm_tim_comp {
-    TB6612_PWM_COMP_1,
-    TB6612_PWM_COMP_2,
-    TB6612_PWM_COMP_3,
-    TB6612_PWM_COMP_4,
-    TB6612_PWM_COMP_MAX
+enum tb6612_pwm_tim_oc_e {
+    TB6612_PWM_OC_1,
+    TB6612_PWM_OC_2,
+    TB6612_PWM_OC_3,
+    TB6612_PWM_OC_4,
+    TB6612_PWM_OC_NUM
 };
 
 typedef struct {
-    /* dir */
-    struct {
-        GPIO_TypeDef *port;     // see: Peripheral_declaration
-        uint16_t in1_pin;       // see: GPIO_pins_define
-        uint16_t in2_pin;       // see: GPIO_pins_define
-    } dir;
-    /* pwm */
-    struct {
-        TIM_TypeDef *tim;       // see: Peripheral_declaration
-        uint8_t tim_comp;       // see: enum tb6612_pwm_tim_comp
-        uint32_t tim_remap;     // see: GPIO_Remap_define
-        uint16_t prescaler;     // max_pwm_val = FREQ / (prescaler * period)
-        uint16_t period;
-        GPIO_TypeDef *port;     // see: Peripheral_declaration
-        uint16_t pin;           // see: GPIO_pins_define
-    } pwm;
-    /* encoder */
-    struct {
-        TIM_TypeDef *tim;       // see: Peripheral_declaration
-        uint32_t tim_remap;     // see: GPIO_Remap_define
-        uint16_t tim_period;
-        GPIO_TypeDef *port;     // see: Peripheral_declaration
-        uint16_t a_pin;         // see: GPIO_pins_define
-        uint16_t b_pin;         // see: GPIO_pins_define
-    } enc;
-} tb6612_context_s;
+    GPIO_TypeDef *port;     // see: Peripheral_declaration
+    uint16_t in1_pin;       // see: GPIO_pins_define
+    uint16_t in2_pin;       // see: GPIO_pins_define
+} tb6612_dir_context_s;
 
-int tb6612_init(tb6612_context_s *ctx);
-void tb6612_start(tb6612_context_s *ctx);
-void tb6612_set_dir(tb6612_context_s *ctx, enum tb6612_dir_e dir);
-void tb6612_set_pwm(tb6612_context_s *ctx, uint16_t pwm);
-uint16_t tb6612_encoder_read_and_reset(tb6612_context_s *ctx, uint16_t reset_val);
+typedef struct {
+    TIM_TypeDef *tim;       // see: Peripheral_declaration
+    uint32_t tim_remap;     // see: GPIO_Remap_define
+    uint16_t prescaler;     // max_pwm_val = FREQ / (prescaler * period)
+    uint16_t period;
+    bool tim_oc_enable[TB6612_PWM_OC_NUM];
+    uint8_t port_num;
+    GPIO_TypeDef *port1;    // see: Peripheral_declaration
+    uint16_t port1_pin;     // see: GPIO_pins_define
+    GPIO_TypeDef *port2;    // see: Peripheral_declaration
+    uint16_t port2_pin;     // see: GPIO_pins_define
+} tb6612_pwm_context_s;
+
+typedef struct {
+    TIM_TypeDef *tim;       // see: Peripheral_declaration
+    uint32_t tim_remap;     // see: GPIO_Remap_define
+    uint16_t tim_period;
+    GPIO_TypeDef *port;     // see: Peripheral_declaration
+    uint16_t a_pin;         // see: GPIO_pins_define
+    uint16_t b_pin;         // see: GPIO_pins_define
+} tb6612_enc_context_s;
+
+int tb6612_dir_init(tb6612_dir_context_s *ctx);
+int tb6612_pwm_init(tb6612_pwm_context_s *ctx);
+int tb6612_enc_init(tb6612_enc_context_s *ctx);
+void tb6612_pwm_timer_start(tb6612_pwm_context_s *ctx);
+void tb6612_encoder_timer_start(tb6612_enc_context_s *ctx);
+void tb6612_set_dir(tb6612_dir_context_s *ctx, enum tb6612_dir_e dir);
+void tb6612_set_pwm(tb6612_pwm_context_s *ctx, enum tb6612_pwm_tim_oc_e ocn, uint16_t pwm);
+uint16_t tb6612_encoder_read_and_reset(tb6612_enc_context_s *ctx, uint16_t reset_val);
 
 #endif

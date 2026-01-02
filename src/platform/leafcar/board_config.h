@@ -53,38 +53,38 @@
 #define TB6612_ID_2_ENC_TIMER           TIM1
 #define TB6612_ID_3_ENC_TIMER           TIM4
 
-#define TB6612_ID_0_DIR_PORT            GPIOB
+#define TB6612_ID_0_1_DIR_PORT          GPIOB
 #define TB6612_ID_0_DIR_IN1_PIN         GPIO_Pin_13
 #define TB6612_ID_0_DIR_IN2_PIN         GPIO_Pin_9
-#define TB6612_ID_0_PWM_PORT            GPIOA
+#define TB6612_ID_1_DIR_IN1_PIN         GPIO_Pin_15
+#define TB6612_ID_1_DIR_IN2_PIN         GPIO_Pin_14
+
+#define TB6612_ID_2_3_DIR_PORT          GPIOD
+#define TB6612_ID_2_DIR_IN1_PIN         GPIO_Pin_0
+#define TB6612_ID_2_DIR_IN2_PIN         GPIO_Pin_1
+#define TB6612_ID_3_DIR_IN1_PIN         GPIO_Pin_4
+#define TB6612_ID_3_DIR_IN2_PIN         GPIO_Pin_3
+
+#define TB6612_ID_0_2_3_PWM_PORT        GPIOA
 #define TB6612_ID_0_PWM_PIN             GPIO_Pin_15
+#define TB6612_ID_2_PWM_PIN             GPIO_Pin_2
+#define TB6612_ID_3_PWM_PIN             GPIO_Pin_3
+
+#define TB6612_ID_1_PWM_PORT            GPIOB
+#define TB6612_ID_1_PWM_PIN             GPIO_Pin_3
+
 #define TB6612_ID_0_ENC_PORT            GPIOA
 #define TB6612_ID_0_ENC_A_PIN           GPIO_Pin_6
 #define TB6612_ID_0_ENC_B_PIN           GPIO_Pin_7
 
-#define TB6612_ID_1_DIR_PORT            GPIOB
-#define TB6612_ID_1_DIR_IN1_PIN         GPIO_Pin_15
-#define TB6612_ID_1_DIR_IN2_PIN         GPIO_Pin_14
-#define TB6612_ID_1_PWM_PORT            GPIOB
-#define TB6612_ID_1_PWM_PIN             GPIO_Pin_3
 #define TB6612_ID_1_ENC_PORT            GPIOC
 #define TB6612_ID_1_ENC_A_PIN           GPIO_Pin_6
 #define TB6612_ID_1_ENC_B_PIN           GPIO_Pin_7
 
-#define TB6612_ID_2_DIR_PORT            GPIOD
-#define TB6612_ID_2_DIR_IN1_PIN         GPIO_Pin_0
-#define TB6612_ID_2_DIR_IN2_PIN         GPIO_Pin_1
-#define TB6612_ID_2_PWM_PORT            GPIOA
-#define TB6612_ID_2_PWM_PIN             GPIO_Pin_2
 #define TB6612_ID_2_ENC_PORT            GPIOE
 #define TB6612_ID_2_ENC_A_PIN           GPIO_Pin_9
 #define TB6612_ID_2_ENC_B_PIN           GPIO_Pin_11
 
-#define TB6612_ID_3_DIR_PORT            GPIOD
-#define TB6612_ID_3_DIR_IN1_PIN         GPIO_Pin_4
-#define TB6612_ID_3_DIR_IN2_PIN         GPIO_Pin_3
-#define TB6612_ID_3_PWM_PORT            GPIOA
-#define TB6612_ID_3_PWM_PIN             GPIO_Pin_3
 #define TB6612_ID_3_ENC_PORT            GPIOD
 #define TB6612_ID_3_ENC_A_PIN           GPIO_Pin_12
 #define TB6612_ID_3_ENC_B_PIN           GPIO_Pin_13
