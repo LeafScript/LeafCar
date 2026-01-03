@@ -1,6 +1,5 @@
 #include "tb6612.h"
 #include "board_config.h"
-#include "timer.h"
 #include "error_code.h"
 
 static void tb6612_dir_gpio_init(tb6612_dir_context_s *ctx)

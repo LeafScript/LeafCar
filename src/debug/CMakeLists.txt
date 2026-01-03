@@ -1,5 +1,15 @@
-project(debug_lib)
+add_subdirectory(debug_shared)
+set(dep debug_shared_lib)
+if(PRODUCT STREQUAL "leafcar")
+    add_subdirectory(debug_leafcar)
+    list(APPEND dep debug_leafcar_lib)
+elseif(PRODUCT STREQUAL "standcar")
+    add_subdirectory(debug_standcar)
+    list(APPEND dep debug_standcar_lib)
+endif()
 
-file(GLOB_RECURSE DEBUG_SRCS "*.c")
-add_library(debug_lib STATIC ${DEBUG_SRCS})
-target_link_libraries(debug_lib PRIVATE project_common)
+add_library(debug_lib INTERFACE)
+target_link_libraries(debug_lib INTERFACE
+    project_common
+    ${dep}
+)

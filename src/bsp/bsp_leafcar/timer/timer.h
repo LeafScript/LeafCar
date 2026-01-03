@@ -14,11 +14,5 @@ void timer_service_init(void);
 void timer_service_register(uint8_t timx, timer_serv_func func);
 void timer_service_start(void);
 void timer_service_stop(void);
-/* TB6612的PWM引脚 */
-void timer_pwm_init(uint16_t arr, uint16_t psc);
-void timer_pwm_start(void);
-/* TB6612编码器引脚 */
-void timer_encoder_init(uint16_t period);
-void timer_encoder_start(void);
 
 #endif

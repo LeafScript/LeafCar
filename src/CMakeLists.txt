@@ -84,18 +84,18 @@ set(UPDATE_FW_TASK_DIR ${TASK_DIR}/update_fw_task)
 # control
 set(CONTROL_SHARED_DIR  ${CONTROL_DIR}/control_shared)
 if(PRODUCT STREQUAL "leafcar")
-    set(CONTROL_SUB_DIR ${CONTROL_DIR}/control_leafcar)
+    set(CONTROL_LEAFCAR_DIR ${CONTROL_DIR}/control_leafcar)
     set(RCC_MNG_DIR ${CONTROL_SHARED_DIR}/rcc_mng)
-    set(CAR_DIR     ${CONTROL_SUB_DIR}/car)
-    set(CARARM_DIR  ${CONTROL_SUB_DIR}/arm)
-    set(MOTOR_DIR   ${CONTROL_SUB_DIR}/motor)
-    set(K210_DIR    ${CONTROL_SUB_DIR}/k210)
-    set(OPENMV_DIR  ${CONTROL_SUB_DIR}/openmv)
-    set(PID_DIR     ${CONTROL_SUB_DIR}/pid)
+    set(CAR_DIR     ${CONTROL_LEAFCAR_DIR}/car)
+    set(CARARM_DIR  ${CONTROL_LEAFCAR_DIR}/arm)
+    set(MOTOR_DIR   ${CONTROL_LEAFCAR_DIR}/motor)
+    set(K210_DIR    ${CONTROL_LEAFCAR_DIR}/k210)
+    set(OPENMV_DIR  ${CONTROL_LEAFCAR_DIR}/openmv)
+    set(PID_DIR     ${CONTROL_LEAFCAR_DIR}/pid)
     set(CONTROL_DIRS ${RCC_MNG_DIR} ${CAR_DIR} ${CARARM_DIR} ${MOTOR_DIR}
         ${K210_DIR} ${OPENMV_DIR} ${PID_DIR})
 elseif(PRODUCT STREQUAL "standcar")
-    set(CONTROL_SUB_DIR ${CONTROL_DIR}/control_standcar)
+    set(CONTROL_STANDCAR_DIR ${CONTROL_DIR}/control_standcar)
 endif()
 
 # bsp
@@ -112,6 +112,15 @@ if(PRODUCT STREQUAL "leafcar")
         ${CARLED_DIR} ${REDWIRE_DIR} ${TIMER_DIR})
 elseif(PRODUCT STREQUAL "standcar")
     set(BSP_STANDCAR_DIR ${BSP_DIR}/bsp_standcar)
+endif()
+
+# debug
+set(DEBUG_SHARED_DIR  ${DEBUG_DIR}/debug_shared)
+if(PRODUCT STREQUAL "leafcar")
+    set(DEBUG_LEAFCAR_DIR ${DEBUG_DIR}/debug_leafcar)
+    set(DEBUG_DIRS ${DEBUG_LEAFCAR_DIR})
+elseif(PRODUCT STREQUAL "standcar")
+    set(CONTROL_STANDCAR_DIR ${DEBUG_DIR}/debug_standcar)
 endif()
 
 # 验证目录是否存在
@@ -151,7 +160,7 @@ target_include_directories(project_common INTERFACE
     # bsp
     ${BSP_DIRS}
     # debug
-    ${DEBUG_DIR}
+    ${DEBUG_DIRS}
 )
 
 # 用列表传递，CMake会自动拆分为独立选项，GCC正确解析

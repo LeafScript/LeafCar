@@ -1,5 +1,5 @@
-file(GLOB_RECURSE CONTROL_SRCS "*.c")
-add_library(control_leafcar_lib STATIC ${CONTROL_SRCS})
+file(GLOB_RECURSE SRCS "*.c")
+add_library(control_leafcar_lib STATIC ${SRCS})
 target_link_libraries(control_leafcar_lib PRIVATE
     project_common
     control_shared_lib
