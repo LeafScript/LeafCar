@@ -74,12 +74,30 @@ set(CONTROL_DIR       ${SRC_DIR}/control)
 set(BSP_DIR           ${SRC_DIR}/bsp)
 set(DEBUG_DIR         ${SRC_DIR}/debug)
 
+# platform
+if(PRODUCT STREQUAL "leafcar")
+    set(PLAT_LEAFCAR_DIR ${PLAT_DIR}/leafcar)
+    set(PLAT_DIRS ${PLAT_DIR} ${PLAT_LEAFCAR_DIR})
+elseif(PRODUCT STREQUAL "standcar")
+    set(PLAT_STANDCAR_DIR ${PLAT_DIR}/standcar)
+    set(PLAT_DIRS ${PLAT_DIR} ${PLAT_STANDCAR_DIR})
+endif()
+
+
 # service
-set(FOUNDATION_DIR     ${SERVICE_DIR}/foundation)
-set(TASK_DIR           ${SERVICE_DIR}/task)
-set(CAR_TASK_DIR       ${TASK_DIR}/car_task)
-set(CLI_TASK_DIR       ${TASK_DIR}/cli_task)
-set(UPDATE_FW_TASK_DIR ${TASK_DIR}/update_fw_task)
+set(SERVICE_SHARED_DIR  ${SERVICE_DIR}/service_shared)
+if(PRODUCT STREQUAL "leafcar")
+    set(SERVICE_LEAFCAR_DIR ${SERVICE_DIR}/service_leafcar)
+    set(MAIN_SRC ${SERVICE_LEAFCAR_DIR}/main.c)
+    set(TASK_DIR           ${SERVICE_LEAFCAR_DIR}/task)
+    set(CAR_TASK_DIR       ${TASK_DIR}/car_task)
+    set(CLI_TASK_DIR       ${TASK_DIR}/cli_task)
+    set(UPDATE_FW_TASK_DIR ${TASK_DIR}/update_fw_task)
+    set(SERVICE_DIRS ${SERVICE_LEAFCAR_DIR}
+        ${TASK_DIR} ${CAR_TASK_DIR} ${CLI_TASK_DIR} ${UPDATE_FW_TASK_DIR})
+elseif(PRODUCT STREQUAL "standcar")
+    set(SERVICE_STANDCAR_DIR ${SERVICE_DIR}/service_standcar)
+endif()
 
 # control
 set(CONTROL_SHARED_DIR  ${CONTROL_DIR}/control_shared)
@@ -151,16 +169,8 @@ target_include_directories(project_common INTERFACE
     ${COMMON_INC_DIR}
     # component
     ${LEAFCLI_DIR} ${TASK_GEN_DIR} ${SERVICE_TIMER_DIR}
-    # platform
-    ${PLAT_DIR} ${PLAT_LEAFCAR_DIR}
-    # service
-    ${FOUNDATION_DIR} ${TASK_DIR} ${CAR_TASK_DIR} ${CLI_TASK_DIR} ${UPDATE_FW_TASK_DIR}
-    # control
-    ${CONTROL_DIRS}
-    # bsp
-    ${BSP_DIRS}
-    # debug
-    ${DEBUG_DIRS}
+    # platform, service, control, bsp, debug
+    ${PLAT_DIRS} ${SERVICE_DIRS} ${CONTROL_DIRS} ${BSP_DIRS} ${DEBUG_DIRS}
 )
 
 # 用列表传递，CMake会自动拆分为独立选项，GCC正确解析
@@ -206,7 +216,7 @@ add_subdirectory(${DEBUG_DIR} debug_lib)
 set(CMAKE_EXE_LINKER_FLAGS "-T ${PLAT_DIR}/STM32F103ZETX_FLASH.ld -g")
 
 add_executable(leafcar 
-    ${SRC_DIR}/main.c 
+    ${MAIN_SRC}
     ${ST_STARTUP_DIR}/startup_stm32f103zetx.s
 )
 
