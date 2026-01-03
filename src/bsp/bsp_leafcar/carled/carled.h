@@ -1,5 +1,5 @@
-#ifndef __CARLED_H
-#define __CARLED_H
+#ifndef _CARLED_H_
+#define _CARLED_H_
 
 #include "base_type.h"
 

@@ -39,13 +39,13 @@ void LED_Toggle_ms(uint8_t num, uint16_t time)
 {
 	led_flag = 1;
 	switch(num){
-		case 1: timer[0] = LED_PERIOD_TIMES*time; break;
-		case 2: timer[1] = LED_PERIOD_TIMES*time; break;
+		case 1: timer[0] = LED_PERIOD_TIMES * time; break;
+		case 2: timer[1] = LED_PERIOD_TIMES * time; break;
 	}
 }
 
 //关闭LED扫描
-void LED_CloseScan()
+void LED_CloseScan(void)
 {
 	led_flag = 0;
 }
@@ -56,7 +56,7 @@ void LED_Scan()
 	static uint16_t cnt[2] = {0};
 	uint8_t i;
 	
-	if(led_flag==0){
+	if (led_flag == 0){
 		return;
 	}
 	for (i = 0; i < 2; i++) {
